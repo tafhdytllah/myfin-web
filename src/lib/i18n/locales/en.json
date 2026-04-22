@@ -214,13 +214,25 @@
     "description": "Manage your account details, password, and session settings.",
     "profileInfo": "Profile Info",
     "profileInfoDescription": "Username and email will stay in sync with global sidebar identity.",
+    "usernamePlaceholder": "demo",
+    "emailPlaceholder": "bonney@example.com",
     "saveProfile": "Save Profile",
+    "savingProfile": "Saving profile...",
+    "updateSuccess": "Profile updated successfully.",
+    "updateError": "Failed to update profile.",
     "changePassword": "Change Password",
     "changePasswordDescription": "Current password, new password, and confirm password live here.",
     "currentPassword": "Current password",
     "newPassword": "New password",
     "confirmNewPassword": "Confirm new password",
-    "passwordField": "Password field",
-    "updatePassword": "Update Password"
+    "passwordHint": "Use at least 8 characters for your new password.",
+    "togglePasswordVisibility": "Toggle password visibility",
+    "updatePassword": "Update Password",
+    "savingPassword": "Updating password...",
+    "passwordSuccess": "Password updated successfully.",
+    "passwordError": "Failed to update password.",
+    "loadErrorTitle": "Unable to load profile",
+    "loadErrorDescription": "Your profile details could not be loaded right now. Try again in a moment.",
+    "retry": "Try Again"
   }
 }

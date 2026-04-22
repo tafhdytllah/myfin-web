@@ -214,13 +214,25 @@
     "description": "Kelola detail akun, password, dan pengaturan sesi.",
     "profileInfo": "Info Profil",
     "profileInfoDescription": "Username dan email akan tetap sinkron dengan identitas global di sidebar.",
+    "usernamePlaceholder": "demo",
+    "emailPlaceholder": "bonney@example.com",
     "saveProfile": "Simpan Profil",
+    "savingProfile": "Menyimpan profil...",
+    "updateSuccess": "Profil berhasil diperbarui.",
+    "updateError": "Gagal memperbarui profil.",
     "changePassword": "Ganti Password",
     "changePasswordDescription": "Password saat ini, password baru, dan konfirmasi password ada di sini.",
     "currentPassword": "Password saat ini",
     "newPassword": "Password baru",
     "confirmNewPassword": "Konfirmasi password baru",
-    "passwordField": "Field password",
-    "updatePassword": "Perbarui Password"
+    "passwordHint": "Gunakan minimal 8 karakter untuk password barumu.",
+    "togglePasswordVisibility": "Ubah visibilitas password",
+    "updatePassword": "Perbarui Password",
+    "savingPassword": "Memperbarui password...",
+    "passwordSuccess": "Password berhasil diperbarui.",
+    "passwordError": "Gagal memperbarui password.",
+    "loadErrorTitle": "Gagal memuat profil",
+    "loadErrorDescription": "Detail profilmu belum bisa dimuat sekarang. Coba lagi sebentar.",
+    "retry": "Coba Lagi"
   }
 }
