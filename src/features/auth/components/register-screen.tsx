@@ -13,6 +13,16 @@ import {
 } from "@/features/auth/schemas/register-schema";
 import { ApiError } from "@/lib/api/types";
 import { routes } from "@/lib/constants/routes";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export function RegisterScreen() {
   const [formError, setFormError] = useState<string | undefined>();
@@ -76,92 +86,99 @@ export function RegisterScreen() {
   };
 
   return (
-    <div className="rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-elevated)] p-8 shadow-[var(--shadow-soft)]">
-      <p className="text-xs uppercase tracking-[0.24em] text-[var(--color-primary-strong)]">
-        Get started
-      </p>
-      <h1 className="mt-3 font-[var(--font-display)] text-3xl font-semibold text-[var(--color-foreground)]">
-        Create your account
-      </h1>
-      <p className="mt-2 text-sm text-[var(--color-foreground-muted)]">
-        Set up your workspace so you can track income, expenses, and balances in one place.
-      </p>
+    <Card className="rounded-[var(--radius-card)] border-[var(--color-border)] bg-[var(--color-surface-elevated)] py-0 shadow-[var(--shadow-soft)]">
+      <CardHeader className="p-8 pb-0">
+        <p className="text-xs uppercase tracking-[0.24em] text-[var(--color-primary-strong)]">
+          Get started
+        </p>
+        <CardTitle className="mt-3 font-[var(--font-display)] text-3xl font-semibold text-[var(--color-foreground)]">
+          Create your account
+        </CardTitle>
+        <CardDescription className="mt-2 text-sm text-[var(--color-foreground-muted)]">
+          Set up your workspace so you can track income, expenses, and balances in one place.
+        </CardDescription>
+      </CardHeader>
 
-      <form className="mt-8 space-y-5" onSubmit={handleSubmit(onSubmit)}>
-        <FormError message={formError} />
+      <CardContent className="p-8 pt-8">
+        <form className="space-y-5" onSubmit={handleSubmit(onSubmit)}>
+          <FormError message={formError} />
 
-        {[
-          { name: "username", label: "Username", placeholder: "bonney" },
-          { name: "email", label: "Email", placeholder: "bonney@example.com" },
-        ].map((field) => (
-          <div key={field.name}>
-            <label className="mb-2 block text-sm font-medium text-[var(--color-foreground)]">
-              {field.label}
-            </label>
-            <input
-              {...register(field.name as "username" | "email")}
-              className="w-full rounded-2xl border border-[var(--color-border-strong)] bg-white px-4 py-3 outline-none transition focus:border-[var(--color-primary-strong)]"
-              placeholder={field.placeholder}
+          {[
+            { name: "username", label: "Username", placeholder: "bonney" },
+            { name: "email", label: "Email", placeholder: "bonney@example.com" },
+          ].map((field) => (
+            <div key={field.name}>
+              <Label className="mb-2 block text-sm font-medium text-[var(--color-foreground)]">
+                {field.label}
+              </Label>
+              <Input
+                {...register(field.name as "username" | "email")}
+                className="h-12 rounded-2xl border-[var(--color-border-strong)] bg-white px-4"
+                placeholder={field.placeholder}
+              />
+              {errors[field.name as "username" | "email"] ? (
+                <p className="mt-2 text-sm text-[var(--color-danger)]">
+                  {errors[field.name as "username" | "email"]?.message}
+                </p>
+              ) : null}
+            </div>
+          ))}
+
+          <div>
+            <Label className="mb-2 block text-sm font-medium text-[var(--color-foreground)]">
+              Password
+            </Label>
+            <Input
+              {...register("password")}
+              type="password"
+              className="h-12 rounded-2xl border-[var(--color-border-strong)] bg-white px-4"
+              placeholder="At least 8 characters"
             />
-            {errors[field.name as "username" | "email"] ? (
+            {errors.password ? (
               <p className="mt-2 text-sm text-[var(--color-danger)]">
-                {errors[field.name as "username" | "email"]?.message}
+                {errors.password.message}
               </p>
             ) : null}
           </div>
-        ))}
 
-        <div>
-          <label className="mb-2 block text-sm font-medium text-[var(--color-foreground)]">
-            Password
-          </label>
-          <input
-            {...register("password")}
-            type="password"
-            className="w-full rounded-2xl border border-[var(--color-border-strong)] bg-white px-4 py-3 outline-none transition focus:border-[var(--color-primary-strong)]"
-            placeholder="At least 8 characters"
-          />
-          {errors.password ? (
-            <p className="mt-2 text-sm text-[var(--color-danger)]">
-              {errors.password.message}
-            </p>
-          ) : null}
-        </div>
+          <div>
+            <Label className="mb-2 block text-sm font-medium text-[var(--color-foreground)]">
+              Confirm password
+            </Label>
+            <Input
+              {...register("confirmPassword")}
+              type="password"
+              className="h-12 rounded-2xl border-[var(--color-border-strong)] bg-white px-4"
+              placeholder="Repeat your password"
+            />
+            {errors.confirmPassword ? (
+              <p className="mt-2 text-sm text-[var(--color-danger)]">
+                {errors.confirmPassword.message}
+              </p>
+            ) : null}
+          </div>
 
-        <div>
-          <label className="mb-2 block text-sm font-medium text-[var(--color-foreground)]">
-            Confirm password
-          </label>
-          <input
-            {...register("confirmPassword")}
-            type="password"
-            className="w-full rounded-2xl border border-[var(--color-border-strong)] bg-white px-4 py-3 outline-none transition focus:border-[var(--color-primary-strong)]"
-            placeholder="Repeat your password"
-          />
-          {errors.confirmPassword ? (
-            <p className="mt-2 text-sm text-[var(--color-danger)]">
-              {errors.confirmPassword.message}
-            </p>
-          ) : null}
-        </div>
+          <Button
+            type="submit"
+            disabled={isSubmitting || registerMutation.isPending}
+            className="h-12 w-full rounded-2xl bg-[var(--color-surface-sidebar)] font-medium text-white hover:bg-[var(--color-surface-sidebar)]/95"
+          >
+            {isSubmitting || registerMutation.isPending
+              ? "Creating account..."
+              : "Create Account"}
+          </Button>
+        </form>
 
-        <button
-          type="submit"
-          disabled={isSubmitting || registerMutation.isPending}
-          className="w-full rounded-2xl bg-[var(--color-surface-sidebar)] px-4 py-3 font-medium text-white transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-70"
-        >
-          {isSubmitting || registerMutation.isPending
-            ? "Creating account..."
-            : "Create Account"}
-        </button>
-      </form>
-
-      <p className="mt-6 text-sm text-[var(--color-foreground-muted)]">
-        Already have an account?{" "}
-        <Link className="font-semibold text-[var(--color-primary-strong)]" href={routes.login}>
-          Sign in
-        </Link>
-      </p>
-    </div>
+        <p className="mt-6 text-sm text-[var(--color-foreground-muted)]">
+          Already have an account?{" "}
+          <Link
+            className="font-semibold text-[var(--color-primary-strong)]"
+            href={routes.login}
+          >
+            Sign in
+          </Link>
+        </p>
+      </CardContent>
+    </Card>
   );
 }

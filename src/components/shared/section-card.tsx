@@ -1,5 +1,14 @@
 import { PropsWithChildren, ReactNode } from "react";
 
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+
 type SectionCardProps = PropsWithChildren<{
   title: string;
   description?: string;
@@ -13,21 +22,19 @@ export function SectionCard({
   children,
 }: SectionCardProps) {
   return (
-    <section className="rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-elevated)] p-6 shadow-[var(--shadow-soft)]">
-      <div className="mb-5 flex items-start justify-between gap-4">
-        <div>
-          <h2 className="text-lg font-semibold text-[var(--color-foreground)]">
-            {title}
-          </h2>
-          {description ? (
-            <p className="mt-1 text-sm text-[var(--color-foreground-muted)]">
-              {description}
-            </p>
-          ) : null}
-        </div>
-        {action}
-      </div>
-      {children}
-    </section>
+    <Card className="rounded-[var(--radius-card)] border-[var(--color-border)] bg-[var(--color-surface-elevated)] py-0 shadow-[var(--shadow-soft)]">
+      <CardHeader className="p-6 pb-0">
+        <CardTitle className="text-lg font-semibold text-[var(--color-foreground)]">
+          {title}
+        </CardTitle>
+        {description ? (
+          <CardDescription className="text-sm text-[var(--color-foreground-muted)]">
+            {description}
+          </CardDescription>
+        ) : null}
+        {action ? <CardAction>{action}</CardAction> : null}
+      </CardHeader>
+      <CardContent className="p-6">{children}</CardContent>
+    </Card>
   );
 }

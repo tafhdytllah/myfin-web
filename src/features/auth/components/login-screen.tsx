@@ -10,6 +10,16 @@ import { useLogin } from "@/features/auth/hooks/use-auth-actions";
 import { loginSchema, type LoginSchema } from "@/features/auth/schemas/login-schema";
 import { ApiError } from "@/lib/api/types";
 import { routes } from "@/lib/constants/routes";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export function LoginScreen() {
   const [formError, setFormError] = useState<string | undefined>();
@@ -59,68 +69,75 @@ export function LoginScreen() {
   };
 
   return (
-    <div className="rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-elevated)] p-8 shadow-[var(--shadow-soft)]">
-      <p className="text-xs uppercase tracking-[0.24em] text-[var(--color-primary-strong)]">
-        Welcome back
-      </p>
-      <h1 className="mt-3 font-[var(--font-display)] text-3xl font-semibold text-[var(--color-foreground)]">
-        Sign in to MyFin
-      </h1>
-      <p className="mt-2 text-sm text-[var(--color-foreground-muted)]">
-        Access your personal finance dashboard and continue tracking your money clearly.
-      </p>
+    <Card className="rounded-[var(--radius-card)] border-[var(--color-border)] bg-[var(--color-surface-elevated)] py-0 shadow-[var(--shadow-soft)]">
+      <CardHeader className="p-8 pb-0">
+        <p className="text-xs uppercase tracking-[0.24em] text-[var(--color-primary-strong)]">
+          Welcome back
+        </p>
+        <CardTitle className="mt-3 font-[var(--font-display)] text-3xl font-semibold text-[var(--color-foreground)]">
+          Sign in to MyFin
+        </CardTitle>
+        <CardDescription className="mt-2 text-sm text-[var(--color-foreground-muted)]">
+          Access your personal finance dashboard and continue tracking your money clearly.
+        </CardDescription>
+      </CardHeader>
 
-      <form className="mt-8 space-y-5" onSubmit={handleSubmit(onSubmit)}>
-        <FormError message={formError} />
+      <CardContent className="p-8 pt-8">
+        <form className="space-y-5" onSubmit={handleSubmit(onSubmit)}>
+          <FormError message={formError} />
 
-        <div>
-          <label className="mb-2 block text-sm font-medium text-[var(--color-foreground)]">
-            Username
-          </label>
-          <input
-            {...register("username")}
-            className="w-full rounded-2xl border border-[var(--color-border-strong)] bg-white px-4 py-3 outline-none transition focus:border-[var(--color-primary-strong)]"
-            placeholder="demo"
-          />
-          {errors.username ? (
-            <p className="mt-2 text-sm text-[var(--color-danger)]">
-              {errors.username.message}
-            </p>
-          ) : null}
-        </div>
+          <div>
+            <Label className="mb-2 block text-sm font-medium text-[var(--color-foreground)]">
+              Username
+            </Label>
+            <Input
+              {...register("username")}
+              className="h-12 rounded-2xl border-[var(--color-border-strong)] bg-white px-4"
+              placeholder="demo"
+            />
+            {errors.username ? (
+              <p className="mt-2 text-sm text-[var(--color-danger)]">
+                {errors.username.message}
+              </p>
+            ) : null}
+          </div>
 
-        <div>
-          <label className="mb-2 block text-sm font-medium text-[var(--color-foreground)]">
-            Password
-          </label>
-          <input
-            {...register("password")}
-            type="password"
-            className="w-full rounded-2xl border border-[var(--color-border-strong)] bg-white px-4 py-3 outline-none transition focus:border-[var(--color-primary-strong)]"
-            placeholder="••••••••"
-          />
-          {errors.password ? (
-            <p className="mt-2 text-sm text-[var(--color-danger)]">
-              {errors.password.message}
-            </p>
-          ) : null}
-        </div>
+          <div>
+            <Label className="mb-2 block text-sm font-medium text-[var(--color-foreground)]">
+              Password
+            </Label>
+            <Input
+              {...register("password")}
+              type="password"
+              className="h-12 rounded-2xl border-[var(--color-border-strong)] bg-white px-4"
+              placeholder="••••••••"
+            />
+            {errors.password ? (
+              <p className="mt-2 text-sm text-[var(--color-danger)]">
+                {errors.password.message}
+              </p>
+            ) : null}
+          </div>
 
-        <button
-          type="submit"
-          disabled={isSubmitting || loginMutation.isPending}
-          className="w-full rounded-2xl bg-[var(--color-surface-sidebar)] px-4 py-3 font-medium text-white transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-70"
-        >
-          {isSubmitting || loginMutation.isPending ? "Signing in..." : "Sign In"}
-        </button>
-      </form>
+          <Button
+            type="submit"
+            disabled={isSubmitting || loginMutation.isPending}
+            className="h-12 w-full rounded-2xl bg-[var(--color-surface-sidebar)] font-medium text-white hover:bg-[var(--color-surface-sidebar)]/95"
+          >
+            {isSubmitting || loginMutation.isPending ? "Signing in..." : "Sign In"}
+          </Button>
+        </form>
 
-      <p className="mt-6 text-sm text-[var(--color-foreground-muted)]">
-        Don&apos;t have an account?{" "}
-        <Link className="font-semibold text-[var(--color-primary-strong)]" href={routes.register}>
-          Create one
-        </Link>
-      </p>
-    </div>
+        <p className="mt-6 text-sm text-[var(--color-foreground-muted)]">
+          Don&apos;t have an account?{" "}
+          <Link
+            className="font-semibold text-[var(--color-primary-strong)]"
+            href={routes.register}
+          >
+            Create one
+          </Link>
+        </p>
+      </CardContent>
+    </Card>
   );
 }

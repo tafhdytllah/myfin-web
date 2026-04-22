@@ -1,13 +1,15 @@
 import type { Metadata } from "next";
-import { DM_Sans, Space_Grotesk } from "next/font/google";
+import { Geist, Space_Grotesk } from "next/font/google";
 
 import "./globals.css";
 
 import { Providers } from "@/app/providers";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
 
-const sans = DM_Sans({
-  variable: "--font-sans",
+const geist = Geist({
   subsets: ["latin"],
+  variable: "--font-sans",
 });
 
 const display = Space_Grotesk({
@@ -26,9 +28,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${sans.variable} ${display.variable} h-full`}>
+    <html
+      lang="en"
+      className={cn("h-full", display.variable, "font-sans", geist.variable)}
+    >
       <body className="min-h-full bg-[var(--color-surface)] text-[var(--color-foreground)] antialiased">
-        <Providers>{children}</Providers>
+        <TooltipProvider>
+          <Providers>{children}</Providers>
+        </TooltipProvider>
       </body>
     </html>
   );
