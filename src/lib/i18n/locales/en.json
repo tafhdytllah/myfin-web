@@ -1,0 +1,11 @@
+{
+  "common": {
+    "appName": "MyFin"
+  },
+  "auth": {
+    "loginTitle": "Sign in to MyFin"
+  },
+  "dashboard": {
+    "title": "Dashboard"
+  }
+}
