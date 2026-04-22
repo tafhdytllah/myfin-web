@@ -58,18 +58,26 @@ export function AppSidebar() {
 
   return (
     <Sidebar collapsible="icon" className="border-r-0" variant="sidebar">
-      <SidebarHeader className="gap-4 bg-[var(--color-surface-sidebar)] p-4 text-sidebar-foreground">
-        <Link
-          href={routes.dashboard}
-          className="block rounded-3xl bg-white/8 px-4 py-4 ring-1 ring-white/10"
-        >
-          <p className="text-xs uppercase tracking-[0.24em] text-sky-100">
-            {t("common.appName")}
-          </p>
-          <h1 className="mt-2 font-[var(--font-display)] text-2xl font-semibold">
-            {t("sidebar.tagline")}
-          </h1>
-        </Link>
+      <SidebarHeader className="bg-[var(--color-surface-sidebar)] p-4 text-sidebar-foreground">
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              render={<Link href={routes.dashboard} />}
+              size="lg"
+              tooltip={t("common.appName")}
+              className="h-14 rounded-3xl bg-white/8 px-3 ring-1 ring-white/10 hover:bg-white/12 data-[active=true]:bg-white/12 group-data-[collapsible=icon]:size-10! group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:rounded-2xl group-data-[collapsible=icon]:px-0"
+            >
+              <div className="flex size-8 items-center justify-center rounded-2xl bg-sidebar-primary font-[var(--font-display)] text-sm font-semibold uppercase text-sidebar-primary-foreground">
+                M
+              </div>
+              <div className="grid flex-1 text-left leading-tight group-data-[collapsible=icon]:hidden">
+                <span className="font-[var(--font-display)] text-lg font-semibold">
+                  {String(t("common.appName")).toLowerCase()}
+                </span>
+              </div>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarHeader>
 
       <SidebarContent className="bg-[var(--color-surface-sidebar)] px-2 text-sidebar-foreground">
@@ -104,14 +112,14 @@ export function AppSidebar() {
                 render={
                   <SidebarMenuButton
                     size="lg"
-                    className="h-auto rounded-2xl bg-white/8 px-3 py-3 hover:bg-white/12 data-[active=true]:bg-sidebar-accent"
+                    className="h-auto rounded-2xl bg-white/8 px-3 py-3 hover:bg-white/12 data-[active=true]:bg-sidebar-accent group-data-[collapsible=icon]:size-10! group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:rounded-2xl group-data-[collapsible=icon]:px-0"
                   />
                 }
               >
                 <div className="flex size-9 items-center justify-center rounded-full bg-sidebar-primary font-semibold text-sidebar-primary-foreground">
                   {(user?.username?.[0] ?? "G").toUpperCase()}
                 </div>
-                <div className="grid flex-1 text-left text-sm leading-tight">
+                <div className="grid flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden">
                   <span className="truncate font-medium">
                     {user?.username ?? t("common.guest")}
                   </span>
@@ -119,7 +127,7 @@ export function AppSidebar() {
                     {user?.email ?? t("common.noActiveSession")}
                   </span>
                 </div>
-                <ChevronsUpDown className="ml-auto size-4 opacity-70" />
+                <ChevronsUpDown className="ml-auto size-4 opacity-70 group-data-[collapsible=icon]:hidden" />
               </DropdownMenuTrigger>
 
               <DropdownMenuContent
