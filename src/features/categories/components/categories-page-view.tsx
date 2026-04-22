@@ -1,5 +1,26 @@
 "use client";
 
+import { useMemo, useState } from "react";
+import {
+  MoreHorizontal,
+  PencilLine,
+  Power,
+  PowerOff,
+  RefreshCw,
+} from "lucide-react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+
+import { CategoryFormDialog } from "@/features/categories/components/category-form-dialog";
+import { CategoryStatusDialog } from "@/features/categories/components/category-status-dialog";
+import { Category } from "@/features/categories/types/category-types";
+import {
+  useCategories,
+  useToggleCategoryStatus,
+} from "@/features/categories/hooks/use-category-queries";
+import {
+  buildCategorySearchParams,
+  parseCategoryFilters,
+} from "@/features/categories/utils/category-search-params";
 import { PageHeader } from "@/components/shared/page-header";
 import { SectionCard } from "@/components/shared/section-card";
 import { StatusBadge } from "@/components/shared/status-badge";
@@ -10,6 +31,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -20,14 +49,53 @@ import {
 } from "@/components/ui/table";
 import { useTranslations } from "@/lib/i18n/use-translations";
 
-const categories = [
-  { name: "Food", type: "EXPENSE", active: true, used: 12 },
-  { name: "Salary", type: "INCOME", active: true, used: 4 },
-  { name: "Old Reimbursements", type: "INCOME", active: false, used: 2 },
-];
-
 export function CategoriesPageView() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const { t } = useTranslations();
+  const filters = useMemo(
+    () => parseCategoryFilters(new URLSearchParams(searchParams.toString())),
+    [searchParams],
+  );
+  const categoriesQuery = useCategories(filters);
+  const toggleStatusMutation = useToggleCategoryStatus();
+  const [formOpen, setFormOpen] = useState(false);
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  const [statusDialogCategory, setStatusDialogCategory] = useState<Category | null>(null);
+
+  const categories = useMemo(
+    () => categoriesQuery.data ?? [],
+    [categoriesQuery.data],
+  );
+
+  const summary = useMemo(
+    () => ({
+      total: categories.length,
+      active: categories.filter((category) => category.active).length,
+      inactive: categories.filter((category) => !category.active).length,
+      income: categories.filter((category) => category.type === "INCOME").length,
+      expense: categories.filter((category) => category.type === "EXPENSE").length,
+    }),
+    [categories],
+  );
+
+  function updateFilters(nextFilters: typeof filters) {
+    const params = buildCategorySearchParams(nextFilters);
+    const query = params.toString();
+
+    router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+  }
+
+  function openCreateDialog() {
+    setEditingCategory(null);
+    setFormOpen(true);
+  }
+
+  function openEditDialog(category: Category) {
+    setEditingCategory(category);
+    setFormOpen(true);
+  }
 
   return (
     <div className="space-y-6">
@@ -35,7 +103,7 @@ export function CategoriesPageView() {
         title={t("categories.title")}
         description={t("categories.description")}
         action={
-          <Button className="h-11 rounded-2xl bg-[var(--color-surface-sidebar)] px-5 text-sm font-semibold text-white hover:bg-[var(--color-surface-sidebar)]/95">
+          <Button className="h-11 rounded-2xl px-5 text-sm font-semibold" onClick={openCreateDialog}>
             {t("categories.addCategory")}
           </Button>
         }
@@ -43,11 +111,11 @@ export function CategoriesPageView() {
 
       <div className="grid gap-4 md:grid-cols-5">
         {[
-          { label: t("categories.total"), value: "10" },
-          { label: t("common.active"), value: "8" },
-          { label: t("common.inactive"), value: "2" },
-          { label: t("common.income"), value: "4" },
-          { label: t("common.expense"), value: "6" },
+          { label: t("categories.total"), value: String(summary.total) },
+          { label: t("common.active"), value: String(summary.active) },
+          { label: t("common.inactive"), value: String(summary.inactive) },
+          { label: t("common.income"), value: String(summary.income) },
+          { label: t("common.expense"), value: String(summary.expense) },
         ].map((item) => (
           <SectionCard key={item.label} title={item.label}>
             <p className="text-2xl font-semibold text-[var(--color-foreground)]">
@@ -62,70 +130,200 @@ export function CategoriesPageView() {
         description={t("categories.searchDescription")}
       >
         <div className="grid gap-3 md:grid-cols-3">
-          {[t("common.search"), t("common.type"), t("common.status")].map((item) => (
-            <div
-              key={item}
-              className="rounded-2xl border border-dashed border-[var(--color-border-strong)] px-4 py-5 text-sm text-[var(--color-foreground-muted)]"
-            >
-              {item}
-            </div>
-          ))}
+          <Input
+            value={filters.keyword ?? ""}
+            onChange={(event) =>
+              updateFilters({
+                ...filters,
+                keyword: event.target.value,
+              })
+            }
+            placeholder={t("categories.searchPlaceholder")}
+          />
+          <Select
+            value={filters.type ?? "all"}
+            onValueChange={(value) =>
+              updateFilters({
+                ...filters,
+                type: value as "all" | "INCOME" | "EXPENSE",
+              })
+            }
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder={t("common.type")} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{t("categories.typeAll")}</SelectItem>
+              <SelectItem value="INCOME">{t("common.income")}</SelectItem>
+              <SelectItem value="EXPENSE">{t("common.expense")}</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select
+            value={filters.status ?? "all"}
+            onValueChange={(value) =>
+              updateFilters({
+                ...filters,
+                status: value as "all" | "active" | "inactive",
+              })
+            }
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder={t("common.status")} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{t("categories.statusAll")}</SelectItem>
+              <SelectItem value="active">{t("common.active")}</SelectItem>
+              <SelectItem value="inactive">{t("common.inactive")}</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </SectionCard>
 
-      <SectionCard
-        title={t("categories.tableTitle")}
-        description={t("categories.tableDescription")}
-      >
-        <Table>
-          <TableHeader>
-            <TableRow className="hover:bg-transparent">
-              <TableHead className="text-[var(--color-foreground-muted)]">{t("common.category")}</TableHead>
-              <TableHead className="text-[var(--color-foreground-muted)]">{t("common.type")}</TableHead>
-              <TableHead className="text-[var(--color-foreground-muted)]">{t("common.status")}</TableHead>
-              <TableHead className="text-[var(--color-foreground-muted)]">{t("common.used")}</TableHead>
-              <TableHead className="text-[var(--color-foreground-muted)]">{t("common.actions")}</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {categories.map((row) => (
-              <TableRow
-                key={row.name}
-                className="bg-[var(--color-surface)] text-[var(--color-foreground)]"
-              >
-                <TableCell className="font-medium">{row.name}</TableCell>
-                <TableCell>
-                  <StatusBadge tone={row.type === "INCOME" ? "income" : "expense"}>
-                    {t(row.type === "INCOME" ? "common.income" : "common.expense")}
-                  </StatusBadge>
-                </TableCell>
-                <TableCell>
-                  <StatusBadge tone={row.active ? "active" : "inactive"}>
-                    {row.active ? t("common.active") : t("common.inactive")}
-                  </StatusBadge>
-                </TableCell>
-                <TableCell>{row.used}</TableCell>
-                <TableCell>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger
-                      render={<Button variant="ghost" size="icon-sm" />}
-                      aria-label="Open category actions"
-                    >
-                      <span className="text-lg leading-none">•••</span>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem>{t("common.edit")}</DropdownMenuItem>
-                      <DropdownMenuItem>
-                        {row.active ? t("common.deactivate") : t("common.activate")}
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
-              </TableRow>
+      {categoriesQuery.isLoading ? (
+        <SectionCard
+          title={t("categories.tableTitle")}
+          description={t("categories.tableDescription")}
+        >
+          <div className="space-y-3">
+            {Array.from({ length: 4 }).map((_, index) => (
+              <div key={index} className="h-12 rounded-xl bg-muted" />
             ))}
-          </TableBody>
-        </Table>
-      </SectionCard>
+          </div>
+        </SectionCard>
+      ) : null}
+
+      {categoriesQuery.isError ? (
+        <SectionCard
+          title={t("categories.loadErrorTitle")}
+          description={t("categories.loadErrorDescription")}
+        >
+          <Button
+            onClick={() => categoriesQuery.refetch()}
+            variant="outline"
+            className="rounded-2xl"
+          >
+            <RefreshCw className="size-4" />
+            {t("categories.retry")}
+          </Button>
+        </SectionCard>
+      ) : null}
+
+      {!categoriesQuery.isLoading &&
+      !categoriesQuery.isError &&
+      categories.length === 0 ? (
+        <SectionCard
+          title={t("categories.emptyTitle")}
+          description={t("categories.emptyDescription")}
+        >
+          <Button className="rounded-2xl" onClick={openCreateDialog}>
+            {t("categories.addCategory")}
+          </Button>
+        </SectionCard>
+      ) : null}
+
+      {!categoriesQuery.isLoading &&
+      !categoriesQuery.isError &&
+      categories.length > 0 ? (
+        <SectionCard
+          title={t("categories.tableTitle")}
+          description={t("categories.tableDescription")}
+        >
+          <Table>
+            <TableHeader>
+              <TableRow className="hover:bg-transparent">
+                <TableHead className="text-[var(--color-foreground-muted)]">
+                  {t("common.category")}
+                </TableHead>
+                <TableHead className="text-[var(--color-foreground-muted)]">
+                  {t("common.type")}
+                </TableHead>
+                <TableHead className="text-[var(--color-foreground-muted)]">
+                  {t("common.status")}
+                </TableHead>
+                <TableHead className="text-[var(--color-foreground-muted)]">
+                  {t("common.used")}
+                </TableHead>
+                <TableHead className="text-right text-[var(--color-foreground-muted)]">
+                  {t("common.actions")}
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {categories.map((category) => (
+                <TableRow key={category.id}>
+                  <TableCell className="font-medium">{category.name}</TableCell>
+                  <TableCell>
+                    <StatusBadge
+                      tone={category.type === "INCOME" ? "income" : "expense"}
+                    >
+                      {category.type === "INCOME"
+                        ? t("common.income")
+                        : t("common.expense")}
+                    </StatusBadge>
+                  </TableCell>
+                  <TableCell>
+                    <StatusBadge tone={category.active ? "active" : "inactive"}>
+                      {category.active ? t("common.active") : t("common.inactive")}
+                    </StatusBadge>
+                  </TableCell>
+                  <TableCell>{category.usageCount}</TableCell>
+                  <TableCell className="text-right">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger
+                        render={<Button variant="ghost" size="icon-sm" />}
+                      >
+                        <MoreHorizontal className="size-4" />
+                        <span className="sr-only">{t("common.actions")}</span>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => openEditDialog(category)}>
+                          <PencilLine className="size-4" />
+                          {t("common.edit")}
+                        </DropdownMenuItem>
+                        {category.active ? (
+                          <DropdownMenuItem
+                            onClick={() => setStatusDialogCategory(category)}
+                          >
+                            <PowerOff className="size-4" />
+                            {t("common.deactivate")}
+                          </DropdownMenuItem>
+                        ) : (
+                          <DropdownMenuItem
+                            onClick={() =>
+                              toggleStatusMutation.mutate({
+                                category,
+                                active: true,
+                              })
+                            }
+                          >
+                            <Power className="size-4" />
+                            {t("common.activate")}
+                          </DropdownMenuItem>
+                        )}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </SectionCard>
+      ) : null}
+
+      <CategoryFormDialog
+        category={editingCategory}
+        open={formOpen}
+        onOpenChange={setFormOpen}
+      />
+      <CategoryStatusDialog
+        category={statusDialogCategory}
+        open={Boolean(statusDialogCategory)}
+        onOpenChange={(open) => {
+          if (!open) {
+            setStatusDialogCategory(null);
+          }
+        }}
+      />
     </div>
   );
 }

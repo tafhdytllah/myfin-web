@@ -16,6 +16,7 @@ type AuthState = {
   startBootstrap: () => void;
   finishBootstrap: () => void;
   setSession: (payload: { accessToken: string; user?: User | null }) => void;
+  setAccessToken: (accessToken: string) => void;
   setUser: (user: User | null) => void;
   clearSession: () => void;
 };
@@ -43,6 +44,14 @@ export const useAuthStore = create<AuthState>((set) => ({
       status: "authenticated",
       hasInitialized: true,
     }),
+  setAccessToken: (accessToken) =>
+    set((state) => ({
+      accessToken,
+      user: state.user,
+      isAuthenticated: true,
+      status: "authenticated",
+      hasInitialized: true,
+    })),
   setUser: (user) => set({ user }),
   clearSession: () =>
     set({
