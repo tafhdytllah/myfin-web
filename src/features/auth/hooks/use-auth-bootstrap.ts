@@ -8,7 +8,6 @@ import { useAuthStore } from "@/stores/auth-store";
 export function useAuthBootstrap() {
   const accessToken = useAuthStore((state) => state.accessToken);
   const hasInitialized = useAuthStore((state) => state.hasInitialized);
-  const status = useAuthStore((state) => state.status);
   const startBootstrap = useAuthStore((state) => state.startBootstrap);
   const finishBootstrap = useAuthStore((state) => state.finishBootstrap);
   const setSession = useAuthStore((state) => state.setSession);
@@ -19,7 +18,7 @@ export function useAuthBootstrap() {
     let isActive = true;
 
     async function bootstrap() {
-      if (hasInitialized || status === "bootstrapping") {
+      if (hasInitialized) {
         return;
       }
 
@@ -79,6 +78,5 @@ export function useAuthBootstrap() {
     setSession,
     setUser,
     startBootstrap,
-    status,
   ]);
 }

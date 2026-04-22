@@ -1,6 +1,12 @@
+"use client";
+
 import { PropsWithChildren } from "react";
 
+import { useTranslations } from "@/lib/i18n/use-translations";
+
 export function AuthSplitLayout({ children }: PropsWithChildren) {
+  const { t } = useTranslations();
+
   return (
     <div className="grid min-h-screen bg-[var(--color-surface)] lg:grid-cols-[minmax(320px,30vw)_1fr]">
       <section className="flex min-h-screen items-center justify-center px-6 py-12 lg:px-10">
@@ -17,17 +23,17 @@ export function AuthSplitLayout({ children }: PropsWithChildren) {
         <div className="relative z-10 flex h-full flex-col justify-between px-12 py-14 text-white">
           <div>
             <div className="mb-6 inline-flex rounded-full border border-white/15 bg-white/10 px-4 py-1 text-sm tracking-[0.2em] uppercase text-sky-100">
-              MyFin
+              {t("common.appName")}
             </div>
             <h2 className="max-w-lg font-[var(--font-display)] text-4xl font-semibold leading-tight">
-              Track every move your money makes with calm, clarity, and control.
+              {t("auth.heroTitle")}
             </h2>
           </div>
           <div className="grid max-w-xl gap-4 sm:grid-cols-3">
             {[
-              { label: "Dashboard", value: "Live overview" },
-              { label: "Transactions", value: "Daily activity" },
-              { label: "Accounts", value: "Clean balance map" },
+              { label: t("navigation.dashboard"), value: t("auth.heroDashboard") },
+              { label: t("navigation.transactions"), value: t("auth.heroTransactions") },
+              { label: t("navigation.accounts"), value: t("auth.heroAccounts") },
             ].map((item) => (
               <div
                 key={item.label}

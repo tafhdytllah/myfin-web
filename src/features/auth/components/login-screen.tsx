@@ -6,10 +6,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { FormError } from "@/components/shared/form-error";
-import { useLogin } from "@/features/auth/hooks/use-auth-actions";
-import { loginSchema, type LoginSchema } from "@/features/auth/schemas/login-schema";
-import { ApiError } from "@/lib/api/types";
-import { routes } from "@/lib/constants/routes";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -20,9 +16,15 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useLogin } from "@/features/auth/hooks/use-auth-actions";
+import { loginSchema, type LoginSchema } from "@/features/auth/schemas/login-schema";
+import { ApiError } from "@/lib/api/types";
+import { useTranslations } from "@/lib/i18n/use-translations";
+import { routes } from "@/lib/constants/routes";
 
 export function LoginScreen() {
   const [formError, setFormError] = useState<string | undefined>();
+  const { t } = useTranslations();
   const loginMutation = useLogin();
   const {
     register,
@@ -72,13 +74,13 @@ export function LoginScreen() {
     <Card className="rounded-[var(--radius-card)] border-[var(--color-border)] bg-[var(--color-surface-elevated)] py-0 shadow-[var(--shadow-soft)]">
       <CardHeader className="p-8 pb-0">
         <p className="text-xs uppercase tracking-[0.24em] text-[var(--color-primary-strong)]">
-          Welcome back
+          {t("auth.welcomeBack")}
         </p>
         <CardTitle className="mt-3 font-[var(--font-display)] text-3xl font-semibold text-[var(--color-foreground)]">
-          Sign in to MyFin
+          {t("auth.loginTitle")}
         </CardTitle>
         <CardDescription className="mt-2 text-sm text-[var(--color-foreground-muted)]">
-          Access your personal finance dashboard and continue tracking your money clearly.
+          {t("auth.loginDescription")}
         </CardDescription>
       </CardHeader>
 
@@ -88,12 +90,12 @@ export function LoginScreen() {
 
           <div>
             <Label className="mb-2 block text-sm font-medium text-[var(--color-foreground)]">
-              Username
+              {t("auth.username")}
             </Label>
             <Input
               {...register("username")}
-              className="h-12 rounded-2xl border-[var(--color-border-strong)] bg-white px-4"
-              placeholder="demo"
+              className="h-12 rounded-2xl border-[var(--color-border-strong)] bg-white px-4 dark:bg-transparent"
+              placeholder={t("auth.usernamePlaceholder")}
             />
             {errors.username ? (
               <p className="mt-2 text-sm text-[var(--color-danger)]">
@@ -104,12 +106,12 @@ export function LoginScreen() {
 
           <div>
             <Label className="mb-2 block text-sm font-medium text-[var(--color-foreground)]">
-              Password
+              {t("auth.password")}
             </Label>
             <Input
               {...register("password")}
               type="password"
-              className="h-12 rounded-2xl border-[var(--color-border-strong)] bg-white px-4"
+              className="h-12 rounded-2xl border-[var(--color-border-strong)] bg-white px-4 dark:bg-transparent"
               placeholder="••••••••"
             />
             {errors.password ? (
@@ -124,17 +126,19 @@ export function LoginScreen() {
             disabled={isSubmitting || loginMutation.isPending}
             className="h-12 w-full rounded-2xl bg-[var(--color-surface-sidebar)] font-medium text-white hover:bg-[var(--color-surface-sidebar)]/95"
           >
-            {isSubmitting || loginMutation.isPending ? "Signing in..." : "Sign In"}
+            {isSubmitting || loginMutation.isPending
+              ? t("auth.signingIn")
+              : t("auth.signIn")}
           </Button>
         </form>
 
         <p className="mt-6 text-sm text-[var(--color-foreground-muted)]">
-          Don&apos;t have an account?{" "}
+          {t("auth.dontHaveAccount")}{" "}
           <Link
             className="font-semibold text-[var(--color-primary-strong)]"
             href={routes.register}
           >
-            Create one
+            {t("auth.createOne")}
           </Link>
         </p>
       </CardContent>

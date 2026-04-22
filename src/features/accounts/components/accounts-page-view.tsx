@@ -1,7 +1,11 @@
+"use client";
+
 import { PageHeader } from "@/components/shared/page-header";
 import { SectionCard } from "@/components/shared/section-card";
 import { StatusBadge } from "@/components/shared/status-badge";
+import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/lib/formatters/currency";
+import { useTranslations } from "@/lib/i18n/use-translations";
 
 const accounts = [
   { name: "BCA Payroll", balance: 9200000, active: true, usageCount: 18 },
@@ -10,26 +14,25 @@ const accounts = [
 ];
 
 export function AccountsPageView() {
+  const { t } = useTranslations();
+
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Accounts"
-        description="Manage active and inactive money sources without losing historical transactions."
+        title={t("accounts.title")}
+        description={t("accounts.description")}
         action={
-          <button
-            type="button"
-            className="rounded-2xl bg-[var(--color-surface-sidebar)] px-5 py-3 text-sm font-semibold text-white"
-          >
-            Add Account
-          </button>
+          <Button className="h-11 rounded-2xl bg-[var(--color-surface-sidebar)] px-5 text-sm font-semibold text-white hover:bg-[var(--color-surface-sidebar)]/95">
+            {t("accounts.addAccount")}
+          </Button>
         }
       />
 
       <div className="grid gap-4 md:grid-cols-3">
         {[
-          { label: "Total Accounts", value: "3" },
-          { label: "Active", value: "2" },
-          { label: "Inactive", value: "1" },
+          { label: t("accounts.totalAccounts"), value: "3" },
+          { label: t("common.active"), value: "2" },
+          { label: t("common.inactive"), value: "1" },
         ].map((item) => (
           <SectionCard key={item.label} title={item.label}>
             <p className="text-2xl font-semibold text-[var(--color-foreground)]">
@@ -40,11 +43,11 @@ export function AccountsPageView() {
       </div>
 
       <SectionCard
-        title="Search & Status"
-        description="Search and active-state filters will connect here once the API layer is wired."
+        title={t("accounts.searchTitle")}
+        description={t("accounts.searchDescription")}
       >
         <div className="grid gap-3 md:grid-cols-2">
-          {["Search by account name", "Status filter"].map((item) => (
+          {[t("accounts.searchPlaceholder"), t("accounts.statusFilter")].map((item) => (
             <div
               key={item}
               className="rounded-2xl border border-dashed border-[var(--color-border-strong)] px-4 py-5 text-sm text-[var(--color-foreground-muted)]"
@@ -62,32 +65,26 @@ export function AccountsPageView() {
             title={account.name}
             action={
               <StatusBadge tone={account.active ? "active" : "inactive"}>
-                {account.active ? "Active" : "Inactive"}
+                {account.active ? t("common.active") : t("common.inactive")}
               </StatusBadge>
             }
           >
             <p className="text-xs uppercase tracking-[0.18em] text-[var(--color-foreground-muted)]">
-              Current Balance
+              {t("accounts.currentBalance")}
             </p>
             <p className="mt-3 text-3xl font-semibold text-[var(--color-foreground)]">
               {formatCurrency(account.balance)}
             </p>
             <p className="mt-3 text-sm text-[var(--color-foreground-muted)]">
-              Used in {account.usageCount} transactions
+              {t("accounts.usedTransactions", { count: account.usageCount })}
             </p>
             <div className="mt-5 flex gap-3">
-              <button
-                type="button"
-                className="rounded-full border border-[var(--color-border-strong)] px-4 py-2 text-sm font-medium text-[var(--color-foreground)]"
-              >
-                Edit
-              </button>
-              <button
-                type="button"
-                className="rounded-full border border-[var(--color-border-strong)] px-4 py-2 text-sm font-medium text-[var(--color-foreground)]"
-              >
-                {account.active ? "Deactivate" : "Activate"}
-              </button>
+              <Button variant="outline" className="rounded-full border-[var(--color-border-strong)]">
+                {t("common.edit")}
+              </Button>
+              <Button variant="outline" className="rounded-full border-[var(--color-border-strong)]">
+                {account.active ? t("common.deactivate") : t("common.activate")}
+              </Button>
             </div>
           </SectionCard>
         ))}

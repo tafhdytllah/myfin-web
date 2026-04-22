@@ -1,60 +1,67 @@
+"use client";
+
 import { PageHeader } from "@/components/shared/page-header";
 import { SectionCard } from "@/components/shared/section-card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useTranslations } from "@/lib/i18n/use-translations";
 
 export function ProfilePageView() {
+  const { t } = useTranslations();
+
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Profile"
-        description="Manage your account details, password, and session settings."
-      />
+      <PageHeader title={t("profile.title")} description={t("profile.description")} />
 
       <div className="grid gap-6 xl:grid-cols-2">
         <SectionCard
-          title="Profile Info"
-          description="Username and email will stay in sync with global sidebar identity."
+          title={t("profile.profileInfo")}
+          description={t("profile.profileInfoDescription")}
         >
           <div className="grid gap-4">
-            {["Username", "Email"].map((item) => (
+            {[t("auth.username"), t("auth.email")].map((item) => (
               <div key={item} className="space-y-2">
-                <label className="text-sm font-medium text-[var(--color-foreground)]">
+                <Label className="text-sm font-medium text-[var(--color-foreground)]">
                   {item}
-                </label>
-                <div className="rounded-2xl border border-dashed border-[var(--color-border-strong)] px-4 py-3 text-sm text-[var(--color-foreground-muted)]">
-                  {item} field
-                </div>
+                </Label>
+                <Input
+                  readOnly
+                  value={`${item} field`}
+                  className="h-11 rounded-2xl border-dashed border-[var(--color-border-strong)] text-[var(--color-foreground-muted)]"
+                />
               </div>
             ))}
-            <button
-              type="button"
-              className="w-fit rounded-2xl bg-[var(--color-surface-sidebar)] px-5 py-3 text-sm font-semibold text-white"
-            >
-              Save Profile
-            </button>
+            <Button className="h-11 w-fit rounded-2xl bg-[var(--color-surface-sidebar)] px-5 text-sm font-semibold text-white hover:bg-[var(--color-surface-sidebar)]/95">
+              {t("profile.saveProfile")}
+            </Button>
           </div>
         </SectionCard>
 
         <SectionCard
-          title="Change Password"
-          description="Current password, new password, and confirm password live here."
+          title={t("profile.changePassword")}
+          description={t("profile.changePasswordDescription")}
         >
           <div className="grid gap-4">
-            {["Current password", "New password", "Confirm new password"].map((item) => (
+            {[
+              t("profile.currentPassword"),
+              t("profile.newPassword"),
+              t("profile.confirmNewPassword"),
+            ].map((item) => (
               <div key={item} className="space-y-2">
-                <label className="text-sm font-medium text-[var(--color-foreground)]">
+                <Label className="text-sm font-medium text-[var(--color-foreground)]">
                   {item}
-                </label>
-                <div className="rounded-2xl border border-dashed border-[var(--color-border-strong)] px-4 py-3 text-sm text-[var(--color-foreground-muted)]">
-                  Password field
-                </div>
+                </Label>
+                <Input
+                  readOnly
+                  value={t("profile.passwordField")}
+                  className="h-11 rounded-2xl border-dashed border-[var(--color-border-strong)] text-[var(--color-foreground-muted)]"
+                />
               </div>
             ))}
-            <button
-              type="button"
-              className="w-fit rounded-2xl bg-[var(--color-surface-sidebar)] px-5 py-3 text-sm font-semibold text-white"
-            >
-              Update Password
-            </button>
+            <Button className="h-11 w-fit rounded-2xl bg-[var(--color-surface-sidebar)] px-5 text-sm font-semibold text-white hover:bg-[var(--color-surface-sidebar)]/95">
+              {t("profile.updatePassword")}
+            </Button>
           </div>
         </SectionCard>
       </div>

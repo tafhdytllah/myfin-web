@@ -10,6 +10,7 @@ import {
 export async function login(payload: LoginPayload) {
   const response = await apiRequest<ApiEnvelope<AuthTokenData>>("/api/v1/auth/login", {
     method: "POST",
+    credentials: "include",
     body: JSON.stringify(payload),
   });
 

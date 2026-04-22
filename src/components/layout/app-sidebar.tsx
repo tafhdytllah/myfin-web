@@ -1,103 +1,193 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { Languages, LogOut } from "lucide-react";
+import {
+  ChevronsUpDown,
+  LogOut,
+  Monitor,
+  MoonStar,
+  SunMedium,
+  UserRound,
+} from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { useTheme } from "next-themes";
 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarSeparator,
+} from "@/components/ui/sidebar";
 import { useLogout } from "@/features/auth/hooks/use-auth-actions";
+import { useTranslations } from "@/lib/i18n/use-translations";
 import { routes } from "@/lib/constants/routes";
 import { sidebarNavigation } from "@/lib/constants/sidebar-navigation";
 import { useAuthStore } from "@/stores/auth-store";
 import { useLocaleStore } from "@/stores/locale-store";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+
+const themeOptions = [
+  { value: "light", labelKey: "theme.light", icon: SunMedium },
+  { value: "dark", labelKey: "theme.dark", icon: MoonStar },
+  { value: "system", labelKey: "theme.system", icon: Monitor },
+] as const;
 
 export function AppSidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const { t } = useTranslations();
+  const { theme, setTheme } = useTheme();
   const locale = useLocaleStore((state) => state.locale);
   const setLocale = useLocaleStore((state) => state.setLocale);
   const user = useAuthStore((state) => state.user);
   const logoutMutation = useLogout();
 
   return (
-    <aside className="sticky top-0 hidden h-screen border-r border-white/10 bg-[var(--color-surface-sidebar)] px-5 py-6 text-white lg:flex lg:flex-col">
-      <div>
-        <Link href={routes.dashboard} className="block rounded-3xl bg-white/8 px-4 py-4">
-          <p className="text-xs uppercase tracking-[0.24em] text-sky-100">MyFin</p>
+    <Sidebar collapsible="icon" className="border-r-0" variant="sidebar">
+      <SidebarHeader className="gap-4 bg-[var(--color-surface-sidebar)] p-4 text-sidebar-foreground">
+        <Link
+          href={routes.dashboard}
+          className="block rounded-3xl bg-white/8 px-4 py-4 ring-1 ring-white/10"
+        >
+          <p className="text-xs uppercase tracking-[0.24em] text-sky-100">
+            {t("common.appName")}
+          </p>
           <h1 className="mt-2 font-[var(--font-display)] text-2xl font-semibold">
-            Financial clarity.
+            {t("sidebar.tagline")}
           </h1>
         </Link>
-      </div>
+      </SidebarHeader>
 
-      <nav className="mt-8 space-y-2">
-        {sidebarNavigation.map((item) => {
-          const isActive = pathname === item.href;
-          const Icon = item.icon;
+      <SidebarContent className="bg-[var(--color-surface-sidebar)] px-2 text-sidebar-foreground">
+        <SidebarMenu>
+          {sidebarNavigation.map((item) => {
+            const Icon = item.icon;
 
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`flex items-center justify-between rounded-2xl px-4 py-3 text-sm transition ${
-                isActive
-                  ? "bg-white text-[var(--color-surface-sidebar)] shadow-[var(--shadow-soft)]"
-                  : "text-sky-50 hover:bg-white/10"
-              }`}
-            >
-              <span className="flex items-center gap-3">
-                <Icon className="size-4" />
-                <span>{item.label}</span>
-              </span>
-              <span className="text-xs opacity-60">{item.shortcut}</span>
-            </Link>
-          );
-        })}
-      </nav>
-
-      <div className="mt-auto space-y-4">
-        <Card className="rounded-3xl border-white/10 bg-white/8 py-0 text-white ring-0">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2 text-sm text-sky-100">
-              <Languages className="size-4" />
-              <p>Language</p>
-            </div>
-            <div className="mt-3 grid grid-cols-2 gap-2">
-              {(["en", "id"] as const).map((value) => (
-                <Button
-                  key={value}
-                  onClick={() => setLocale(value)}
-                  variant={locale === value ? "secondary" : "ghost"}
-                  className={`rounded-2xl ${
-                    locale === value
-                      ? "bg-white text-[var(--color-surface-sidebar)] hover:bg-white/90"
-                      : "text-white hover:bg-white/10 hover:text-white"
-                  }`}
+            return (
+              <SidebarMenuItem key={item.href}>
+                <SidebarMenuButton
+                  render={<Link href={item.href} />}
+                  isActive={pathname === item.href}
+                  tooltip={t(item.labelKey)}
+                  className="h-11 rounded-2xl px-3 text-sm data-[active=true]:bg-sidebar-primary data-[active=true]:text-sidebar-primary-foreground"
                 >
-                  {value.toUpperCase()}
-                </Button>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+                  <Icon className="size-4" />
+                  <span>{t(item.labelKey)}</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            );
+          })}
+        </SidebarMenu>
+      </SidebarContent>
 
-        <Card className="rounded-3xl border-white/10 bg-white/8 py-0 text-white ring-0">
-          <CardContent className="p-4">
-            <p className="text-sm text-sky-100">Signed in as</p>
-            <p className="mt-1 text-base font-medium">{user?.username ?? "Guest"}</p>
-            <p className="text-sm text-sky-100">{user?.email ?? "No active session"}</p>
-            <Button
-              onClick={() => logoutMutation.mutate()}
-              disabled={logoutMutation.isPending}
-              variant="outline"
-              className="mt-4 w-full rounded-2xl border-white/15 bg-transparent text-white hover:bg-white/10 hover:text-white"
-            >
-              <LogOut className="size-4" />
-              {logoutMutation.isPending ? "Signing out..." : "Logout"}
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    </aside>
+      <SidebarFooter className="gap-4 bg-[var(--color-surface-sidebar)] p-4 text-sidebar-foreground">
+        <SidebarSeparator className="bg-white/10" />
+
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                render={
+                  <SidebarMenuButton
+                    size="lg"
+                    className="h-auto rounded-2xl bg-white/8 px-3 py-3 hover:bg-white/12 data-[active=true]:bg-sidebar-accent"
+                  />
+                }
+              >
+                <div className="flex size-9 items-center justify-center rounded-full bg-sidebar-primary font-semibold text-sidebar-primary-foreground">
+                  {(user?.username?.[0] ?? "G").toUpperCase()}
+                </div>
+                <div className="grid flex-1 text-left text-sm leading-tight">
+                  <span className="truncate font-medium">
+                    {user?.username ?? t("common.guest")}
+                  </span>
+                  <span className="truncate text-xs text-sky-100 dark:text-slate-300">
+                    {user?.email ?? t("common.noActiveSession")}
+                  </span>
+                </div>
+                <ChevronsUpDown className="ml-auto size-4 opacity-70" />
+              </DropdownMenuTrigger>
+
+              <DropdownMenuContent
+                align="end"
+                className="w-72 rounded-2xl"
+                side="top"
+              >
+                <DropdownMenuLabel className="px-2 py-1.5">
+                  <div className="grid gap-0.5">
+                    <span className="font-medium">
+                      {user?.username ?? t("common.guest")}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {user?.email ?? t("common.noActiveSession")}
+                    </span>
+                  </div>
+                </DropdownMenuLabel>
+
+                <DropdownMenuSeparator />
+
+                <DropdownMenuItem onClick={() => router.push(routes.profile)}>
+                  <UserRound className="size-4" />
+                  {t("navigation.profile")}
+                </DropdownMenuItem>
+
+                <DropdownMenuSeparator />
+
+                <DropdownMenuGroup>
+                  <DropdownMenuLabel>{t("sidebar.language")}</DropdownMenuLabel>
+                  <DropdownMenuRadioGroup value={locale} onValueChange={(value) => setLocale(value as "en" | "id")}>
+                    <DropdownMenuRadioItem value="en">EN</DropdownMenuRadioItem>
+                    <DropdownMenuRadioItem value="id">ID</DropdownMenuRadioItem>
+                  </DropdownMenuRadioGroup>
+                </DropdownMenuGroup>
+
+                <DropdownMenuSeparator />
+
+                <DropdownMenuGroup>
+                  <DropdownMenuLabel>{t("theme.title")}</DropdownMenuLabel>
+                  <DropdownMenuRadioGroup value={theme} onValueChange={setTheme}>
+                    {themeOptions.map((option) => {
+                      const Icon = option.icon;
+
+                      return (
+                        <DropdownMenuRadioItem key={option.value} value={option.value}>
+                          <Icon className="size-4" />
+                          {t(option.labelKey)}
+                        </DropdownMenuRadioItem>
+                      );
+                    })}
+                  </DropdownMenuRadioGroup>
+                </DropdownMenuGroup>
+
+                <DropdownMenuSeparator />
+
+                <DropdownMenuItem
+                  onClick={() => logoutMutation.mutate()}
+                  disabled={logoutMutation.isPending}
+                  variant="destructive"
+                >
+                  <LogOut className="size-4" />
+                  {logoutMutation.isPending ? t("sidebar.signingOut") : t("sidebar.logout")}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
+    </Sidebar>
   );
 }

@@ -6,13 +6,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { FormError } from "@/components/shared/form-error";
-import { useRegister } from "@/features/auth/hooks/use-auth-actions";
-import {
-  registerSchema,
-  type RegisterSchema,
-} from "@/features/auth/schemas/register-schema";
-import { ApiError } from "@/lib/api/types";
-import { routes } from "@/lib/constants/routes";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -23,9 +16,18 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useRegister } from "@/features/auth/hooks/use-auth-actions";
+import {
+  registerSchema,
+  type RegisterSchema,
+} from "@/features/auth/schemas/register-schema";
+import { ApiError } from "@/lib/api/types";
+import { useTranslations } from "@/lib/i18n/use-translations";
+import { routes } from "@/lib/constants/routes";
 
 export function RegisterScreen() {
   const [formError, setFormError] = useState<string | undefined>();
+  const { t } = useTranslations();
   const registerMutation = useRegister();
   const {
     register,
@@ -89,13 +91,13 @@ export function RegisterScreen() {
     <Card className="rounded-[var(--radius-card)] border-[var(--color-border)] bg-[var(--color-surface-elevated)] py-0 shadow-[var(--shadow-soft)]">
       <CardHeader className="p-8 pb-0">
         <p className="text-xs uppercase tracking-[0.24em] text-[var(--color-primary-strong)]">
-          Get started
+          {t("auth.getStarted")}
         </p>
         <CardTitle className="mt-3 font-[var(--font-display)] text-3xl font-semibold text-[var(--color-foreground)]">
-          Create your account
+          {t("auth.registerTitle")}
         </CardTitle>
         <CardDescription className="mt-2 text-sm text-[var(--color-foreground-muted)]">
-          Set up your workspace so you can track income, expenses, and balances in one place.
+          {t("auth.registerDescription")}
         </CardDescription>
       </CardHeader>
 
@@ -104,8 +106,16 @@ export function RegisterScreen() {
           <FormError message={formError} />
 
           {[
-            { name: "username", label: "Username", placeholder: "bonney" },
-            { name: "email", label: "Email", placeholder: "bonney@example.com" },
+            {
+              name: "username",
+              label: t("auth.username"),
+              placeholder: t("auth.usernamePlaceholder"),
+            },
+            {
+              name: "email",
+              label: t("auth.email"),
+              placeholder: t("auth.emailPlaceholder"),
+            },
           ].map((field) => (
             <div key={field.name}>
               <Label className="mb-2 block text-sm font-medium text-[var(--color-foreground)]">
@@ -113,7 +123,7 @@ export function RegisterScreen() {
               </Label>
               <Input
                 {...register(field.name as "username" | "email")}
-                className="h-12 rounded-2xl border-[var(--color-border-strong)] bg-white px-4"
+                className="h-12 rounded-2xl border-[var(--color-border-strong)] bg-white px-4 dark:bg-transparent"
                 placeholder={field.placeholder}
               />
               {errors[field.name as "username" | "email"] ? (
@@ -126,13 +136,13 @@ export function RegisterScreen() {
 
           <div>
             <Label className="mb-2 block text-sm font-medium text-[var(--color-foreground)]">
-              Password
+              {t("auth.password")}
             </Label>
             <Input
               {...register("password")}
               type="password"
-              className="h-12 rounded-2xl border-[var(--color-border-strong)] bg-white px-4"
-              placeholder="At least 8 characters"
+              className="h-12 rounded-2xl border-[var(--color-border-strong)] bg-white px-4 dark:bg-transparent"
+              placeholder={t("auth.passwordPlaceholder")}
             />
             {errors.password ? (
               <p className="mt-2 text-sm text-[var(--color-danger)]">
@@ -143,13 +153,13 @@ export function RegisterScreen() {
 
           <div>
             <Label className="mb-2 block text-sm font-medium text-[var(--color-foreground)]">
-              Confirm password
+              {t("auth.confirmPassword")}
             </Label>
             <Input
               {...register("confirmPassword")}
               type="password"
-              className="h-12 rounded-2xl border-[var(--color-border-strong)] bg-white px-4"
-              placeholder="Repeat your password"
+              className="h-12 rounded-2xl border-[var(--color-border-strong)] bg-white px-4 dark:bg-transparent"
+              placeholder={t("auth.confirmPasswordPlaceholder")}
             />
             {errors.confirmPassword ? (
               <p className="mt-2 text-sm text-[var(--color-danger)]">
@@ -164,18 +174,18 @@ export function RegisterScreen() {
             className="h-12 w-full rounded-2xl bg-[var(--color-surface-sidebar)] font-medium text-white hover:bg-[var(--color-surface-sidebar)]/95"
           >
             {isSubmitting || registerMutation.isPending
-              ? "Creating account..."
-              : "Create Account"}
+              ? t("auth.creatingAccount")
+              : t("auth.createAccount")}
           </Button>
         </form>
 
         <p className="mt-6 text-sm text-[var(--color-foreground-muted)]">
-          Already have an account?{" "}
+          {t("auth.alreadyHaveAccount")}{" "}
           <Link
             className="font-semibold text-[var(--color-primary-strong)]"
             href={routes.login}
           >
-            Sign in
+            {t("auth.signInLink")}
           </Link>
         </p>
       </CardContent>

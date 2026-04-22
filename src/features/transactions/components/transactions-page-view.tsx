@@ -1,8 +1,26 @@
+"use client";
+
 import { PageHeader } from "@/components/shared/page-header";
 import { SectionCard } from "@/components/shared/section-card";
 import { StatusBadge } from "@/components/shared/status-badge";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { formatCurrency } from "@/lib/formatters/currency";
 import { formatDate } from "@/lib/formatters/date";
+import { useTranslations } from "@/lib/i18n/use-translations";
 
 const rows = [
   {
@@ -24,26 +42,25 @@ const rows = [
 ];
 
 export function TransactionsPageView() {
+  const { t } = useTranslations();
+
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Transactions"
-        description="Track, filter, and manage your complete cash flow history."
+        title={t("transactions.title")}
+        description={t("transactions.description")}
         action={
-          <button
-            type="button"
-            className="rounded-2xl bg-[var(--color-surface-sidebar)] px-5 py-3 text-sm font-semibold text-white"
-          >
-            Add Transaction
-          </button>
+          <Button className="h-11 rounded-2xl bg-[var(--color-surface-sidebar)] px-5 text-sm font-semibold text-white hover:bg-[var(--color-surface-sidebar)]/95">
+            {t("transactions.addTransaction")}
+          </Button>
         }
       />
 
       <div className="grid gap-4 md:grid-cols-3">
         {[
-          { label: "Total Transactions", value: "25" },
-          { label: "Income", value: formatCurrency(22000000) },
-          { label: "Expense", value: formatCurrency(9500000) },
+          { label: t("transactions.totalTransactions"), value: "25" },
+          { label: t("common.income"), value: formatCurrency(22000000) },
+          { label: t("common.expense"), value: formatCurrency(9500000) },
         ].map((item) => (
           <SectionCard key={item.label} title={item.label}>
             <p className="text-2xl font-semibold text-[var(--color-foreground)]">
@@ -54,11 +71,17 @@ export function TransactionsPageView() {
       </div>
 
       <SectionCard
-        title="Filters"
-        description="This area will be connected to query params, debounced search, and filterable summaries."
+        title={t("transactions.filtersTitle")}
+        description={t("transactions.filtersDescription")}
       >
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
-          {["Search", "Account", "Type", "Category", "Date Range"].map((item) => (
+          {[
+            t("common.search"),
+            t("common.account"),
+            t("common.type"),
+            t("common.category"),
+            t("common.dateRange"),
+          ].map((item) => (
             <div
               key={item}
               className="rounded-2xl border border-dashed border-[var(--color-border-strong)] px-4 py-5 text-sm text-[var(--color-foreground-muted)]"
@@ -70,46 +93,61 @@ export function TransactionsPageView() {
       </SectionCard>
 
       <SectionCard
-        title="Transaction Table"
-        description="Table structure is in place for pagination, actions, and server-side filters."
+        title={t("transactions.tableTitle")}
+        description={t("transactions.tableDescription")}
       >
-        <div className="overflow-x-auto">
-          <table className="min-w-full border-separate border-spacing-y-3 text-left text-sm">
-            <thead>
-              <tr className="text-[var(--color-foreground-muted)]">
-                <th className="px-4">Date</th>
-                <th className="px-4">Type</th>
-                <th className="px-4">Account</th>
-                <th className="px-4">Category</th>
-                <th className="px-4">Description</th>
-                <th className="px-4">Amount</th>
-                <th className="px-4">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((row) => (
-                <tr
-                  key={`${row.account}-${row.date}-${row.amount}`}
-                  className="rounded-3xl bg-[var(--color-surface)] text-[var(--color-foreground)] shadow-[var(--shadow-soft)]"
-                >
-                  <td className="rounded-l-3xl px-4 py-4">{formatDate(row.date)}</td>
-                  <td className="px-4 py-4">
-                    <StatusBadge tone={row.type === "INCOME" ? "income" : "expense"}>
-                      {row.type}
-                    </StatusBadge>
-                  </td>
-                  <td className="px-4 py-4">{row.account}</td>
-                  <td className="px-4 py-4">{row.category}</td>
-                  <td className="px-4 py-4 text-[var(--color-foreground-muted)]">
-                    {row.description}
-                  </td>
-                  <td className="px-4 py-4 font-semibold">{formatCurrency(row.amount)}</td>
-                  <td className="rounded-r-3xl px-4 py-4">•••</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <Table>
+          <TableHeader>
+            <TableRow className="hover:bg-transparent">
+              <TableHead className="text-[var(--color-foreground-muted)]">{t("common.date")}</TableHead>
+              <TableHead className="text-[var(--color-foreground-muted)]">{t("common.type")}</TableHead>
+              <TableHead className="text-[var(--color-foreground-muted)]">{t("common.account")}</TableHead>
+              <TableHead className="text-[var(--color-foreground-muted)]">{t("common.category")}</TableHead>
+              <TableHead className="text-[var(--color-foreground-muted)]">{t("common.description")}</TableHead>
+              <TableHead className="text-[var(--color-foreground-muted)]">{t("common.amount")}</TableHead>
+              <TableHead className="text-[var(--color-foreground-muted)]">{t("common.actions")}</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {rows.map((row) => (
+              <TableRow
+                key={`${row.account}-${row.date}-${row.amount}`}
+                className="bg-[var(--color-surface)] text-[var(--color-foreground)]"
+              >
+                <TableCell>{formatDate(row.date)}</TableCell>
+                <TableCell>
+                  <StatusBadge tone={row.type === "INCOME" ? "income" : "expense"}>
+                    {t(row.type === "INCOME" ? "common.income" : "common.expense")}
+                  </StatusBadge>
+                </TableCell>
+                <TableCell>{row.account}</TableCell>
+                <TableCell>{row.category}</TableCell>
+                <TableCell className="text-[var(--color-foreground-muted)]">
+                  {row.description}
+                </TableCell>
+                <TableCell className="font-semibold">
+                  {formatCurrency(row.amount)}
+                </TableCell>
+                <TableCell>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger
+                      render={<Button variant="ghost" size="icon-sm" />}
+                      aria-label="Open transaction actions"
+                    >
+                      <span className="text-lg leading-none">•••</span>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem>{t("transactions.edit")}</DropdownMenuItem>
+                      <DropdownMenuItem variant="destructive">
+                        {t("transactions.delete")}
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </SectionCard>
     </div>
   );
