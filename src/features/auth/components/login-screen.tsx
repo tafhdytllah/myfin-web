@@ -1,16 +1,23 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import { routes } from "@/lib/constants/routes";
+import { FormError } from "@/components/shared/form-error";
+import { useLogin } from "@/features/auth/hooks/use-auth-actions";
 import { loginSchema, type LoginSchema } from "@/features/auth/schemas/login-schema";
+import { ApiError } from "@/lib/api/types";
+import { routes } from "@/lib/constants/routes";
 
 export function LoginScreen() {
+  const [formError, setFormError] = useState<string | undefined>();
+  const loginMutation = useLogin();
   const {
     register,
     handleSubmit,
+    setError,
     formState: { errors, isSubmitting },
   } = useForm<LoginSchema>({
     resolver: zodResolver(loginSchema),
@@ -20,8 +27,35 @@ export function LoginScreen() {
     },
   });
 
-  const onSubmit = async () => {
-    await Promise.resolve();
+  const onSubmit = async (values: LoginSchema) => {
+    setFormError(undefined);
+
+    try {
+      await loginMutation.mutateAsync(values);
+    } catch (error) {
+      if (error instanceof ApiError) {
+        if (error.details?.username) {
+          setError("username", {
+            message: Array.isArray(error.details.username)
+              ? error.details.username[0]
+              : error.details.username,
+          });
+        }
+
+        if (error.details?.password) {
+          setError("password", {
+            message: Array.isArray(error.details.password)
+              ? error.details.password[0]
+              : error.details.password,
+          });
+        }
+
+        setFormError(error.message);
+        return;
+      }
+
+      setFormError("Unable to sign in right now. Please try again.");
+    }
   };
 
   return (
@@ -37,6 +71,8 @@ export function LoginScreen() {
       </p>
 
       <form className="mt-8 space-y-5" onSubmit={handleSubmit(onSubmit)}>
+        <FormError message={formError} />
+
         <div>
           <label className="mb-2 block text-sm font-medium text-[var(--color-foreground)]">
             Username
@@ -72,10 +108,10 @@ export function LoginScreen() {
 
         <button
           type="submit"
-          disabled={isSubmitting}
+          disabled={isSubmitting || loginMutation.isPending}
           className="w-full rounded-2xl bg-[var(--color-surface-sidebar)] px-4 py-3 font-medium text-white transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-70"
         >
-          {isSubmitting ? "Signing in..." : "Sign In"}
+          {isSubmitting || loginMutation.isPending ? "Signing in..." : "Sign In"}
         </button>
       </form>
 

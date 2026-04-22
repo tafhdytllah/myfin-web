@@ -1,19 +1,26 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import { routes } from "@/lib/constants/routes";
+import { FormError } from "@/components/shared/form-error";
+import { useRegister } from "@/features/auth/hooks/use-auth-actions";
 import {
   registerSchema,
   type RegisterSchema,
 } from "@/features/auth/schemas/register-schema";
+import { ApiError } from "@/lib/api/types";
+import { routes } from "@/lib/constants/routes";
 
 export function RegisterScreen() {
+  const [formError, setFormError] = useState<string | undefined>();
+  const registerMutation = useRegister();
   const {
     register,
     handleSubmit,
+    setError,
     formState: { errors, isSubmitting },
   } = useForm<RegisterSchema>({
     resolver: zodResolver(registerSchema),
@@ -25,8 +32,47 @@ export function RegisterScreen() {
     },
   });
 
-  const onSubmit = async () => {
-    await Promise.resolve();
+  const onSubmit = async (values: RegisterSchema) => {
+    setFormError(undefined);
+
+    try {
+      await registerMutation.mutateAsync({
+        username: values.username,
+        email: values.email,
+        password: values.password,
+      });
+    } catch (error) {
+      if (error instanceof ApiError) {
+        if (error.details?.username) {
+          setError("username", {
+            message: Array.isArray(error.details.username)
+              ? error.details.username[0]
+              : error.details.username,
+          });
+        }
+
+        if (error.details?.email) {
+          setError("email", {
+            message: Array.isArray(error.details.email)
+              ? error.details.email[0]
+              : error.details.email,
+          });
+        }
+
+        if (error.details?.password) {
+          setError("password", {
+            message: Array.isArray(error.details.password)
+              ? error.details.password[0]
+              : error.details.password,
+          });
+        }
+
+        setFormError(error.message);
+        return;
+      }
+
+      setFormError("Unable to create your account right now. Please try again.");
+    }
   };
 
   return (
@@ -42,6 +88,8 @@ export function RegisterScreen() {
       </p>
 
       <form className="mt-8 space-y-5" onSubmit={handleSubmit(onSubmit)}>
+        <FormError message={formError} />
+
         {[
           { name: "username", label: "Username", placeholder: "bonney" },
           { name: "email", label: "Email", placeholder: "bonney@example.com" },
@@ -99,10 +147,12 @@ export function RegisterScreen() {
 
         <button
           type="submit"
-          disabled={isSubmitting}
+          disabled={isSubmitting || registerMutation.isPending}
           className="w-full rounded-2xl bg-[var(--color-surface-sidebar)] px-4 py-3 font-medium text-white transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-70"
         >
-          {isSubmitting ? "Creating account..." : "Create Account"}
+          {isSubmitting || registerMutation.isPending
+            ? "Creating account..."
+            : "Create Account"}
         </button>
       </form>
 

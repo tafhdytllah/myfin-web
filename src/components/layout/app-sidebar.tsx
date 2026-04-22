@@ -3,14 +3,18 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import { useLogout } from "@/features/auth/hooks/use-auth-actions";
 import { routes } from "@/lib/constants/routes";
 import { sidebarNavigation } from "@/lib/constants/sidebar-navigation";
+import { useAuthStore } from "@/stores/auth-store";
 import { useLocaleStore } from "@/stores/locale-store";
 
 export function AppSidebar() {
   const pathname = usePathname();
   const locale = useLocaleStore((state) => state.locale);
   const setLocale = useLocaleStore((state) => state.setLocale);
+  const user = useAuthStore((state) => state.user);
+  const logoutMutation = useLogout();
 
   return (
     <aside className="sticky top-0 hidden h-screen border-r border-white/10 bg-[var(--color-surface-sidebar)] px-5 py-6 text-white lg:flex lg:flex-col">
@@ -67,8 +71,16 @@ export function AppSidebar() {
 
         <div className="rounded-3xl border border-white/10 bg-white/8 p-4">
           <p className="text-sm text-sky-100">Signed in as</p>
-          <p className="mt-1 text-base font-medium">demo</p>
-          <p className="text-sm text-sky-100">demo@myfin.local</p>
+          <p className="mt-1 text-base font-medium">{user?.username ?? "Guest"}</p>
+          <p className="text-sm text-sky-100">{user?.email ?? "No active session"}</p>
+          <button
+            type="button"
+            onClick={() => logoutMutation.mutate()}
+            disabled={logoutMutation.isPending}
+            className="mt-4 w-full rounded-2xl border border-white/15 px-3 py-2 text-sm font-medium text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-70"
+          >
+            {logoutMutation.isPending ? "Signing out..." : "Logout"}
+          </button>
         </div>
       </div>
     </aside>
