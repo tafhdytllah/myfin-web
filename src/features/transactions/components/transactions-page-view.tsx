@@ -1,5 +1,27 @@
 "use client";
 
+import { useMemo, useState } from "react";
+import {
+  MoreHorizontal,
+  PencilLine,
+  RefreshCw,
+  Trash2,
+} from "lucide-react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+
+import { useAccounts } from "@/features/accounts/hooks/use-account-queries";
+import { useCategories } from "@/features/categories/hooks/use-category-queries";
+import { TransactionDeleteDialog } from "@/features/transactions/components/transaction-delete-dialog";
+import { TransactionFormDialog } from "@/features/transactions/components/transaction-form-dialog";
+import {
+  useEditTransactionUnavailable,
+  useTransactions,
+} from "@/features/transactions/hooks/use-transaction-queries";
+import { Transaction } from "@/features/transactions/types/transaction-types";
+import {
+  buildTransactionSearchParams,
+  parseTransactionFilters,
+} from "@/features/transactions/utils/transaction-search-params";
 import { PageHeader } from "@/components/shared/page-header";
 import { SectionCard } from "@/components/shared/section-card";
 import { StatusBadge } from "@/components/shared/status-badge";
@@ -10,6 +32,22 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -21,28 +59,105 @@ import {
 import { formatCurrency } from "@/lib/formatters/currency";
 import { formatDate } from "@/lib/formatters/date";
 import { useTranslations } from "@/lib/i18n/use-translations";
-
-const rows = [
-  {
-    date: "2026-04-22",
-    type: "EXPENSE",
-    account: "Main Wallet",
-    category: "Groceries",
-    description: "Weekend groceries",
-    amount: 185000,
-  },
-  {
-    date: "2026-04-21",
-    type: "INCOME",
-    account: "BCA Payroll",
-    category: "Salary",
-    description: "Monthly salary",
-    amount: 8750000,
-  },
-];
+import { useLocaleStore } from "@/stores/locale-store";
 
 export function TransactionsPageView() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const locale = useLocaleStore((state) => state.locale);
   const { t } = useTranslations();
+  const notifyEditUnavailable = useEditTransactionUnavailable();
+  const filters = useMemo(
+    () => parseTransactionFilters(new URLSearchParams(searchParams.toString())),
+    [searchParams],
+  );
+  const [formOpen, setFormOpen] = useState(false);
+  const [deletingTransaction, setDeletingTransaction] = useState<Transaction | null>(null);
+
+  const accountsQuery = useAccounts({ status: "all" });
+  const categoriesQuery = useCategories({ status: "all", type: "all" });
+  const transactionsQuery = useTransactions(filters);
+  const summaryListQuery = useTransactions({
+    ...filters,
+    page: 1,
+    size: 1000,
+  });
+
+  const accounts = useMemo(() => accountsQuery.data ?? [], [accountsQuery.data]);
+  const categories = useMemo(() => categoriesQuery.data ?? [], [categoriesQuery.data]);
+  const transactionsEnvelope = transactionsQuery.data;
+  const transactions = useMemo(
+    () => transactionsEnvelope?.data ?? [],
+    [transactionsEnvelope?.data],
+  );
+  const summaryTransactions = useMemo(
+    () => summaryListQuery.data?.data ?? [],
+    [summaryListQuery.data?.data],
+  );
+
+  const summary = useMemo(() => {
+    const totalIncome = summaryTransactions
+      .filter((transaction) => transaction.type === "INCOME")
+      .reduce((sum, transaction) => sum + transaction.amount, 0);
+    const totalExpense = summaryTransactions
+      .filter((transaction) => transaction.type === "EXPENSE")
+      .reduce((sum, transaction) => sum + transaction.amount, 0);
+
+    return {
+      totalTransactions: summaryListQuery.data?.meta?.totalElements ?? 0,
+      totalIncome,
+      totalExpense,
+    };
+  }, [summaryListQuery.data?.meta?.totalElements, summaryTransactions]);
+
+  const accountsMap = useMemo(
+    () => new Map(accounts.map((account) => [account.id, account])),
+    [accounts],
+  );
+  const categoriesMap = useMemo(
+    () => new Map(categories.map((category) => [category.id, category])),
+    [categories],
+  );
+
+  const rows = useMemo(
+    () =>
+      transactions.map((transaction) => ({
+        ...transaction,
+        accountName:
+          accountsMap.get(transaction.accountId)?.name ?? t("common.account"),
+        categoryName:
+          categoriesMap.get(transaction.categoryId)?.name ?? t("common.category"),
+      })),
+    [accountsMap, categoriesMap, t, transactions],
+  );
+
+  const totalPages = transactionsEnvelope?.meta?.totalPages ?? 1;
+  const currentPage = transactionsEnvelope?.meta?.page
+    ? transactionsEnvelope.meta.page + 1
+    : filters.page;
+  const dateLocale = locale === "id" ? "id-ID" : "en-US";
+
+  function updateFilters(nextFilters: typeof filters) {
+    const params = buildTransactionSearchParams(nextFilters);
+    const query = params.toString();
+
+    router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+  }
+
+  function changePage(page: number) {
+    updateFilters({
+      ...filters,
+      page,
+    });
+  }
+
+  function getCategoryOptions() {
+    return categories.filter((category) => {
+      const typeMatches = filters.type === "all" || !filters.type || category.type === filters.type;
+      return typeMatches;
+    });
+  }
 
   return (
     <div className="space-y-6">
@@ -50,7 +165,10 @@ export function TransactionsPageView() {
         title={t("transactions.title")}
         description={t("transactions.description")}
         action={
-          <Button className="h-11 rounded-2xl bg-[var(--color-surface-sidebar)] px-5 text-sm font-semibold text-white hover:bg-[var(--color-surface-sidebar)]/95">
+          <Button
+            className="h-11 rounded-2xl px-5 text-sm font-semibold"
+            onClick={() => setFormOpen(true)}
+          >
             {t("transactions.addTransaction")}
           </Button>
         }
@@ -58,9 +176,12 @@ export function TransactionsPageView() {
 
       <div className="grid gap-4 md:grid-cols-3">
         {[
-          { label: t("transactions.totalTransactions"), value: "25" },
-          { label: t("common.income"), value: formatCurrency(22000000) },
-          { label: t("common.expense"), value: formatCurrency(9500000) },
+          {
+            label: t("transactions.totalTransactions"),
+            value: String(summary.totalTransactions),
+          },
+          { label: t("common.income"), value: formatCurrency(summary.totalIncome) },
+          { label: t("common.expense"), value: formatCurrency(summary.totalExpense) },
         ].map((item) => (
           <SectionCard key={item.label} title={item.label}>
             <p className="text-2xl font-semibold text-[var(--color-foreground)]">
@@ -75,20 +196,109 @@ export function TransactionsPageView() {
         description={t("transactions.filtersDescription")}
       >
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
-          {[
-            t("common.search"),
-            t("common.account"),
-            t("common.type"),
-            t("common.category"),
-            t("common.dateRange"),
-          ].map((item) => (
-            <div
-              key={item}
-              className="rounded-2xl border border-dashed border-[var(--color-border-strong)] px-4 py-5 text-sm text-[var(--color-foreground-muted)]"
-            >
-              {item}
-            </div>
-          ))}
+          <Input
+            value={filters.keyword ?? ""}
+            onChange={(event) =>
+              updateFilters({
+                ...filters,
+                keyword: event.target.value,
+                page: 1,
+              })
+            }
+            placeholder={t("common.search")}
+          />
+
+          <Select
+            value={filters.accountId || "all"}
+            onValueChange={(value) =>
+              updateFilters({
+                ...filters,
+                accountId: value === "all" || value == null ? "" : value,
+                page: 1,
+              })
+            }
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder={t("common.account")} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{t("transactions.allAccounts")}</SelectItem>
+              {accounts.map((account) => (
+                <SelectItem key={account.id} value={account.id}>
+                  {account.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select
+            value={filters.type ?? "all"}
+            onValueChange={(value) =>
+              updateFilters({
+                ...filters,
+                type: (value ?? "all") as "all" | "INCOME" | "EXPENSE",
+                categoryId: "",
+                page: 1,
+              })
+            }
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder={t("common.type")} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{t("transactions.allTypes")}</SelectItem>
+              <SelectItem value="INCOME">{t("common.income")}</SelectItem>
+              <SelectItem value="EXPENSE">{t("common.expense")}</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select
+            value={filters.categoryId || "all"}
+            onValueChange={(value) =>
+              updateFilters({
+                ...filters,
+                categoryId: value === "all" || value == null ? "" : value,
+                page: 1,
+              })
+            }
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder={t("common.category")} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{t("transactions.allCategories")}</SelectItem>
+              {getCategoryOptions().map((category) => (
+                <SelectItem key={category.id} value={category.id}>
+                  {category.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <div className="grid grid-cols-2 gap-3">
+            <Input
+              type="date"
+              value={filters.startDate ?? ""}
+              onChange={(event) =>
+                updateFilters({
+                  ...filters,
+                  startDate: event.target.value,
+                  page: 1,
+                })
+              }
+            />
+            <Input
+              type="date"
+              value={filters.endDate ?? ""}
+              onChange={(event) =>
+                updateFilters({
+                  ...filters,
+                  endDate: event.target.value,
+                  page: 1,
+                })
+              }
+            />
+          </div>
         </div>
       </SectionCard>
 
@@ -96,59 +306,173 @@ export function TransactionsPageView() {
         title={t("transactions.tableTitle")}
         description={t("transactions.tableDescription")}
       >
-        <Table>
-          <TableHeader>
-            <TableRow className="hover:bg-transparent">
-              <TableHead className="text-[var(--color-foreground-muted)]">{t("common.date")}</TableHead>
-              <TableHead className="text-[var(--color-foreground-muted)]">{t("common.type")}</TableHead>
-              <TableHead className="text-[var(--color-foreground-muted)]">{t("common.account")}</TableHead>
-              <TableHead className="text-[var(--color-foreground-muted)]">{t("common.category")}</TableHead>
-              <TableHead className="text-[var(--color-foreground-muted)]">{t("common.description")}</TableHead>
-              <TableHead className="text-[var(--color-foreground-muted)]">{t("common.amount")}</TableHead>
-              <TableHead className="text-[var(--color-foreground-muted)]">{t("common.actions")}</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {rows.map((row) => (
-              <TableRow
-                key={`${row.account}-${row.date}-${row.amount}`}
-                className="bg-[var(--color-surface)] text-[var(--color-foreground)]"
-              >
-                <TableCell>{formatDate(row.date)}</TableCell>
-                <TableCell>
-                  <StatusBadge tone={row.type === "INCOME" ? "income" : "expense"}>
-                    {t(row.type === "INCOME" ? "common.income" : "common.expense")}
-                  </StatusBadge>
-                </TableCell>
-                <TableCell>{row.account}</TableCell>
-                <TableCell>{row.category}</TableCell>
-                <TableCell className="text-[var(--color-foreground-muted)]">
-                  {row.description}
-                </TableCell>
-                <TableCell className="font-semibold">
-                  {formatCurrency(row.amount)}
-                </TableCell>
-                <TableCell>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger
-                      render={<Button variant="ghost" size="icon-sm" />}
-                      aria-label="Open transaction actions"
-                    >
-                      <span className="text-lg leading-none">•••</span>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem>{t("transactions.edit")}</DropdownMenuItem>
-                      <DropdownMenuItem variant="destructive">
-                        {t("transactions.delete")}
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
-              </TableRow>
+        {transactionsQuery.isLoading ? (
+          <div className="space-y-3">
+            {Array.from({ length: 5 }).map((_, index) => (
+              <div key={index} className="h-14 rounded-xl bg-muted" />
             ))}
-          </TableBody>
-        </Table>
+          </div>
+        ) : null}
+
+        {transactionsQuery.isError ? (
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              {t("transactions.loadErrorDescription")}
+            </p>
+            <Button variant="outline" onClick={() => transactionsQuery.refetch()}>
+              <RefreshCw className="size-4" />
+              {t("transactions.retry")}
+            </Button>
+          </div>
+        ) : null}
+
+        {!transactionsQuery.isLoading &&
+        !transactionsQuery.isError &&
+        rows.length === 0 ? (
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              {t("transactions.emptyDescription")}
+            </p>
+            <Button onClick={() => setFormOpen(true)}>{t("transactions.addTransaction")}</Button>
+          </div>
+        ) : null}
+
+        {!transactionsQuery.isLoading &&
+        !transactionsQuery.isError &&
+        rows.length > 0 ? (
+          <>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow className="hover:bg-transparent">
+                    <TableHead className="text-[var(--color-foreground-muted)]">
+                      {t("common.date")}
+                    </TableHead>
+                    <TableHead className="text-[var(--color-foreground-muted)]">
+                      {t("common.type")}
+                    </TableHead>
+                    <TableHead className="text-[var(--color-foreground-muted)]">
+                      {t("common.account")}
+                    </TableHead>
+                    <TableHead className="text-[var(--color-foreground-muted)]">
+                      {t("common.category")}
+                    </TableHead>
+                    <TableHead className="text-[var(--color-foreground-muted)]">
+                      {t("common.description")}
+                    </TableHead>
+                    <TableHead className="text-[var(--color-foreground-muted)]">
+                      {t("common.amount")}
+                    </TableHead>
+                    <TableHead className="text-right text-[var(--color-foreground-muted)]">
+                      {t("common.actions")}
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {rows.map((row) => (
+                    <TableRow key={row.id}>
+                      <TableCell>{formatDate(row.createdAt, dateLocale)}</TableCell>
+                      <TableCell>
+                        <StatusBadge tone={row.type === "INCOME" ? "income" : "expense"}>
+                          {row.type === "INCOME" ? t("common.income") : t("common.expense")}
+                        </StatusBadge>
+                      </TableCell>
+                      <TableCell>{row.accountName}</TableCell>
+                      <TableCell>{row.categoryName}</TableCell>
+                      <TableCell className="max-w-xs truncate text-[var(--color-foreground-muted)]">
+                        {row.description || "—"}
+                      </TableCell>
+                      <TableCell className="font-semibold">
+                        {formatCurrency(row.amount)}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger render={<Button variant="ghost" size="icon-sm" />}>
+                            <MoreHorizontal className="size-4" />
+                            <span className="sr-only">{t("common.actions")}</span>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => notifyEditUnavailable(row)}>
+                              <PencilLine className="size-4" />
+                              {t("transactions.edit")}
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              variant="destructive"
+                              onClick={() => setDeletingTransaction(row)}
+                            >
+                              <Trash2 className="size-4" />
+                              {t("transactions.delete")}
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+
+            {totalPages > 1 ? (
+              <Pagination className="mt-6 justify-end">
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious
+                      href="#"
+                      text={t("transactions.previous")}
+                      onClick={(event) => {
+                        event.preventDefault();
+                        if (currentPage > 1) changePage(currentPage - 1);
+                      }}
+                    />
+                  </PaginationItem>
+                  {Array.from({ length: totalPages }).map((_, index) => {
+                    const page = index + 1;
+
+                    return (
+                      <PaginationItem key={page}>
+                        <PaginationLink
+                          href="#"
+                          isActive={page === currentPage}
+                          onClick={(event) => {
+                            event.preventDefault();
+                            changePage(page);
+                          }}
+                        >
+                          {page}
+                        </PaginationLink>
+                      </PaginationItem>
+                    );
+                  })}
+                  <PaginationItem>
+                    <PaginationNext
+                      href="#"
+                      text={t("transactions.next")}
+                      onClick={(event) => {
+                        event.preventDefault();
+                        if (currentPage < totalPages) changePage(currentPage + 1);
+                      }}
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            ) : null}
+          </>
+        ) : null}
       </SectionCard>
+
+      <TransactionFormDialog open={formOpen} onOpenChange={setFormOpen} />
+      <TransactionDeleteDialog
+        transaction={deletingTransaction}
+        categoryName={
+          deletingTransaction
+            ? categoriesMap.get(deletingTransaction.categoryId)?.name
+            : undefined
+        }
+        open={Boolean(deletingTransaction)}
+        onOpenChange={(open) => {
+          if (!open) setDeletingTransaction(null);
+        }}
+      />
     </div>
   );
 }
