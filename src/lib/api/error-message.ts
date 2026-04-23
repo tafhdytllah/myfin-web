@@ -1,7 +1,7 @@
-import { isApiError } from "@/lib/api/types";
+import { ApiError } from "@/lib/api/types";
 
 export function getApiErrorMessage(error: unknown, fallback: string) {
-  if (isApiError(error)) {
+  if (error instanceof ApiError) {
     return error.message;
   }
 

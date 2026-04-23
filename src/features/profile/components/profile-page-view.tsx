@@ -31,7 +31,7 @@ import {
   useUpdateProfile,
 } from "@/features/profile/hooks/use-profile-queries";
 import { getApiFieldError } from "@/lib/api/error-fields";
-import { isApiError } from "@/lib/api/types";
+import { ApiError } from "@/lib/api/types";
 import { useTranslations } from "@/lib/i18n/use-translations";
 import { useAuthStore } from "@/stores/auth-store";
 
@@ -94,7 +94,7 @@ export function ProfilePageView() {
           profileForm.setError("email", { message: emailError });
         }
 
-        if (isApiError(error)) {
+        if (error instanceof ApiError) {
           setProfileFormError(error.message);
         }
       },
@@ -129,7 +129,7 @@ export function ProfilePageView() {
             });
           }
 
-          if (isApiError(error)) {
+          if (error instanceof ApiError) {
             setPasswordFormError(error.message);
           }
         },

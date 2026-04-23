@@ -1,7 +1,7 @@
-import { isApiError } from "@/lib/api/types";
+import { ApiError } from "@/lib/api/types";
 
 export function getApiFieldError(error: unknown, field: string) {
-  if (!isApiError(error)) {
+  if (!(error instanceof ApiError)) {
     return undefined;
   }
 
