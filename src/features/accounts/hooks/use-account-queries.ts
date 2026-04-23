@@ -3,11 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-import {
-  createAccount,
-  getAccounts,
-  updateAccount,
-} from "@/features/accounts/api/accounts-api";
+import { accountService } from "@/features/accounts/services/account-service";
 import {
   Account,
   AccountListFilters,
@@ -36,7 +32,7 @@ export function useAccounts(filters: AccountListFilters) {
 
   return useQuery({
     queryKey: accountsKeys.list(filters),
-    queryFn: () => getAccounts(accessToken as string, filters),
+    queryFn: () => accountService.getAccounts(accessToken as string, filters),
     enabled: Boolean(accessToken),
   });
 }
@@ -52,7 +48,7 @@ export function useCreateAccount() {
     }: {
       payload: CreateAccountPayload;
       onSuccess?: () => void;
-    }) => createAccount(accessToken as string, payload),
+    }) => accountService.createAccount(accessToken as string, payload),
     onSuccess: async (_, variables) => {
       await queryClient.invalidateQueries({ queryKey: accountsKeys.all });
       toast.success(t("accounts.createSuccess"));
@@ -77,7 +73,7 @@ export function useUpdateAccount() {
       id: string;
       payload: UpdateAccountPayload;
       onSuccess?: () => void;
-    }) => updateAccount(accessToken as string, id, payload),
+    }) => accountService.updateAccount(accessToken as string, id, payload),
     onSuccess: async (_, variables) => {
       await queryClient.invalidateQueries({ queryKey: accountsKeys.all });
       toast.success(t("accounts.updateSuccess"));
@@ -103,8 +99,9 @@ export function useToggleAccountStatus() {
       active: boolean;
       onSuccess?: () => void;
     }) =>
-      updateAccount(accessToken as string, account.id, {
-        name: account.name,
+      accountService.toggleAccountStatus({
+        accessToken: accessToken as string,
+        account,
         active,
       }),
     onSuccess: async (_, variables) => {
