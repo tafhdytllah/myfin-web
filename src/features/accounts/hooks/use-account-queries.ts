@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
+import { accountsKeys } from "@/features/accounts/hooks/account-query-keys";
 import { accountService } from "@/features/accounts/services/account-service";
 import {
   Account,
@@ -10,22 +11,9 @@ import {
   CreateAccountPayload,
   UpdateAccountPayload,
 } from "@/features/accounts/types/account-types";
-import { ApiError } from "@/lib/api/types";
+import { getApiErrorMessage } from "@/lib/api/error-message";
 import { useTranslations } from "@/lib/i18n/use-translations";
 import { useAuthStore } from "@/stores/auth-store";
-
-export const accountsKeys = {
-  all: ["accounts"] as const,
-  list: (filters: AccountListFilters) => ["accounts", "list", filters] as const,
-};
-
-function getApiErrorMessage(error: unknown, fallback: string) {
-  if (error instanceof ApiError) {
-    return error.message;
-  }
-
-  return fallback;
-}
 
 export function useAccounts(filters: AccountListFilters) {
   const accessToken = useAuthStore((state) => state.accessToken);
