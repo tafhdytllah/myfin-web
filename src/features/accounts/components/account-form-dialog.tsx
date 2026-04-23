@@ -3,8 +3,8 @@
 import { useEffect, useMemo } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -12,7 +12,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import {
   Field,
   FieldContent,
@@ -21,68 +20,26 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Account } from "@/features/accounts/types/account-types";
+import {
+  createAccountFormSchema,
+  createUpdateAccountFormSchema,
+  CreateAccountFormValues,
+  UpdateAccountFormValues,
+} from "@/features/accounts/schemas/account-form.schema";
 import {
   useCreateAccount,
   useUpdateAccount,
 } from "@/features/accounts/hooks/use-account-queries";
-import { ApiError } from "@/lib/api/types";
+import { Account } from "@/features/accounts/types/account-types";
+import { getApiFieldError } from "@/lib/api/error-fields";
 import { formatCurrency } from "@/lib/formatters/currency";
 import { useTranslations } from "@/lib/i18n/use-translations";
-import { createValidationMessages } from "@/lib/validation/messages";
 
 type AccountFormDialogProps = {
   account?: Account | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 };
-
-function createAccountSchema(t: ReturnType<typeof useTranslations>["t"]) {
-  const validation = createValidationMessages(t);
-
-  return z.object({
-    name: z
-      .string()
-      .trim()
-      .min(1, validation.required(t("accounts.accountName"))),
-    openingBalance: z
-      .string()
-      .trim()
-      .min(1, validation.required(t("accounts.openingBalance")))
-      .refine(
-        (value) => !Number.isNaN(Number(value)) && Number(value) >= 0,
-        validation.nonNegativeNumber(t("accounts.openingBalance")),
-      ),
-  });
-}
-
-function createUpdateAccountSchema(t: ReturnType<typeof useTranslations>["t"]) {
-  const validation = createValidationMessages(t);
-
-  return z.object({
-    name: z
-      .string()
-      .trim()
-      .min(1, validation.required(t("accounts.accountName"))),
-  });
-}
-
-type CreateAccountValues = z.input<ReturnType<typeof createAccountSchema>>;
-type UpdateAccountValues = z.infer<ReturnType<typeof createUpdateAccountSchema>>;
-
-function getFieldError(error: unknown, field: string) {
-  if (!(error instanceof ApiError)) {
-    return undefined;
-  }
-
-  const detail = error.details?.[field];
-
-  if (Array.isArray(detail)) {
-    return detail[0];
-  }
-
-  return detail;
-}
 
 export function AccountFormDialog({
   account,
@@ -91,12 +48,12 @@ export function AccountFormDialog({
 }: AccountFormDialogProps) {
   const { t } = useTranslations();
   const isEditMode = Boolean(account);
-  const createSchema = useMemo(() => createAccountSchema(t), [t]);
-  const updateSchema = useMemo(() => createUpdateAccountSchema(t), [t]);
+  const createSchema = useMemo(() => createAccountFormSchema(t), [t]);
+  const updateSchema = useMemo(() => createUpdateAccountFormSchema(t), [t]);
   const createMutation = useCreateAccount();
   const updateMutation = useUpdateAccount();
 
-  const createForm = useForm<CreateAccountValues>({
+  const createForm = useForm<CreateAccountFormValues>({
     resolver: zodResolver(createSchema),
     defaultValues: {
       name: "",
@@ -104,7 +61,7 @@ export function AccountFormDialog({
     },
   });
 
-  const updateForm = useForm<UpdateAccountValues>({
+  const updateForm = useForm<UpdateAccountFormValues>({
     resolver: zodResolver(updateSchema),
     defaultValues: {
       name: "",
@@ -129,7 +86,7 @@ export function AccountFormDialog({
     });
   }, [account, createForm, open, updateForm]);
 
-  function handleCreateSubmit(values: CreateAccountValues) {
+  function handleCreateSubmit(values: CreateAccountFormValues) {
     createMutation.mutate(
       {
         payload: {
@@ -140,8 +97,8 @@ export function AccountFormDialog({
       },
       {
         onError: (error) => {
-          const nameError = getFieldError(error, "name");
-          const openingBalanceError = getFieldError(error, "openingBalance");
+          const nameError = getApiFieldError(error, "name");
+          const openingBalanceError = getApiFieldError(error, "openingBalance");
 
           if (nameError) {
             createForm.setError("name", { message: nameError });
@@ -157,7 +114,7 @@ export function AccountFormDialog({
     );
   }
 
-  function handleUpdateSubmit(values: UpdateAccountValues) {
+  function handleUpdateSubmit(values: UpdateAccountFormValues) {
     if (!account) {
       return;
     }
@@ -173,7 +130,7 @@ export function AccountFormDialog({
       },
       {
         onError: (error) => {
-          const nameError = getFieldError(error, "name");
+          const nameError = getApiFieldError(error, "name");
 
           if (nameError) {
             updateForm.setError("name", { message: nameError });

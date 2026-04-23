@@ -4,6 +4,7 @@ import { dictionaries } from "@/lib/i18n/dictionaries";
 import { Locale, useLocaleStore } from "@/stores/locale-store";
 
 type TranslationValues = Record<string, string | number>;
+export type { TranslationValues };
 
 function getTranslationValue(
   locale: Locale,
