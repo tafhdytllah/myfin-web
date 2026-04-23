@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 
-import { getCurrentUser, refreshSession } from "@/features/auth/api/auth-api";
+import { authService } from "@/features/auth/services/auth-service";
 import { useAuthStore } from "@/stores/auth-store";
 
 export function useAuthBootstrap() {
@@ -26,7 +26,7 @@ export function useAuthBootstrap() {
 
       if (accessToken) {
         try {
-          const user = await getCurrentUser(accessToken);
+          const user = await authService.getCurrentUser(accessToken);
 
           if (!isActive) {
             return;
@@ -45,8 +45,8 @@ export function useAuthBootstrap() {
       }
 
       try {
-        const tokenData = await refreshSession();
-        const user = await getCurrentUser(tokenData.accessToken);
+        const tokenData = await authService.refreshSession();
+        const user = await authService.getCurrentUser(tokenData.accessToken);
 
         if (!isActive) {
           return;

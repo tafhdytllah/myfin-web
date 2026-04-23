@@ -13,6 +13,8 @@ export type ApiEnvelope<T> = {
   };
 };
 
+export type TransactionListEnvelope = ApiEnvelope<Transaction[]>;
+
 export type Transaction = {
   id: string;
   accountId: string;

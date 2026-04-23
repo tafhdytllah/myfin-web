@@ -3,41 +3,24 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-import {
-  createCategory,
-  getCategories,
-  updateCategory,
-} from "@/features/categories/api/categories-api";
+import { categoriesKeys } from "@/features/categories/hooks/category-query-keys";
+import { categoryService } from "@/features/categories/services/category-service";
 import {
   Category,
   CategoryListFilters,
   CreateCategoryPayload,
   UpdateCategoryPayload,
 } from "@/features/categories/types/category-types";
-import { ApiError } from "@/lib/api/types";
+import { getApiErrorMessage } from "@/lib/api/error-message";
 import { useTranslations } from "@/lib/i18n/use-translations";
 import { useAuthStore } from "@/stores/auth-store";
-
-export const categoriesKeys = {
-  all: ["categories"] as const,
-  list: (filters: CategoryListFilters) =>
-    ["categories", "list", filters] as const,
-};
-
-function getApiErrorMessage(error: unknown, fallback: string) {
-  if (error instanceof ApiError) {
-    return error.message;
-  }
-
-  return fallback;
-}
 
 export function useCategories(filters: CategoryListFilters) {
   const accessToken = useAuthStore((state) => state.accessToken);
 
   return useQuery({
     queryKey: categoriesKeys.list(filters),
-    queryFn: () => getCategories(accessToken as string, filters),
+    queryFn: () => categoryService.getCategories(accessToken as string, filters),
     enabled: Boolean(accessToken),
   });
 }
@@ -53,7 +36,7 @@ export function useCreateCategory() {
     }: {
       payload: CreateCategoryPayload;
       onSuccess?: () => void;
-    }) => createCategory(accessToken as string, payload),
+    }) => categoryService.createCategory(accessToken as string, payload),
     onSuccess: async (_, variables) => {
       await queryClient.invalidateQueries({ queryKey: categoriesKeys.all });
       toast.success(t("categories.createSuccess"));
@@ -78,7 +61,7 @@ export function useUpdateCategory() {
       id: string;
       payload: UpdateCategoryPayload;
       onSuccess?: () => void;
-    }) => updateCategory(accessToken as string, id, payload),
+    }) => categoryService.updateCategory(accessToken as string, id, payload),
     onSuccess: async (_, variables) => {
       await queryClient.invalidateQueries({ queryKey: categoriesKeys.all });
       toast.success(t("categories.updateSuccess"));
@@ -104,9 +87,9 @@ export function useToggleCategoryStatus() {
       active: boolean;
       onSuccess?: () => void;
     }) =>
-      updateCategory(accessToken as string, category.id, {
-        name: category.name,
-        type: category.type,
+      categoryService.toggleCategoryStatus({
+        accessToken: accessToken as string,
+        category,
         active,
       }),
     onSuccess: async (_, variables) => {

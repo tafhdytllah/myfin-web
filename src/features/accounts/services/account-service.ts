@@ -1,5 +1,4 @@
 import { accountApiRepository } from "@/features/accounts/repositories/account-api.repository";
-import { AccountRepository } from "@/features/accounts/repositories/account-repository";
 import { ToggleAccountStatusParams } from "@/features/accounts/services/account-service.types";
 import {
   AccountListFilters,
@@ -7,35 +6,31 @@ import {
   UpdateAccountPayload,
 } from "@/features/accounts/types/account-types";
 
-export class AccountService {
-  constructor(private readonly repository: AccountRepository) {}
-
+export const accountService = {
   getAccounts(accessToken: string, filters: AccountListFilters) {
-    return this.repository.getAccounts(accessToken, filters);
-  }
+    return accountApiRepository.getAccounts(accessToken, filters);
+  },
 
   createAccount(accessToken: string, payload: CreateAccountPayload) {
-    return this.repository.createAccount(accessToken, payload);
-  }
+    return accountApiRepository.createAccount(accessToken, payload);
+  },
 
   updateAccount(
     accessToken: string,
     id: string,
     payload: UpdateAccountPayload,
   ) {
-    return this.repository.updateAccount(accessToken, id, payload);
-  }
+    return accountApiRepository.updateAccount(accessToken, id, payload);
+  },
 
   toggleAccountStatus({
     accessToken,
     account,
     active,
   }: ToggleAccountStatusParams) {
-    return this.repository.updateAccount(accessToken, account.id, {
+    return accountApiRepository.updateAccount(accessToken, account.id, {
       name: account.name,
       active,
     });
-  }
-}
-
-export const accountService = new AccountService(accountApiRepository);
+  },
+};

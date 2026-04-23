@@ -4,7 +4,6 @@ import { useEffect, useMemo } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useForm, useWatch } from "react-hook-form";
-import { z } from "zod";
 
 import {
   Dialog,
@@ -34,64 +33,25 @@ import { useAccounts } from "@/features/accounts/hooks/use-account-queries";
 import { useCategories } from "@/features/categories/hooks/use-category-queries";
 import { CategoryType } from "@/features/categories/types/category-types";
 import { useCreateTransaction } from "@/features/transactions/hooks/use-transaction-queries";
-import { ApiError } from "@/lib/api/types";
+import {
+  createTransactionFormSchema,
+  TransactionFormValues,
+} from "@/features/transactions/schemas/transaction-form.schema";
+import { getApiFieldError } from "@/lib/api/error-fields";
 import { routes } from "@/lib/constants/routes";
 import { useTranslations } from "@/lib/i18n/use-translations";
-import { createValidationMessages } from "@/lib/validation/messages";
 
 type TransactionFormDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 };
 
-function createTransactionSchema(t: ReturnType<typeof useTranslations>["t"]) {
-  const validation = createValidationMessages(t);
-
-  return z.object({
-    type: z.enum(["INCOME", "EXPENSE"], {
-      error: () => validation.required(t("common.type")),
-    }),
-    accountId: z
-      .string()
-      .trim()
-      .min(1, validation.required(t("common.account"))),
-    categoryId: z
-      .string()
-      .trim()
-      .min(1, validation.required(t("common.category"))),
-    amount: z
-      .string()
-      .trim()
-      .min(1, validation.required(t("common.amount")))
-      .refine(
-        (value) => !Number.isNaN(Number(value)) && Number(value) > 0,
-        validation.positiveNumber(t("common.amount")),
-      ),
-    description: z.string().trim().optional(),
-  });
-}
-
-type TransactionFormValues = z.infer<ReturnType<typeof createTransactionSchema>>;
-
-function getFieldError(error: unknown, field: string) {
-  if (!(error instanceof ApiError)) {
-    return undefined;
-  }
-
-  const detail = error.details?.[field];
-  if (Array.isArray(detail)) {
-    return detail[0];
-  }
-
-  return detail;
-}
-
 export function TransactionFormDialog({
   open,
   onOpenChange,
 }: TransactionFormDialogProps) {
   const { t } = useTranslations();
-  const schema = useMemo(() => createTransactionSchema(t), [t]);
+  const schema = useMemo(() => createTransactionFormSchema(t), [t]);
   const createMutation = useCreateTransaction();
   const accountsQuery = useAccounts({ status: "active" });
   const categoriesQuery = useCategories({ status: "active", type: "all" });
@@ -177,11 +137,11 @@ export function TransactionFormDialog({
       },
       {
         onError: (error) => {
-          const accountError = getFieldError(error, "accountId");
-          const categoryError = getFieldError(error, "categoryId");
-          const amountError = getFieldError(error, "amount");
-          const typeError = getFieldError(error, "type");
-          const descriptionError = getFieldError(error, "description");
+          const accountError = getApiFieldError(error, "accountId");
+          const categoryError = getApiFieldError(error, "categoryId");
+          const amountError = getApiFieldError(error, "amount");
+          const typeError = getApiFieldError(error, "type");
+          const descriptionError = getApiFieldError(error, "description");
 
           if (accountError) form.setError("accountId", { message: accountError });
           if (categoryError) form.setError("categoryId", { message: categoryError });

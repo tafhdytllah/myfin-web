@@ -28,23 +28,10 @@ import {
   useCurrentProfile,
   useUpdateProfile,
 } from "@/features/profile/hooks/use-profile-queries";
+import { getApiFieldError } from "@/lib/api/error-fields";
 import { ApiError } from "@/lib/api/types";
 import { useTranslations } from "@/lib/i18n/use-translations";
 import { useAuthStore } from "@/stores/auth-store";
-
-function getFieldError(error: unknown, field: string) {
-  if (!(error instanceof ApiError)) {
-    return undefined;
-  }
-
-  const detail = error.details?.[field];
-
-  if (Array.isArray(detail)) {
-    return detail[0];
-  }
-
-  return detail;
-}
 
 export function ProfilePageView() {
   const { t } = useTranslations();
@@ -106,8 +93,8 @@ export function ProfilePageView() {
 
     updateProfileMutation.mutate(values, {
       onError: (error) => {
-        const usernameError = getFieldError(error, "username");
-        const emailError = getFieldError(error, "email");
+        const usernameError = getApiFieldError(error, "username");
+        const emailError = getApiFieldError(error, "email");
 
         if (usernameError) {
           profileForm.setError("username", { message: usernameError });
@@ -137,8 +124,8 @@ export function ProfilePageView() {
           passwordForm.reset();
         },
         onError: (error) => {
-          const currentPasswordError = getFieldError(error, "currentPassword");
-          const newPasswordError = getFieldError(error, "newPassword");
+          const currentPasswordError = getApiFieldError(error, "currentPassword");
+          const newPasswordError = getApiFieldError(error, "newPassword");
 
           if (currentPasswordError) {
             passwordForm.setError("currentPassword", {

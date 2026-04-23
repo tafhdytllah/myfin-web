@@ -3,7 +3,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 
-import { getCurrentUser, login, logout, register } from "@/features/auth/api/auth-api";
+import { authService } from "@/features/auth/services/auth-service";
 import {
   LoginPayload,
   RegisterPayload,
@@ -17,8 +17,8 @@ export function useLogin() {
 
   return useMutation({
     mutationFn: async (payload: LoginPayload) => {
-      const tokenData = await login(payload);
-      const user = await getCurrentUser(tokenData.accessToken);
+      const tokenData = await authService.login(payload);
+      const user = await authService.getCurrentUser(tokenData.accessToken);
 
       return {
         accessToken: tokenData.accessToken,
@@ -36,7 +36,7 @@ export function useRegister() {
   const router = useRouter();
 
   return useMutation({
-    mutationFn: (payload: RegisterPayload) => register(payload),
+    mutationFn: (payload: RegisterPayload) => authService.register(payload),
     onSuccess: () => {
       router.replace(routes.login);
     },
@@ -48,7 +48,7 @@ export function useLogout() {
   const clearSession = useAuthStore((state) => state.clearSession);
 
   return useMutation({
-    mutationFn: logout,
+    mutationFn: () => authService.logout(),
     onSettled: () => {
       clearSession();
       router.replace(routes.login);

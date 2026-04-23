@@ -3,7 +3,6 @@
 import { useEffect, useMemo } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useWatch } from "react-hook-form";
-import { z } from "zod";
 
 import {
   Dialog,
@@ -27,50 +26,23 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Category } from "@/features/categories/types/category-types";
+import {
+  CategoryFormValues,
+  createCategoryFormSchema,
+} from "@/features/categories/schemas/category-form.schema";
 import {
   useCreateCategory,
   useUpdateCategory,
 } from "@/features/categories/hooks/use-category-queries";
-import { ApiError } from "@/lib/api/types";
+import { Category } from "@/features/categories/types/category-types";
+import { getApiFieldError } from "@/lib/api/error-fields";
 import { useTranslations } from "@/lib/i18n/use-translations";
-import { createValidationMessages } from "@/lib/validation/messages";
 
 type CategoryFormDialogProps = {
   category?: Category | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 };
-
-function createCategorySchema(t: ReturnType<typeof useTranslations>["t"]) {
-  const validation = createValidationMessages(t);
-
-  return z.object({
-    name: z
-      .string()
-      .trim()
-      .min(1, validation.required(t("categories.categoryName"))),
-    type: z.enum(["INCOME", "EXPENSE"], {
-      error: () => validation.required(t("common.type")),
-    }),
-  });
-}
-
-type CategoryFormValues = z.infer<ReturnType<typeof createCategorySchema>>;
-
-function getFieldError(error: unknown, field: string) {
-  if (!(error instanceof ApiError)) {
-    return undefined;
-  }
-
-  const detail = error.details?.[field];
-
-  if (Array.isArray(detail)) {
-    return detail[0];
-  }
-
-  return detail;
-}
 
 export function CategoryFormDialog({
   category,
@@ -81,7 +53,7 @@ export function CategoryFormDialog({
   const createMutation = useCreateCategory();
   const updateMutation = useUpdateCategory();
   const isEditMode = Boolean(category);
-  const schema = useMemo(() => createCategorySchema(t), [t]);
+  const schema = useMemo(() => createCategoryFormSchema(t), [t]);
 
   const form = useForm<CategoryFormValues>({
     resolver: zodResolver(schema),
@@ -129,8 +101,8 @@ export function CategoryFormDialog({
         },
         {
           onError: (error) => {
-            const nameError = getFieldError(error, "name");
-            const typeError = getFieldError(error, "type");
+            const nameError = getApiFieldError(error, "name");
+            const typeError = getApiFieldError(error, "type");
 
             if (nameError) {
               form.setError("name", { message: nameError });
@@ -153,8 +125,8 @@ export function CategoryFormDialog({
       },
       {
         onError: (error) => {
-          const nameError = getFieldError(error, "name");
-          const typeError = getFieldError(error, "type");
+          const nameError = getApiFieldError(error, "name");
+          const typeError = getApiFieldError(error, "type");
 
           if (nameError) {
             form.setError("name", { message: nameError });
