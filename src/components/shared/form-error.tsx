@@ -8,7 +8,7 @@ export function FormError({ message }: FormErrorProps) {
   }
 
   return (
-    <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+    <div className="rounded-2xl border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive">
       {message}
     </div>
   );

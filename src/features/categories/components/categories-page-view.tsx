@@ -228,85 +228,87 @@ export function CategoriesPageView() {
           title={t("categories.tableTitle")}
           description={t("categories.tableDescription")}
         >
-          <Table>
-            <TableHeader>
-              <TableRow className="hover:bg-transparent">
-                <TableHead className="text-[var(--color-foreground-muted)]">
-                  {t("common.category")}
-                </TableHead>
-                <TableHead className="text-[var(--color-foreground-muted)]">
-                  {t("common.type")}
-                </TableHead>
-                <TableHead className="text-[var(--color-foreground-muted)]">
-                  {t("common.status")}
-                </TableHead>
-                <TableHead className="text-[var(--color-foreground-muted)]">
-                  {t("common.used")}
-                </TableHead>
-                <TableHead className="text-right text-[var(--color-foreground-muted)]">
-                  {t("common.actions")}
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {categories.map((category) => (
-                <TableRow key={category.id}>
-                  <TableCell className="font-medium">{category.name}</TableCell>
-                  <TableCell>
-                    <StatusBadge
-                      tone={category.type === "INCOME" ? "income" : "expense"}
-                    >
-                      {category.type === "INCOME"
-                        ? t("common.income")
-                        : t("common.expense")}
-                    </StatusBadge>
-                  </TableCell>
-                  <TableCell>
-                    <StatusBadge tone={category.active ? "active" : "inactive"}>
-                      {category.active ? t("common.active") : t("common.inactive")}
-                    </StatusBadge>
-                  </TableCell>
-                  <TableCell>{category.usageCount}</TableCell>
-                  <TableCell className="text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger
-                        render={<Button variant="ghost" size="icon-sm" />}
-                      >
-                        <MoreHorizontal className="size-4" />
-                        <span className="sr-only">{t("common.actions")}</span>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => openEditDialog(category)}>
-                          <PencilLine className="size-4" />
-                          {t("common.edit")}
-                        </DropdownMenuItem>
-                        {category.active ? (
-                          <DropdownMenuItem
-                            onClick={() => setStatusDialogCategory(category)}
-                          >
-                            <PowerOff className="size-4" />
-                            {t("common.deactivate")}
-                          </DropdownMenuItem>
-                        ) : (
-                          <DropdownMenuItem
-                            onClick={() =>
-                              toggleStatusMutation.mutate({
-                                category,
-                                active: true,
-                              })
-                            }
-                          >
-                            <Power className="size-4" />
-                            {t("common.activate")}
-                          </DropdownMenuItem>
-                        )}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow className="hover:bg-transparent">
+                  <TableHead className="text-[var(--color-foreground-muted)]">
+                    {t("common.category")}
+                  </TableHead>
+                  <TableHead className="text-[var(--color-foreground-muted)]">
+                    {t("common.type")}
+                  </TableHead>
+                  <TableHead className="text-[var(--color-foreground-muted)]">
+                    {t("common.status")}
+                  </TableHead>
+                  <TableHead className="text-[var(--color-foreground-muted)]">
+                    {t("common.used")}
+                  </TableHead>
+                  <TableHead className="text-right text-[var(--color-foreground-muted)]">
+                    {t("common.actions")}
+                  </TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {categories.map((category) => (
+                  <TableRow key={category.id}>
+                    <TableCell className="font-medium">{category.name}</TableCell>
+                    <TableCell>
+                      <StatusBadge
+                        tone={category.type === "INCOME" ? "income" : "expense"}
+                      >
+                        {category.type === "INCOME"
+                          ? t("common.income")
+                          : t("common.expense")}
+                      </StatusBadge>
+                    </TableCell>
+                    <TableCell>
+                      <StatusBadge tone={category.active ? "active" : "inactive"}>
+                        {category.active ? t("common.active") : t("common.inactive")}
+                      </StatusBadge>
+                    </TableCell>
+                    <TableCell>{category.usageCount}</TableCell>
+                    <TableCell className="text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger
+                          render={<Button variant="ghost" size="icon-sm" />}
+                        >
+                          <MoreHorizontal className="size-4" />
+                          <span className="sr-only">{t("common.actions")}</span>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => openEditDialog(category)}>
+                            <PencilLine className="size-4" />
+                            {t("common.edit")}
+                          </DropdownMenuItem>
+                          {category.active ? (
+                            <DropdownMenuItem
+                              onClick={() => setStatusDialogCategory(category)}
+                            >
+                              <PowerOff className="size-4" />
+                              {t("common.deactivate")}
+                            </DropdownMenuItem>
+                          ) : (
+                            <DropdownMenuItem
+                              onClick={() =>
+                                toggleStatusMutation.mutate({
+                                  category,
+                                  active: true,
+                                })
+                              }
+                            >
+                              <Power className="size-4" />
+                              {t("common.activate")}
+                            </DropdownMenuItem>
+                          )}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </SectionCard>
       ) : null}
 
