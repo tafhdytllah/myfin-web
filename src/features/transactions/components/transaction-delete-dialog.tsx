@@ -51,15 +51,18 @@ export function TransactionDeleteDialog({
         </AlertDialogHeader>
         <div className="rounded-2xl border border-border bg-muted/30 p-4 text-sm">
           <p className="font-medium">
-            {categoryName ?? t("common.category")} · {formatCurrency(transaction.amount)}
+            {categoryName ?? t("common.category")} {" - "} {formatCurrency(transaction.amount)}
           </p>
           <p className="mt-1 text-muted-foreground">
             {formatDate(transaction.createdAt, dateLocale)}
           </p>
         </div>
         <AlertDialogFooter>
-          <AlertDialogCancel>{t("transactions.cancel")}</AlertDialogCancel>
+          <AlertDialogCancel disabled={deleteMutation.isPending}>
+            {t("transactions.cancel")}
+          </AlertDialogCancel>
           <AlertDialogAction
+            disabled={deleteMutation.isPending}
             onClick={(event) => {
               event.preventDefault();
               deleteMutation.mutate(

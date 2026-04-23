@@ -45,8 +45,11 @@ export function CategoryStatusDialog({
           {t("categories.deactivateHistoryHint")}
         </div>
         <AlertDialogFooter>
-          <AlertDialogCancel>{t("categories.cancel")}</AlertDialogCancel>
+          <AlertDialogCancel disabled={toggleMutation.isPending}>
+            {t("categories.cancel")}
+          </AlertDialogCancel>
           <AlertDialogAction
+            disabled={toggleMutation.isPending}
             onClick={(event) => {
               event.preventDefault();
               toggleMutation.mutate(
