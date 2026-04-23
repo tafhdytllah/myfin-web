@@ -3,6 +3,7 @@
 import {
   createContext,
   PropsWithChildren,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
@@ -19,7 +20,7 @@ const PageTrailContext = createContext<PageTrailContextValue | null>(null);
 export function PageTrailProvider({ children }: PropsWithChildren) {
   const [trail, setTrailState] = useState<string[]>([]);
 
-  const setTrail = (nextTrail: string[]) => {
+  const setTrail = useCallback((nextTrail: string[]) => {
     setTrailState((prev) => {
       const isSame =
         prev.length === nextTrail.length &&
@@ -27,14 +28,14 @@ export function PageTrailProvider({ children }: PropsWithChildren) {
 
       return isSame ? prev : nextTrail;
     });
-  };
+  }, []);
 
   const value = useMemo(
     () => ({
       trail,
       setTrail,
     }),
-    [trail],
+    [trail, setTrail],
   );
 
   return (
