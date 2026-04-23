@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 
 import { usePageTrail } from "@/components/layout/page-trail-context";
 import { ContentCard } from "@/components/shared/content-card";
+import { ItemMeta } from "@/components/shared/item-meta";
 import { InlineRetryState } from "@/components/shared/inline-retry-state";
 import { PageActionButton } from "@/components/shared/page-action-button";
 import { PageHeader } from "@/components/shared/page-header";
@@ -230,26 +231,25 @@ export function DashboardPageView() {
                   className="text-left transition hover:bg-muted/60"
                   contentClassName="flex items-center justify-between gap-4 p-4"
                 >
-                    <div className="min-w-0">
-                      <p className="truncate font-medium text-[var(--color-foreground)]">
-                        {item.categoryName}
-                      </p>
-                      <p className="mt-1 truncate text-sm text-[var(--color-foreground-muted)]">
+                  <ItemMeta
+                    title={item.categoryName}
+                    subtitle={
+                      <>
                         {item.accountName} {" - "} {formatDate(item.createdAt, dateLocale)}
-                      </p>
-                    </div>
-                    <div className="shrink-0 text-right">
-                      <StatusBadge
-                        tone={item.type === "INCOME" ? "income" : "expense"}
-                      >
-                        {item.type === "INCOME"
-                          ? t("common.income")
-                          : t("common.expense")}
-                      </StatusBadge>
-                      <p className="mt-2 font-semibold text-[var(--color-foreground)]">
-                        {formatCurrency(item.amount)}
-                      </p>
-                    </div>
+                      </>
+                    }
+                    subtitleClassName="truncate"
+                  />
+                  <div className="shrink-0 text-right">
+                    <StatusBadge tone={item.type === "INCOME" ? "income" : "expense"}>
+                      {item.type === "INCOME"
+                        ? t("common.income")
+                        : t("common.expense")}
+                    </StatusBadge>
+                    <p className="mt-2 font-semibold text-[var(--color-foreground)]">
+                      {formatCurrency(item.amount)}
+                    </p>
+                  </div>
                 </ContentCard>
               ))}
             </div>
@@ -296,20 +296,18 @@ export function DashboardPageView() {
                   key={item.id}
                   contentClassName="p-4"
                 >
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="min-w-0">
-                        <p className="truncate font-medium text-[var(--color-foreground)]">
-                          {item.name}
-                        </p>
-                        <p className="mt-1 text-sm text-[var(--color-foreground-muted)]">
-                          {t("dashboard.usedTransactions", { count: item.usageCount })}
-                        </p>
-                      </div>
-                      <StatusBadge tone="active">{t("common.active")}</StatusBadge>
-                    </div>
-                    <p className="mt-4 text-2xl font-semibold text-[var(--color-foreground)]">
-                      {formatCurrency(item.currentBalance)}
-                    </p>
+                  <div className="flex items-start justify-between gap-4">
+                    <ItemMeta
+                      title={item.name}
+                      subtitle={t("dashboard.usedTransactions", {
+                        count: item.usageCount,
+                      })}
+                    />
+                    <StatusBadge tone="active">{t("common.active")}</StatusBadge>
+                  </div>
+                  <p className="mt-4 text-2xl font-semibold text-[var(--color-foreground)]">
+                    {formatCurrency(item.currentBalance)}
+                  </p>
                 </ContentCard>
               ))}
             </div>

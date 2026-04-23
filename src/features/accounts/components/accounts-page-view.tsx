@@ -17,6 +17,7 @@ import {
 } from "@/features/accounts/utils/account-search-params";
 import { ActionMenuTrigger } from "@/components/shared/action-menu-trigger";
 import { EmptySectionCard } from "@/components/shared/empty-section-card";
+import { InfoMetricBlock } from "@/components/shared/info-metric-block";
 import { PageActionButton } from "@/components/shared/page-action-button";
 import { PageHeader } from "@/components/shared/page-header";
 import { ResetFiltersButton } from "@/components/shared/reset-filters-button";
@@ -289,20 +290,20 @@ export function AccountsPageView() {
                 </div>
               }
             >
-              <p className="text-xs uppercase tracking-[0.18em] text-[var(--color-foreground-muted)]">
-                {t("accounts.currentBalance")}
-              </p>
-              <p className="mt-3 text-3xl font-semibold text-[var(--color-foreground)]">
-                {formatCurrency(account.currentBalance)}
-              </p>
-              <p className="mt-3 text-sm text-[var(--color-foreground-muted)]">
-                {t("accounts.usedTransactions", { count: account.usageCount })}
-              </p>
-              <p className="mt-3 text-sm text-[var(--color-foreground-muted)]">
-                {t("accounts.openingBalanceValue", {
-                  amount: formatCurrency(account.openingBalance),
-                })}
-              </p>
+              <InfoMetricBlock
+                eyebrow={t("accounts.currentBalance")}
+                value={formatCurrency(account.currentBalance)}
+                description={
+                  <>
+                    <p>{t("accounts.usedTransactions", { count: account.usageCount })}</p>
+                    <p className="mt-3">
+                      {t("accounts.openingBalanceValue", {
+                        amount: formatCurrency(account.openingBalance),
+                      })}
+                    </p>
+                  </>
+                }
+              />
             </SectionCard>
           ))}
         </div>

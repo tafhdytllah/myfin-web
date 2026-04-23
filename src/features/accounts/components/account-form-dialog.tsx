@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 
 import { DialogFormActions } from "@/components/shared/dialog-form-actions";
 import { FormFieldItem } from "@/components/shared/form-field-item";
+import { InfoMetricBlock } from "@/components/shared/info-metric-block";
 import {
   Dialog,
   DialogContent,
@@ -176,12 +177,13 @@ export function AccountFormDialog({
             </FormFieldItem>
 
             <div className="rounded-2xl border border-border bg-muted/30 p-4">
-              <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
-                {t("accounts.currentBalance")}
-              </p>
-              <p className="mt-2 text-lg font-semibold">
-                {formatCurrency(account?.currentBalance ?? 0)}
-              </p>
+              <InfoMetricBlock
+                eyebrow={t("accounts.currentBalance")}
+                value={formatCurrency(account?.currentBalance ?? 0)}
+                className="space-y-2"
+                eyebrowClassName="text-muted-foreground"
+                valueClassName="text-lg font-semibold text-foreground"
+              />
             </div>
 
             <DialogFormActions
