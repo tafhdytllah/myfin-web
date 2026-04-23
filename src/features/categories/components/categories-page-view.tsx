@@ -1,12 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import {
-  MoreHorizontal,
-  PencilLine,
-  Power,
-  PowerOff,
-} from "lucide-react";
+import { PencilLine, Power, PowerOff } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { CategoryFormDialog } from "@/features/categories/components/category-form-dialog";
@@ -20,6 +15,8 @@ import {
   buildCategorySearchParams,
   parseCategoryFilters,
 } from "@/features/categories/utils/category-search-params";
+import { ActionMenuTrigger } from "@/components/shared/action-menu-trigger";
+import { EmptySectionCard } from "@/components/shared/empty-section-card";
 import { PageHeader } from "@/components/shared/page-header";
 import { RetryCard } from "@/components/shared/retry-card";
 import { SectionCard } from "@/components/shared/section-card";
@@ -32,7 +29,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import {
@@ -252,14 +248,16 @@ export function CategoriesPageView() {
       {!categoriesQuery.isLoading &&
       !categoriesQuery.isError &&
       categories.length === 0 ? (
-        <SectionCard
+        <EmptySectionCard
           title={t("categories.emptyTitle")}
           description={t("categories.emptyDescription")}
-        >
-          <Button className="rounded-2xl" onClick={openCreateDialog}>
-            {t("categories.addCategory")}
-          </Button>
-        </SectionCard>
+          actions={[
+            {
+              label: t("categories.addCategory"),
+              onClick: openCreateDialog,
+            },
+          ]}
+        />
       ) : null}
 
       {!categoriesQuery.isLoading &&
@@ -311,12 +309,7 @@ export function CategoriesPageView() {
                     <TableCell>{category.usageCount}</TableCell>
                     <TableCell className="text-right">
                       <DropdownMenu>
-                        <DropdownMenuTrigger
-                          render={<Button variant="ghost" size="icon-sm" />}
-                        >
-                          <MoreHorizontal className="size-4" />
-                          <span className="sr-only">{t("common.actions")}</span>
-                        </DropdownMenuTrigger>
+                        <ActionMenuTrigger srLabel={t("common.actions")} />
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem onClick={() => openEditDialog(category)}>
                             <PencilLine className="size-4" />

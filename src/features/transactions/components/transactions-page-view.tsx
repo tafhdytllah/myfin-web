@@ -1,12 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import {
-  MoreHorizontal,
-  PencilLine,
-  RotateCcw,
-  Trash2,
-} from "lucide-react";
+import { PencilLine, RotateCcw, Trash2 } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { useAccounts } from "@/features/accounts/hooks/use-account-queries";
@@ -22,6 +17,7 @@ import {
   buildTransactionSearchParams,
   parseTransactionFilters,
 } from "@/features/transactions/utils/transaction-search-params";
+import { ActionMenuTrigger } from "@/components/shared/action-menu-trigger";
 import { PageHeader } from "@/components/shared/page-header";
 import { InlineRetryState } from "@/components/shared/inline-retry-state";
 import { SectionCard } from "@/components/shared/section-card";
@@ -35,7 +31,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import {
@@ -475,10 +470,7 @@ export function TransactionsPageView() {
                       </TableCell>
                       <TableCell className="text-right">
                         <DropdownMenu>
-                          <DropdownMenuTrigger render={<Button variant="ghost" size="icon-sm" />}>
-                            <MoreHorizontal className="size-4" />
-                            <span className="sr-only">{t("common.actions")}</span>
-                          </DropdownMenuTrigger>
+                          <ActionMenuTrigger srLabel={t("common.actions")} />
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem onClick={() => notifyEditUnavailable(row)}>
                               <PencilLine className="size-4" />

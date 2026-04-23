@@ -1,13 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import {
-  MoreHorizontal,
-  PencilLine,
-  Power,
-  PowerOff,
-  RotateCcw,
-} from "lucide-react";
+import { PencilLine, Power, PowerOff, RotateCcw } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { AccountFormDialog } from "@/features/accounts/components/account-form-dialog";
@@ -21,6 +15,8 @@ import {
   buildAccountSearchParams,
   parseAccountFilters,
 } from "@/features/accounts/utils/account-search-params";
+import { ActionMenuTrigger } from "@/components/shared/action-menu-trigger";
+import { EmptySectionCard } from "@/components/shared/empty-section-card";
 import { PageHeader } from "@/components/shared/page-header";
 import { RetryCard } from "@/components/shared/retry-card";
 import { SectionCard } from "@/components/shared/section-card";
@@ -33,7 +29,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import {
@@ -233,21 +228,25 @@ export function AccountsPageView() {
       ) : null}
 
       {!accountsQuery.isLoading && !accountsQuery.isError && accounts.length === 0 ? (
-        <SectionCard
+        <EmptySectionCard
           title={t("accounts.emptyTitle")}
           description={t("accounts.emptyDescription")}
-        >
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <Button className="rounded-2xl" onClick={openCreateDialog}>
-              {t("accounts.addAccount")}
-            </Button>
-            {hasActiveFilters ? (
-              <Button variant="outline" className="rounded-2xl" onClick={resetFilters}>
-                {t("accounts.resetFilters")}
-              </Button>
-            ) : null}
-          </div>
-        </SectionCard>
+          actions={[
+            {
+              label: t("accounts.addAccount"),
+              onClick: openCreateDialog,
+            },
+            ...(hasActiveFilters
+              ? [
+                  {
+                    label: t("accounts.resetFilters"),
+                    onClick: resetFilters,
+                    variant: "outline" as const,
+                  },
+                ]
+              : []),
+          ]}
+        />
       ) : null}
 
       {!accountsQuery.isLoading && !accountsQuery.isError && accounts.length > 0 ? (
@@ -262,12 +261,11 @@ export function AccountsPageView() {
                     {account.active ? t("common.active") : t("common.inactive")}
                   </StatusBadge>
                   <DropdownMenu>
-                    <DropdownMenuTrigger
-                      render={<Button variant="ghost" size="icon" className="rounded-full" />}
-                    >
-                        <MoreHorizontal className="size-4" />
-                        <span className="sr-only">{t("common.actions")}</span>
-                    </DropdownMenuTrigger>
+                    <ActionMenuTrigger
+                      size="icon"
+                      className="rounded-full"
+                      srLabel={t("common.actions")}
+                    />
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem onClick={() => openEditDialog(account)}>
                         <PencilLine className="size-4" />
