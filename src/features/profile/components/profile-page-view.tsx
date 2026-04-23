@@ -230,7 +230,7 @@ export function ProfilePageView() {
                 disabled={
                   updateProfileMutation.isPending || !profileForm.formState.isDirty
                 }
-                className="h-11 w-fit rounded-2xl px-5 text-sm font-semibold"
+                className="h-11 w-full rounded-2xl px-5 text-sm font-semibold sm:w-fit"
               >
                 {updateProfileMutation.isPending
                   ? t("profile.savingProfile")
@@ -360,7 +360,7 @@ export function ProfilePageView() {
                 disabled={
                   changePasswordMutation.isPending || !passwordForm.formState.isDirty
                 }
-                className="h-11 w-fit rounded-2xl px-5 text-sm font-semibold"
+                className="h-11 w-full rounded-2xl px-5 text-sm font-semibold sm:w-fit"
               >
                 {changePasswordMutation.isPending
                   ? t("profile.savingPassword")

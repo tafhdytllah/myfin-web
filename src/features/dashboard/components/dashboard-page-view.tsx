@@ -3,12 +3,6 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
-import { useAccounts } from "@/features/accounts/hooks/use-account-queries";
-import { useCategories } from "@/features/categories/hooks/use-category-queries";
-import {
-  useDashboardSummary,
-  useRecentTransactions,
-} from "@/features/dashboard/hooks/use-dashboard-queries";
 import { PageHeader } from "@/components/shared/page-header";
 import { SectionCard } from "@/components/shared/section-card";
 import { StatusBadge } from "@/components/shared/status-badge";
@@ -21,6 +15,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useAccounts } from "@/features/accounts/hooks/use-account-queries";
+import { useCategories } from "@/features/categories/hooks/use-category-queries";
+import {
+  useDashboardSummary,
+  useRecentTransactions,
+} from "@/features/dashboard/hooks/use-dashboard-queries";
 import { routes } from "@/lib/constants/routes";
 import { formatCurrency } from "@/lib/formatters/currency";
 import { formatDate } from "@/lib/formatters/date";

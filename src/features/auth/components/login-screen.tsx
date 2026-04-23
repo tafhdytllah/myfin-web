@@ -146,7 +146,7 @@ export function LoginScreen() {
           </Button>
         </form>
 
-        <p className="mt-6 text-sm text-[var(--color-foreground-muted)]">
+        <p className="mt-6 text-center text-sm text-[var(--color-foreground-muted)] sm:text-left">
           {t("auth.dontHaveAccount")}{" "}
           <Link
             className="font-semibold text-[var(--color-primary-strong)]"
