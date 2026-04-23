@@ -14,8 +14,14 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import {
+  Field,
+  FieldContent,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -176,147 +182,143 @@ export function TransactionFormDialog({
 
         <form className="space-y-5" onSubmit={form.handleSubmit(handleSubmit)}>
           <div className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-2">
-              <Label>{t("common.type")}</Label>
-              <Select
-                value={selectedType}
-                onValueChange={(value) =>
-                  form.setValue("type", value as TransactionFormValues["type"], {
-                    shouldDirty: true,
-                    shouldValidate: true,
-                  })
-                }
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder={t("common.type")} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="INCOME">{t("common.income")}</SelectItem>
-                  <SelectItem value="EXPENSE">{t("common.expense")}</SelectItem>
-                </SelectContent>
-              </Select>
-              {form.formState.errors.type?.message ? (
-                <p className="text-sm text-destructive">
-                  {form.formState.errors.type.message}
-                </p>
-              ) : null}
-            </div>
+            <Field>
+              <FieldLabel>{t("common.type")}</FieldLabel>
+              <FieldContent>
+                <Select
+                  value={selectedType}
+                  onValueChange={(value) =>
+                    form.setValue("type", value as TransactionFormValues["type"], {
+                      shouldDirty: true,
+                      shouldValidate: true,
+                    })
+                  }
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder={t("common.type")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="INCOME">{t("common.income")}</SelectItem>
+                    <SelectItem value="EXPENSE">{t("common.expense")}</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FieldError errors={[form.formState.errors.type]} />
+              </FieldContent>
+            </Field>
 
-            <div className="space-y-2">
-              <Label>{t("common.account")}</Label>
-              <Select
-                value={selectedAccountId}
-                disabled={!hasActiveAccounts}
-                onValueChange={(value) =>
-                  form.setValue("accountId", value ?? "", {
-                    shouldDirty: true,
-                    shouldValidate: true,
-                  })
-                }
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder={t("transactions.accountPlaceholder")} />
-                </SelectTrigger>
-                <SelectContent>
-                  {activeAccounts.map((account) => (
-                    <SelectItem key={account.id} value={account.id}>
-                      {account.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {form.formState.errors.accountId?.message ? (
-                <p className="text-sm text-destructive">
-                  {form.formState.errors.accountId.message}
-                </p>
-              ) : !hasActiveAccounts ? (
-                <p className="text-sm text-muted-foreground">
-                  {t("transactions.noActiveAccounts")}{" "}
-                  <Link
-                    href={routes.accounts}
-                    className="font-medium text-primary underline-offset-4 hover:underline"
-                    onClick={() => onOpenChange(false)}
-                  >
-                    {t("transactions.goToAccounts")}
-                  </Link>
-                </p>
-              ) : null}
-            </div>
+            <Field>
+              <FieldLabel>{t("common.account")}</FieldLabel>
+              <FieldContent>
+                <Select
+                  value={selectedAccountId}
+                  disabled={!hasActiveAccounts}
+                  onValueChange={(value) =>
+                    form.setValue("accountId", value ?? "", {
+                      shouldDirty: true,
+                      shouldValidate: true,
+                    })
+                  }
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder={t("transactions.accountPlaceholder")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {activeAccounts.map((account) => (
+                      <SelectItem key={account.id} value={account.id}>
+                        {account.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {form.formState.errors.accountId ? (
+                  <FieldError errors={[form.formState.errors.accountId]} />
+                ) : !hasActiveAccounts ? (
+                  <FieldDescription>
+                    {t("transactions.noActiveAccounts")}{" "}
+                    <Link
+                      href={routes.accounts}
+                      className="font-medium text-primary underline-offset-4 hover:underline"
+                      onClick={() => onOpenChange(false)}
+                    >
+                      {t("transactions.goToAccounts")}
+                    </Link>
+                  </FieldDescription>
+                ) : null}
+              </FieldContent>
+            </Field>
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-2">
-              <Label>{t("common.category")}</Label>
-              <Select
-                value={selectedCategoryId}
-                disabled={!hasMatchingCategories}
-                onValueChange={(value) =>
-                  form.setValue("categoryId", value ?? "", {
-                    shouldDirty: true,
-                    shouldValidate: true,
-                  })
-                }
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder={t("transactions.categoryPlaceholder")} />
-                </SelectTrigger>
-                <SelectContent>
-                  {activeCategories.map((category) => (
-                    <SelectItem key={category.id} value={category.id}>
-                      {category.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {form.formState.errors.categoryId?.message ? (
-                <p className="text-sm text-destructive">
-                  {form.formState.errors.categoryId.message}
-                </p>
-              ) : !hasMatchingCategories ? (
-                <p className="text-sm text-muted-foreground">
-                  {t("transactions.noMatchingCategories")}{" "}
-                  <Link
-                    href={routes.categories}
-                    className="font-medium text-primary underline-offset-4 hover:underline"
-                    onClick={() => onOpenChange(false)}
-                  >
-                    {t("transactions.goToCategories")}
-                  </Link>
-                </p>
-              ) : null}
-            </div>
+            <Field>
+              <FieldLabel>{t("common.category")}</FieldLabel>
+              <FieldContent>
+                <Select
+                  value={selectedCategoryId}
+                  disabled={!hasMatchingCategories}
+                  onValueChange={(value) =>
+                    form.setValue("categoryId", value ?? "", {
+                      shouldDirty: true,
+                      shouldValidate: true,
+                    })
+                  }
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder={t("transactions.categoryPlaceholder")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {activeCategories.map((category) => (
+                      <SelectItem key={category.id} value={category.id}>
+                        {category.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {form.formState.errors.categoryId ? (
+                  <FieldError errors={[form.formState.errors.categoryId]} />
+                ) : !hasMatchingCategories ? (
+                  <FieldDescription>
+                    {t("transactions.noMatchingCategories")}{" "}
+                    <Link
+                      href={routes.categories}
+                      className="font-medium text-primary underline-offset-4 hover:underline"
+                      onClick={() => onOpenChange(false)}
+                    >
+                      {t("transactions.goToCategories")}
+                    </Link>
+                  </FieldDescription>
+                ) : null}
+              </FieldContent>
+            </Field>
 
-            <div className="space-y-2">
-              <Label htmlFor="transaction-amount">{t("common.amount")}</Label>
-              <Input
-                id="transaction-amount"
-                min={0}
-                step="1"
-                type="number"
-                {...form.register("amount")}
-                placeholder={t("transactions.amountPlaceholder")}
+            <Field>
+              <FieldLabel htmlFor="transaction-amount">{t("common.amount")}</FieldLabel>
+              <FieldContent>
+                <Input
+                  id="transaction-amount"
+                  min={0}
+                  step="1"
+                  type="number"
+                  {...form.register("amount")}
+                  placeholder={t("transactions.amountPlaceholder")}
+                />
+                <FieldError errors={[form.formState.errors.amount]} />
+              </FieldContent>
+            </Field>
+          </div>
+
+          <Field>
+            <FieldLabel htmlFor="transaction-description">
+              {t("common.description")}
+            </FieldLabel>
+            <FieldContent>
+              <Textarea
+                id="transaction-description"
+                {...form.register("description")}
+                placeholder={t("transactions.descriptionPlaceholder")}
               />
-              {form.formState.errors.amount?.message ? (
-                <p className="text-sm text-destructive">
-                  {form.formState.errors.amount.message}
-                </p>
-              ) : null}
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="transaction-description">{t("common.description")}</Label>
-            <Textarea
-              id="transaction-description"
-              {...form.register("description")}
-              placeholder={t("transactions.descriptionPlaceholder")}
-            />
-            {form.formState.errors.description?.message ? (
-              <p className="text-sm text-destructive">
-                {form.formState.errors.description.message}
-              </p>
-            ) : null}
-          </div>
+              <FieldError errors={[form.formState.errors.description]} />
+            </FieldContent>
+          </Field>
 
           <div className="rounded-2xl border border-border bg-muted/30 p-4 text-sm text-muted-foreground">
             {t("transactions.dateInfo")}

@@ -13,8 +13,14 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import {
+  Field,
+  FieldContent,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Account } from "@/features/accounts/types/account-types";
 import {
   useCreateAccount,
@@ -178,19 +184,17 @@ export function AccountFormDialog({
             className="space-y-5"
             onSubmit={updateForm.handleSubmit(handleUpdateSubmit)}
           >
-            <div className="space-y-2">
-              <Label htmlFor="account-name">{t("accounts.accountName")}</Label>
-              <Input
-                id="account-name"
-                {...updateForm.register("name")}
-                placeholder={t("accounts.accountNamePlaceholder")}
-              />
-              {updateForm.formState.errors.name?.message ? (
-                <p className="text-sm text-destructive">
-                  {updateForm.formState.errors.name.message}
-                </p>
-              ) : null}
-            </div>
+            <Field>
+              <FieldLabel htmlFor="account-name">{t("accounts.accountName")}</FieldLabel>
+              <FieldContent>
+                <Input
+                  id="account-name"
+                  {...updateForm.register("name")}
+                  placeholder={t("accounts.accountNamePlaceholder")}
+                />
+                <FieldError errors={[updateForm.formState.errors.name]} />
+              </FieldContent>
+            </Field>
 
             <div className="rounded-2xl border border-border bg-muted/30 p-4">
               <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
@@ -219,39 +223,39 @@ export function AccountFormDialog({
             className="space-y-5"
             onSubmit={createForm.handleSubmit(handleCreateSubmit)}
           >
-            <div className="space-y-2">
-              <Label htmlFor="new-account-name">{t("accounts.accountName")}</Label>
-              <Input
-                id="new-account-name"
-                {...createForm.register("name")}
-                placeholder={t("accounts.accountNamePlaceholder")}
-              />
-              {createForm.formState.errors.name?.message ? (
-                <p className="text-sm text-destructive">
-                  {createForm.formState.errors.name.message}
-                </p>
-              ) : null}
-            </div>
+            <Field>
+              <FieldLabel htmlFor="new-account-name">
+                {t("accounts.accountName")}
+              </FieldLabel>
+              <FieldContent>
+                <Input
+                  id="new-account-name"
+                  {...createForm.register("name")}
+                  placeholder={t("accounts.accountNamePlaceholder")}
+                />
+                <FieldError errors={[createForm.formState.errors.name]} />
+              </FieldContent>
+            </Field>
 
-            <div className="space-y-2">
-              <Label htmlFor="opening-balance">{t("accounts.openingBalance")}</Label>
-              <Input
-                id="opening-balance"
-                min={0}
-                step="1"
-                type="number"
-                {...createForm.register("openingBalance")}
-              />
-              {createForm.formState.errors.openingBalance?.message ? (
-                <p className="text-sm text-destructive">
-                  {createForm.formState.errors.openingBalance.message}
-                </p>
-              ) : (
-                <p className="text-sm text-muted-foreground">
-                  {t("accounts.openingBalanceHint")}
-                </p>
-              )}
-            </div>
+            <Field>
+              <FieldLabel htmlFor="opening-balance">
+                {t("accounts.openingBalance")}
+              </FieldLabel>
+              <FieldContent>
+                <Input
+                  id="opening-balance"
+                  min={0}
+                  step="1"
+                  type="number"
+                  {...createForm.register("openingBalance")}
+                />
+                {createForm.formState.errors.openingBalance ? (
+                  <FieldError errors={[createForm.formState.errors.openingBalance]} />
+                ) : (
+                  <FieldDescription>{t("accounts.openingBalanceHint")}</FieldDescription>
+                )}
+              </FieldContent>
+            </Field>
 
             <div className="flex justify-end gap-3">
               <Button

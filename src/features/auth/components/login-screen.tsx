@@ -6,7 +6,6 @@ import { Eye, EyeOff } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import { FormError } from "@/components/shared/form-error";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -15,8 +14,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Field,
+  FieldContent,
+  FieldError,
+  FieldLabel,
+} from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useLogin } from "@/features/auth/hooks/use-auth-actions";
 import { loginSchema, type LoginSchema } from "@/features/auth/schemas/login-schema";
 import { ApiError } from "@/lib/api/types";
@@ -88,52 +92,48 @@ export function LoginScreen() {
 
       <CardContent className="p-8 pt-8">
         <form className="space-y-5" onSubmit={handleSubmit(onSubmit)}>
-          <FormError message={formError} />
+          <FieldError>{formError}</FieldError>
 
-          <div>
-            <Label className="mb-2 block text-sm font-medium text-[var(--color-foreground)]">
-              {t("auth.username")}
-            </Label>
-            <Input
-              {...register("username")}
-              className="h-12 rounded-2xl border-[var(--color-border-strong)] bg-white px-4 dark:bg-transparent"
-              placeholder={t("auth.usernamePlaceholder")}
-            />
-            {errors.username ? (
-              <p className="mt-2 text-sm text-[var(--color-danger)]">
-                {errors.username.message}
-              </p>
-            ) : null}
-          </div>
-
-          <div>
-            <Label className="mb-2 block text-sm font-medium text-[var(--color-foreground)]">
-              {t("auth.password")}
-            </Label>
-            <div className="relative">
+          <Field>
+            <FieldLabel>{t("auth.username")}</FieldLabel>
+            <FieldContent>
               <Input
-                {...register("password")}
-                type={showPassword ? "text" : "password"}
-                className="h-12 rounded-2xl border-[var(--color-border-strong)] bg-white px-4 pr-12 dark:bg-transparent"
-                placeholder={t("auth.passwordPlaceholder")}
+                {...register("username")}
+                className="h-12 rounded-2xl border-[var(--color-border-strong)] bg-white px-4 dark:bg-transparent"
+                placeholder={t("auth.usernamePlaceholder")}
               />
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                className="absolute right-1 top-1.5 size-9 rounded-xl"
-                onClick={() => setShowPassword((current) => !current)}
-              >
-                {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
-                <span className="sr-only">{t("auth.togglePasswordVisibility")}</span>
-              </Button>
-            </div>
-            {errors.password ? (
-              <p className="mt-2 text-sm text-[var(--color-danger)]">
-                {errors.password.message}
-              </p>
-            ) : null}
-          </div>
+              <FieldError errors={[errors.username]} />
+            </FieldContent>
+          </Field>
+
+          <Field>
+            <FieldLabel>{t("auth.password")}</FieldLabel>
+            <FieldContent>
+              <div className="relative">
+                <Input
+                  {...register("password")}
+                  type={showPassword ? "text" : "password"}
+                  className="h-12 rounded-2xl border-[var(--color-border-strong)] bg-white px-4 pr-12 dark:bg-transparent"
+                  placeholder={t("auth.passwordPlaceholder")}
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-1 top-1.5 size-9 rounded-xl"
+                  onClick={() => setShowPassword((current) => !current)}
+                >
+                  {showPassword ? (
+                    <EyeOff className="size-4" />
+                  ) : (
+                    <Eye className="size-4" />
+                  )}
+                  <span className="sr-only">{t("auth.togglePasswordVisibility")}</span>
+                </Button>
+              </div>
+              <FieldError errors={[errors.password]} />
+            </FieldContent>
+          </Field>
 
           <Button
             type="submit"

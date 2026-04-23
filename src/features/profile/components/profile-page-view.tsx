@@ -5,12 +5,17 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff, RefreshCw } from "lucide-react";
 import { useForm } from "react-hook-form";
 
-import { FormError } from "@/components/shared/form-error";
 import { PageHeader } from "@/components/shared/page-header";
 import { SectionCard } from "@/components/shared/section-card";
 import { Button } from "@/components/ui/button";
+import {
+  Field,
+  FieldContent,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   changePasswordSchema,
   ChangePasswordSchema,
@@ -194,36 +199,32 @@ export function ProfilePageView() {
               className="grid gap-4"
               onSubmit={profileForm.handleSubmit(handleProfileSubmit)}
             >
-              <FormError message={profileFormError} />
+              <FieldError>{profileFormError}</FieldError>
 
-              <div className="space-y-2">
-                <Label htmlFor="profile-username">{t("auth.username")}</Label>
-                <Input
-                  id="profile-username"
-                  {...profileForm.register("username")}
-                  placeholder={t("profile.usernamePlaceholder")}
-                />
-                {profileForm.formState.errors.username?.message ? (
-                  <p className="text-sm text-destructive">
-                    {profileForm.formState.errors.username.message}
-                  </p>
-                ) : null}
-              </div>
+              <Field>
+                <FieldLabel htmlFor="profile-username">{t("auth.username")}</FieldLabel>
+                <FieldContent>
+                  <Input
+                    id="profile-username"
+                    {...profileForm.register("username")}
+                    placeholder={t("profile.usernamePlaceholder")}
+                  />
+                  <FieldError errors={[profileForm.formState.errors.username]} />
+                </FieldContent>
+              </Field>
 
-              <div className="space-y-2">
-                <Label htmlFor="profile-email">{t("auth.email")}</Label>
-                <Input
-                  id="profile-email"
-                  type="email"
-                  {...profileForm.register("email")}
-                  placeholder={t("profile.emailPlaceholder")}
-                />
-                {profileForm.formState.errors.email?.message ? (
-                  <p className="text-sm text-destructive">
-                    {profileForm.formState.errors.email.message}
-                  </p>
-                ) : null}
-              </div>
+              <Field>
+                <FieldLabel htmlFor="profile-email">{t("auth.email")}</FieldLabel>
+                <FieldContent>
+                  <Input
+                    id="profile-email"
+                    type="email"
+                    {...profileForm.register("email")}
+                    placeholder={t("profile.emailPlaceholder")}
+                  />
+                  <FieldError errors={[profileForm.formState.errors.email]} />
+                </FieldContent>
+              </Field>
 
               <Button
                 type="submit"
@@ -247,113 +248,111 @@ export function ProfilePageView() {
               className="grid gap-4"
               onSubmit={passwordForm.handleSubmit(handlePasswordSubmit)}
             >
-              <FormError message={passwordFormError} />
+              <FieldError>{passwordFormError}</FieldError>
 
-              <div className="space-y-2">
-                <Label htmlFor="current-password">{t("profile.currentPassword")}</Label>
-                <div className="relative">
-                  <Input
-                    id="current-password"
-                    type={showPasswords.current ? "text" : "password"}
-                    {...passwordForm.register("currentPassword")}
-                    placeholder={t("auth.passwordPlaceholder")}
-                    className="pr-12"
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="absolute right-1 top-1 size-9 rounded-xl"
-                    onClick={() => togglePasswordVisibility("current")}
-                  >
-                    {showPasswords.current ? (
-                      <EyeOff className="size-4" />
-                    ) : (
-                      <Eye className="size-4" />
-                    )}
-                    <span className="sr-only">
-                      {t("profile.togglePasswordVisibility")}
-                    </span>
-                  </Button>
-                </div>
-                {passwordForm.formState.errors.currentPassword?.message ? (
-                  <p className="text-sm text-destructive">
-                    {passwordForm.formState.errors.currentPassword.message}
-                  </p>
-                ) : null}
-              </div>
+              <Field>
+                <FieldLabel htmlFor="current-password">
+                  {t("profile.currentPassword")}
+                </FieldLabel>
+                <FieldContent>
+                  <div className="relative">
+                    <Input
+                      id="current-password"
+                      type={showPasswords.current ? "text" : "password"}
+                      {...passwordForm.register("currentPassword")}
+                      placeholder={t("auth.passwordPlaceholder")}
+                      className="pr-12"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="absolute right-1 top-1 size-9 rounded-xl"
+                      onClick={() => togglePasswordVisibility("current")}
+                    >
+                      {showPasswords.current ? (
+                        <EyeOff className="size-4" />
+                      ) : (
+                        <Eye className="size-4" />
+                      )}
+                      <span className="sr-only">
+                        {t("profile.togglePasswordVisibility")}
+                      </span>
+                    </Button>
+                  </div>
+                  <FieldError errors={[passwordForm.formState.errors.currentPassword]} />
+                </FieldContent>
+              </Field>
 
-              <div className="space-y-2">
-                <Label htmlFor="new-password">{t("profile.newPassword")}</Label>
-                <div className="relative">
-                  <Input
-                    id="new-password"
-                    type={showPasswords.next ? "text" : "password"}
-                    {...passwordForm.register("newPassword")}
-                    placeholder={t("auth.passwordPlaceholder")}
-                    className="pr-12"
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="absolute right-1 top-1 size-9 rounded-xl"
-                    onClick={() => togglePasswordVisibility("next")}
-                  >
-                    {showPasswords.next ? (
-                      <EyeOff className="size-4" />
-                    ) : (
-                      <Eye className="size-4" />
-                    )}
-                    <span className="sr-only">
-                      {t("profile.togglePasswordVisibility")}
-                    </span>
-                  </Button>
-                </div>
-                {passwordForm.formState.errors.newPassword?.message ? (
-                  <p className="text-sm text-destructive">
-                    {passwordForm.formState.errors.newPassword.message}
-                  </p>
-                ) : (
-                  <p className="text-sm text-muted-foreground">
-                    {t("profile.passwordHint")}
-                  </p>
-                )}
-              </div>
+              <Field>
+                <FieldLabel htmlFor="new-password">{t("profile.newPassword")}</FieldLabel>
+                <FieldContent>
+                  <div className="relative">
+                    <Input
+                      id="new-password"
+                      type={showPasswords.next ? "text" : "password"}
+                      {...passwordForm.register("newPassword")}
+                      placeholder={t("auth.passwordPlaceholder")}
+                      className="pr-12"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="absolute right-1 top-1 size-9 rounded-xl"
+                      onClick={() => togglePasswordVisibility("next")}
+                    >
+                      {showPasswords.next ? (
+                        <EyeOff className="size-4" />
+                      ) : (
+                        <Eye className="size-4" />
+                      )}
+                      <span className="sr-only">
+                        {t("profile.togglePasswordVisibility")}
+                      </span>
+                    </Button>
+                  </div>
+                  {passwordForm.formState.errors.newPassword ? (
+                    <FieldError errors={[passwordForm.formState.errors.newPassword]} />
+                  ) : (
+                    <FieldDescription>{t("profile.passwordHint")}</FieldDescription>
+                  )}
+                </FieldContent>
+              </Field>
 
-              <div className="space-y-2">
-                <Label htmlFor="confirm-password">{t("profile.confirmNewPassword")}</Label>
-                <div className="relative">
-                  <Input
-                    id="confirm-password"
-                    type={showPasswords.confirm ? "text" : "password"}
-                    {...passwordForm.register("confirmNewPassword")}
-                    placeholder={t("auth.confirmPasswordPlaceholder")}
-                    className="pr-12"
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="absolute right-1 top-1 size-9 rounded-xl"
-                    onClick={() => togglePasswordVisibility("confirm")}
-                  >
-                    {showPasswords.confirm ? (
-                      <EyeOff className="size-4" />
-                    ) : (
-                      <Eye className="size-4" />
-                    )}
-                    <span className="sr-only">
-                      {t("profile.togglePasswordVisibility")}
-                    </span>
-                  </Button>
-                </div>
-                {passwordForm.formState.errors.confirmNewPassword?.message ? (
-                  <p className="text-sm text-destructive">
-                    {passwordForm.formState.errors.confirmNewPassword.message}
-                  </p>
-                ) : null}
-              </div>
+              <Field>
+                <FieldLabel htmlFor="confirm-password">
+                  {t("profile.confirmNewPassword")}
+                </FieldLabel>
+                <FieldContent>
+                  <div className="relative">
+                    <Input
+                      id="confirm-password"
+                      type={showPasswords.confirm ? "text" : "password"}
+                      {...passwordForm.register("confirmNewPassword")}
+                      placeholder={t("auth.confirmPasswordPlaceholder")}
+                      className="pr-12"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="absolute right-1 top-1 size-9 rounded-xl"
+                      onClick={() => togglePasswordVisibility("confirm")}
+                    >
+                      {showPasswords.confirm ? (
+                        <EyeOff className="size-4" />
+                      ) : (
+                        <Eye className="size-4" />
+                      )}
+                      <span className="sr-only">
+                        {t("profile.togglePasswordVisibility")}
+                      </span>
+                    </Button>
+                  </div>
+                  <FieldError errors={[passwordForm.formState.errors.confirmNewPassword]} />
+                </FieldContent>
+              </Field>
 
               <Button
                 type="submit"

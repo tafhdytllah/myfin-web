@@ -13,8 +13,13 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import {
+  Field,
+  FieldContent,
+  FieldError,
+  FieldLabel,
+} from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -168,45 +173,41 @@ export function CategoryFormDialog({
         </DialogHeader>
 
         <form className="space-y-5" onSubmit={form.handleSubmit(handleSubmit)}>
-          <div className="space-y-2">
-            <Label htmlFor="category-name">{t("categories.categoryName")}</Label>
-            <Input
-              id="category-name"
-              {...form.register("name")}
-              placeholder={t("categories.categoryNamePlaceholder")}
-            />
-            {form.formState.errors.name?.message ? (
-              <p className="text-sm text-destructive">
-                {form.formState.errors.name.message}
-              </p>
-            ) : null}
-          </div>
+          <Field>
+            <FieldLabel htmlFor="category-name">{t("categories.categoryName")}</FieldLabel>
+            <FieldContent>
+              <Input
+                id="category-name"
+                {...form.register("name")}
+                placeholder={t("categories.categoryNamePlaceholder")}
+              />
+              <FieldError errors={[form.formState.errors.name]} />
+            </FieldContent>
+          </Field>
 
-          <div className="space-y-2">
-            <Label>{t("common.type")}</Label>
-            <Select
-              value={selectedType}
-              onValueChange={(value) =>
-                form.setValue("type", value as CategoryFormValues["type"], {
-                  shouldDirty: true,
-                  shouldValidate: true,
-                })
-              }
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder={t("common.type")} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="INCOME">{t("common.income")}</SelectItem>
-                <SelectItem value="EXPENSE">{t("common.expense")}</SelectItem>
-              </SelectContent>
-            </Select>
-            {form.formState.errors.type?.message ? (
-              <p className="text-sm text-destructive">
-                {form.formState.errors.type.message}
-              </p>
-            ) : null}
-          </div>
+          <Field>
+            <FieldLabel>{t("common.type")}</FieldLabel>
+            <FieldContent>
+              <Select
+                value={selectedType}
+                onValueChange={(value) =>
+                  form.setValue("type", value as CategoryFormValues["type"], {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  })
+                }
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder={t("common.type")} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="INCOME">{t("common.income")}</SelectItem>
+                  <SelectItem value="EXPENSE">{t("common.expense")}</SelectItem>
+                </SelectContent>
+              </Select>
+              <FieldError errors={[form.formState.errors.type]} />
+            </FieldContent>
+          </Field>
 
           <div className="flex justify-end gap-3">
             <Button
