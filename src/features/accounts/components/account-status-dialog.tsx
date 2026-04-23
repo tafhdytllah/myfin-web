@@ -1,15 +1,6 @@
 "use client";
 
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { ConfirmActionDialog } from "@/components/shared/confirm-action-dialog";
 import { Account } from "@/features/accounts/types/account-types";
 import { useToggleAccountStatus } from "@/features/accounts/hooks/use-account-queries";
 import { useTranslations } from "@/lib/i18n/use-translations";
@@ -32,50 +23,29 @@ export function AccountStatusDialog({
     return null;
   }
 
-  const handleOpenChange = (nextOpen: boolean) => {
-    if (toggleMutation.isPending) {
-      return;
-    }
-
-    onOpenChange(nextOpen);
-  };
-
   return (
-    <AlertDialog open={open} onOpenChange={handleOpenChange}>
-      <AlertDialogContent className="rounded-3xl">
-        <AlertDialogHeader>
-          <AlertDialogTitle>{t("accounts.deactivateTitle")}</AlertDialogTitle>
-          <AlertDialogDescription>
-            {t("accounts.deactivateDescription", { name: account.name })}
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <div className="rounded-2xl border border-border bg-muted/30 p-4 text-sm text-muted-foreground">
-          {t("accounts.deactivateHistoryHint")}
-        </div>
-        <AlertDialogFooter>
-          <AlertDialogCancel disabled={toggleMutation.isPending}>
-            {t("accounts.cancel")}
-          </AlertDialogCancel>
-          <AlertDialogAction
-            disabled={toggleMutation.isPending}
-            onClick={(event) => {
-              event.preventDefault();
-              toggleMutation.mutate(
-                {
-                  account,
-                  active: false,
-                  onSuccess: () => onOpenChange(false),
-                },
-                {
-                  onError: () => onOpenChange(false),
-                },
-              );
-            }}
-          >
-            {toggleMutation.isPending ? t("accounts.saving") : t("common.deactivate")}
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+    <ConfirmActionDialog
+      open={open}
+      onOpenChange={onOpenChange}
+      pending={toggleMutation.isPending}
+      title={t("accounts.deactivateTitle")}
+      description={t("accounts.deactivateDescription", { name: account.name })}
+      hint={t("accounts.deactivateHistoryHint")}
+      cancelLabel={t("accounts.cancel")}
+      confirmLabel={t("common.deactivate")}
+      pendingLabel={t("accounts.saving")}
+      onConfirm={() =>
+        toggleMutation.mutate(
+          {
+            account,
+            active: false,
+            onSuccess: () => onOpenChange(false),
+          },
+          {
+            onError: () => onOpenChange(false),
+          },
+        )
+      }
+    />
   );
 }

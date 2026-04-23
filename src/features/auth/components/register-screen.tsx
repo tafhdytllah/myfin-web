@@ -2,10 +2,10 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { Eye, EyeOff } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
+import { PasswordInput } from "@/components/shared/password-input";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -33,8 +33,6 @@ import { routes } from "@/lib/constants/routes";
 
 export function RegisterScreen() {
   const [formError, setFormError] = useState<string | undefined>();
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { t } = useTranslations();
   const schema = useMemo(() => createRegisterSchema(t), [t]);
   const registerMutation = useRegister();
@@ -142,28 +140,12 @@ export function RegisterScreen() {
           <Field>
             <FieldLabel>{t("auth.password")}</FieldLabel>
             <FieldContent>
-              <div className="relative">
-                <Input
-                  {...register("password")}
-                  type={showPassword ? "text" : "password"}
-                  className="h-12 rounded-2xl border-[var(--color-border-strong)] bg-white px-4 pr-12 dark:bg-transparent"
-                  placeholder={t("auth.passwordPlaceholder")}
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  className="absolute right-1 top-1.5 size-9 rounded-xl"
-                  onClick={() => setShowPassword((current) => !current)}
-                >
-                  {showPassword ? (
-                    <EyeOff className="size-4" />
-                  ) : (
-                    <Eye className="size-4" />
-                  )}
-                  <span className="sr-only">{t("auth.togglePasswordVisibility")}</span>
-                </Button>
-              </div>
+              <PasswordInput
+                {...register("password")}
+                className="h-12 rounded-2xl border-[var(--color-border-strong)] bg-white px-4 dark:bg-transparent"
+                placeholder={t("auth.passwordPlaceholder")}
+                toggleLabel={t("auth.togglePasswordVisibility")}
+              />
               {errors.password ? (
                 <FieldError errors={[errors.password]} />
               ) : (
@@ -175,28 +157,12 @@ export function RegisterScreen() {
           <Field>
             <FieldLabel>{t("auth.confirmPassword")}</FieldLabel>
             <FieldContent>
-              <div className="relative">
-                <Input
-                  {...register("confirmPassword")}
-                  type={showConfirmPassword ? "text" : "password"}
-                  className="h-12 rounded-2xl border-[var(--color-border-strong)] bg-white px-4 pr-12 dark:bg-transparent"
-                  placeholder={t("auth.confirmPasswordPlaceholder")}
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  className="absolute right-1 top-1.5 size-9 rounded-xl"
-                  onClick={() => setShowConfirmPassword((current) => !current)}
-                >
-                  {showConfirmPassword ? (
-                    <EyeOff className="size-4" />
-                  ) : (
-                    <Eye className="size-4" />
-                  )}
-                  <span className="sr-only">{t("auth.togglePasswordVisibility")}</span>
-                </Button>
-              </div>
+              <PasswordInput
+                {...register("confirmPassword")}
+                className="h-12 rounded-2xl border-[var(--color-border-strong)] bg-white px-4 dark:bg-transparent"
+                placeholder={t("auth.confirmPasswordPlaceholder")}
+                toggleLabel={t("auth.togglePasswordVisibility")}
+              />
               <FieldError errors={[errors.confirmPassword]} />
             </FieldContent>
           </Field>

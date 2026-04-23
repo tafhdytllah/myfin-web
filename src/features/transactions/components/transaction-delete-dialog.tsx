@@ -1,15 +1,6 @@
 "use client";
 
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { ConfirmActionDialog } from "@/components/shared/confirm-action-dialog";
 import { useDeleteTransaction } from "@/features/transactions/hooks/use-transaction-queries";
 import { Transaction } from "@/features/transactions/types/transaction-types";
 import { formatCurrency } from "@/lib/formatters/currency";
@@ -39,54 +30,39 @@ export function TransactionDeleteDialog({
   }
 
   const dateLocale = locale === "id" ? "id-ID" : "en-US";
-  const handleOpenChange = (nextOpen: boolean) => {
-    if (deleteMutation.isPending) {
-      return;
-    }
-
-    onOpenChange(nextOpen);
-  };
 
   return (
-    <AlertDialog open={open} onOpenChange={handleOpenChange}>
-      <AlertDialogContent className="rounded-3xl">
-        <AlertDialogHeader>
-          <AlertDialogTitle>{t("transactions.deleteTitle")}</AlertDialogTitle>
-          <AlertDialogDescription>
-            {t("transactions.deleteDescription")}
-          </AlertDialogDescription>
-        </AlertDialogHeader>
+    <ConfirmActionDialog
+      open={open}
+      onOpenChange={onOpenChange}
+      pending={deleteMutation.isPending}
+      title={t("transactions.deleteTitle")}
+      description={t("transactions.deleteDescription")}
+      cancelLabel={t("transactions.cancel")}
+      confirmLabel={t("transactions.delete")}
+      pendingLabel={t("transactions.deleting")}
+      details={
         <div className="rounded-2xl border border-border bg-muted/30 p-4 text-sm">
           <p className="font-medium">
-            {categoryName ?? t("common.category")} {" - "} {formatCurrency(transaction.amount)}
+            {categoryName ?? t("common.category")} {" - "}{" "}
+            {formatCurrency(transaction.amount)}
           </p>
           <p className="mt-1 text-muted-foreground">
             {formatDate(transaction.createdAt, dateLocale)}
           </p>
         </div>
-        <AlertDialogFooter>
-          <AlertDialogCancel disabled={deleteMutation.isPending}>
-            {t("transactions.cancel")}
-          </AlertDialogCancel>
-          <AlertDialogAction
-            disabled={deleteMutation.isPending}
-            onClick={(event) => {
-              event.preventDefault();
-              deleteMutation.mutate(
-                {
-                  id: transaction.id,
-                  onSuccess: () => onOpenChange(false),
-                },
-                {
-                  onError: () => onOpenChange(false),
-                },
-              );
-            }}
-          >
-            {deleteMutation.isPending ? t("transactions.deleting") : t("transactions.delete")}
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+      }
+      onConfirm={() =>
+        deleteMutation.mutate(
+          {
+            id: transaction.id,
+            onSuccess: () => onOpenChange(false),
+          },
+          {
+            onError: () => onOpenChange(false),
+          },
+        )
+      }
+    />
   );
 }

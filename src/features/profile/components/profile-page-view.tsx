@@ -2,10 +2,11 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Eye, EyeOff, RefreshCw } from "lucide-react";
+import { RefreshCw } from "lucide-react";
 import { useForm } from "react-hook-form";
 
 import { PageHeader } from "@/components/shared/page-header";
+import { PasswordInput } from "@/components/shared/password-input";
 import { SectionCard } from "@/components/shared/section-card";
 import { usePageTrail } from "@/components/layout/page-trail-context";
 import { Button } from "@/components/ui/button";
@@ -41,11 +42,6 @@ export function ProfilePageView() {
   const changePasswordMutation = useChangePassword();
   const [profileFormError, setProfileFormError] = useState<string>();
   const [passwordFormError, setPasswordFormError] = useState<string>();
-  const [showPasswords, setShowPasswords] = useState({
-    current: false,
-    next: false,
-    confirm: false,
-  });
 
   const profileInfoSchema = useMemo(() => createProfileInfoSchema(t), [t]);
   const changePasswordSchema = useMemo(() => createChangePasswordSchema(t), [t]);
@@ -80,13 +76,6 @@ export function ProfilePageView() {
       email: profileQuery.data.email,
     });
   }, [profileForm, profileQuery.data, setUser]);
-
-  function togglePasswordVisibility(key: keyof typeof showPasswords) {
-    setShowPasswords((current) => ({
-      ...current,
-      [key]: !current[key],
-    }));
-  }
 
   function handleProfileSubmit(values: ProfileInfoSchema) {
     setProfileFormError(undefined);
@@ -248,31 +237,12 @@ export function ProfilePageView() {
                   {t("profile.currentPassword")}
                 </FieldLabel>
                 <FieldContent>
-                  <div className="relative">
-                    <Input
-                      id="current-password"
-                      type={showPasswords.current ? "text" : "password"}
-                      {...passwordForm.register("currentPassword")}
-                      placeholder={t("auth.passwordPlaceholder")}
-                      className="pr-12"
-                    />
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      className="absolute right-1 top-1 size-9 rounded-xl"
-                      onClick={() => togglePasswordVisibility("current")}
-                    >
-                      {showPasswords.current ? (
-                        <EyeOff className="size-4" />
-                      ) : (
-                        <Eye className="size-4" />
-                      )}
-                      <span className="sr-only">
-                        {t("profile.togglePasswordVisibility")}
-                      </span>
-                    </Button>
-                  </div>
+                  <PasswordInput
+                    id="current-password"
+                    {...passwordForm.register("currentPassword")}
+                    placeholder={t("auth.passwordPlaceholder")}
+                    toggleLabel={t("profile.togglePasswordVisibility")}
+                  />
                   <FieldError errors={[passwordForm.formState.errors.currentPassword]} />
                 </FieldContent>
               </Field>
@@ -280,31 +250,12 @@ export function ProfilePageView() {
               <Field>
                 <FieldLabel htmlFor="new-password">{t("profile.newPassword")}</FieldLabel>
                 <FieldContent>
-                  <div className="relative">
-                    <Input
-                      id="new-password"
-                      type={showPasswords.next ? "text" : "password"}
-                      {...passwordForm.register("newPassword")}
-                      placeholder={t("auth.passwordPlaceholder")}
-                      className="pr-12"
-                    />
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      className="absolute right-1 top-1 size-9 rounded-xl"
-                      onClick={() => togglePasswordVisibility("next")}
-                    >
-                      {showPasswords.next ? (
-                        <EyeOff className="size-4" />
-                      ) : (
-                        <Eye className="size-4" />
-                      )}
-                      <span className="sr-only">
-                        {t("profile.togglePasswordVisibility")}
-                      </span>
-                    </Button>
-                  </div>
+                  <PasswordInput
+                    id="new-password"
+                    {...passwordForm.register("newPassword")}
+                    placeholder={t("auth.passwordPlaceholder")}
+                    toggleLabel={t("profile.togglePasswordVisibility")}
+                  />
                   {passwordForm.formState.errors.newPassword ? (
                     <FieldError errors={[passwordForm.formState.errors.newPassword]} />
                   ) : (
@@ -318,31 +269,12 @@ export function ProfilePageView() {
                   {t("profile.confirmNewPassword")}
                 </FieldLabel>
                 <FieldContent>
-                  <div className="relative">
-                    <Input
-                      id="confirm-password"
-                      type={showPasswords.confirm ? "text" : "password"}
-                      {...passwordForm.register("confirmNewPassword")}
-                      placeholder={t("auth.confirmPasswordPlaceholder")}
-                      className="pr-12"
-                    />
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      className="absolute right-1 top-1 size-9 rounded-xl"
-                      onClick={() => togglePasswordVisibility("confirm")}
-                    >
-                      {showPasswords.confirm ? (
-                        <EyeOff className="size-4" />
-                      ) : (
-                        <Eye className="size-4" />
-                      )}
-                      <span className="sr-only">
-                        {t("profile.togglePasswordVisibility")}
-                      </span>
-                    </Button>
-                  </div>
+                  <PasswordInput
+                    id="confirm-password"
+                    {...passwordForm.register("confirmNewPassword")}
+                    placeholder={t("auth.confirmPasswordPlaceholder")}
+                    toggleLabel={t("profile.togglePasswordVisibility")}
+                  />
                   <FieldError errors={[passwordForm.formState.errors.confirmNewPassword]} />
                 </FieldContent>
               </Field>
