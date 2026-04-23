@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
+import Link from "next/link";
 import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 
@@ -28,6 +29,7 @@ import { useCategories } from "@/features/categories/hooks/use-category-queries"
 import { CategoryType } from "@/features/categories/types/category-types";
 import { useCreateTransaction } from "@/features/transactions/hooks/use-transaction-queries";
 import { ApiError } from "@/lib/api/types";
+import { routes } from "@/lib/constants/routes";
 import { useTranslations } from "@/lib/i18n/use-translations";
 
 const transactionSchema = z.object({
@@ -104,6 +106,8 @@ export function TransactionFormDialog({
       (categoriesQuery.data ?? []).filter((category) => category.type === selectedType),
     [categoriesQuery.data, selectedType],
   );
+  const hasActiveAccounts = activeAccounts.length > 0;
+  const hasMatchingCategories = activeCategories.length > 0;
 
   useEffect(() => {
     if (!open) {
@@ -202,6 +206,7 @@ export function TransactionFormDialog({
               <Label>{t("common.account")}</Label>
               <Select
                 value={selectedAccountId}
+                disabled={!hasActiveAccounts}
                 onValueChange={(value) =>
                   form.setValue("accountId", value ?? "", {
                     shouldDirty: true,
@@ -224,6 +229,17 @@ export function TransactionFormDialog({
                 <p className="text-sm text-destructive">
                   {form.formState.errors.accountId.message}
                 </p>
+              ) : !hasActiveAccounts ? (
+                <p className="text-sm text-muted-foreground">
+                  {t("transactions.noActiveAccounts")}{" "}
+                  <Link
+                    href={routes.accounts}
+                    className="font-medium text-primary underline-offset-4 hover:underline"
+                    onClick={() => onOpenChange(false)}
+                  >
+                    {t("transactions.goToAccounts")}
+                  </Link>
+                </p>
               ) : null}
             </div>
           </div>
@@ -233,6 +249,7 @@ export function TransactionFormDialog({
               <Label>{t("common.category")}</Label>
               <Select
                 value={selectedCategoryId}
+                disabled={!hasMatchingCategories}
                 onValueChange={(value) =>
                   form.setValue("categoryId", value ?? "", {
                     shouldDirty: true,
@@ -254,6 +271,17 @@ export function TransactionFormDialog({
               {form.formState.errors.categoryId?.message ? (
                 <p className="text-sm text-destructive">
                   {form.formState.errors.categoryId.message}
+                </p>
+              ) : !hasMatchingCategories ? (
+                <p className="text-sm text-muted-foreground">
+                  {t("transactions.noMatchingCategories")}{" "}
+                  <Link
+                    href={routes.categories}
+                    className="font-medium text-primary underline-offset-4 hover:underline"
+                    onClick={() => onOpenChange(false)}
+                  >
+                    {t("transactions.goToCategories")}
+                  </Link>
                 </p>
               ) : null}
             </div>
@@ -298,7 +326,10 @@ export function TransactionFormDialog({
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               {t("transactions.cancel")}
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
+            <Button
+              type="submit"
+              disabled={isSubmitting || !hasActiveAccounts || !hasMatchingCategories}
+            >
               {isSubmitting ? t("transactions.saving") : t("common.save")}
             </Button>
           </div>

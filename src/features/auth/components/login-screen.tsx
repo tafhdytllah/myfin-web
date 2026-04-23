@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -24,6 +25,7 @@ import { routes } from "@/lib/constants/routes";
 
 export function LoginScreen() {
   const [formError, setFormError] = useState<string | undefined>();
+  const [showPassword, setShowPassword] = useState(false);
   const { t } = useTranslations();
   const loginMutation = useLogin();
   const {
@@ -66,7 +68,7 @@ export function LoginScreen() {
         return;
       }
 
-      setFormError("Unable to sign in right now. Please try again.");
+      setFormError(t("auth.signInError"));
     }
   };
 
@@ -108,12 +110,24 @@ export function LoginScreen() {
             <Label className="mb-2 block text-sm font-medium text-[var(--color-foreground)]">
               {t("auth.password")}
             </Label>
-            <Input
-              {...register("password")}
-              type="password"
-              className="h-12 rounded-2xl border-[var(--color-border-strong)] bg-white px-4 dark:bg-transparent"
-              placeholder="••••••••"
-            />
+            <div className="relative">
+              <Input
+                {...register("password")}
+                type={showPassword ? "text" : "password"}
+                className="h-12 rounded-2xl border-[var(--color-border-strong)] bg-white px-4 pr-12 dark:bg-transparent"
+                placeholder={t("auth.passwordPlaceholder")}
+              />
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="absolute right-1 top-1.5 size-9 rounded-xl"
+                onClick={() => setShowPassword((current) => !current)}
+              >
+                {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                <span className="sr-only">{t("auth.togglePasswordVisibility")}</span>
+              </Button>
+            </div>
             {errors.password ? (
               <p className="mt-2 text-sm text-[var(--color-danger)]">
                 {errors.password.message}
