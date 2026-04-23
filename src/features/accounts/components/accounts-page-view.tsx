@@ -24,6 +24,7 @@ import {
 import { PageHeader } from "@/components/shared/page-header";
 import { RetryCard } from "@/components/shared/retry-card";
 import { SectionCard } from "@/components/shared/section-card";
+import { StackSkeleton } from "@/components/shared/stack-skeleton";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { SummaryStatCard } from "@/components/shared/summary-stat-card";
 import { usePageTrail } from "@/components/layout/page-trail-context";
@@ -212,11 +213,11 @@ export function AccountsPageView() {
         <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
           {Array.from({ length: 3 }).map((_, index) => (
             <SectionCard key={index} title=" ">
-              <div className="space-y-3">
-                <div className="h-4 w-24 rounded bg-muted" />
-                <div className="h-10 w-40 rounded bg-muted" />
-                <div className="h-4 w-32 rounded bg-muted" />
-              </div>
+              <StackSkeleton
+                count={3}
+                itemClassName="h-4 rounded bg-muted"
+                className="space-y-3 [&>*:nth-child(2)]:h-10 [&>*:nth-child(2)]:w-40 [&>*:nth-child(1)]:w-24 [&>*:nth-child(3)]:w-32"
+              />
             </SectionCard>
           ))}
         </div>

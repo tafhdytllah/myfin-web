@@ -23,8 +23,10 @@ import {
   parseTransactionFilters,
 } from "@/features/transactions/utils/transaction-search-params";
 import { PageHeader } from "@/components/shared/page-header";
-import { RetryCard } from "@/components/shared/retry-card";
+import { InlineRetryState } from "@/components/shared/inline-retry-state";
 import { SectionCard } from "@/components/shared/section-card";
+import { SectionEmptyState } from "@/components/shared/section-empty-state";
+import { StackSkeleton } from "@/components/shared/stack-skeleton";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { SummaryStatCard } from "@/components/shared/summary-stat-card";
 import { usePageTrail } from "@/components/layout/page-trail-context";
@@ -387,16 +389,11 @@ export function TransactionsPageView() {
         description={t("transactions.tableDescription")}
       >
         {transactionsQuery.isLoading ? (
-          <div className="space-y-3">
-            {Array.from({ length: 5 }).map((_, index) => (
-              <div key={index} className="h-14 rounded-xl bg-muted" />
-            ))}
-          </div>
+          <StackSkeleton count={5} itemClassName="h-14 rounded-xl bg-muted" />
         ) : null}
 
         {transactionsQuery.isError ? (
-          <RetryCard
-            title={t("transactions.loadErrorTitle")}
+          <InlineRetryState
             description={t("transactions.loadErrorDescription")}
             retryLabel={t("transactions.retry")}
             onRetry={() => transactionsQuery.refetch()}
@@ -406,21 +403,24 @@ export function TransactionsPageView() {
         {!transactionsQuery.isLoading &&
         !transactionsQuery.isError &&
         rows.length === 0 ? (
-          <div className="space-y-4">
-            <p className="text-sm text-muted-foreground">
-              {t("transactions.emptyDescription")}
-            </p>
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <Button onClick={() => setFormOpen(true)}>
-                {t("transactions.addTransaction")}
-              </Button>
-              {hasActiveFilters ? (
-                <Button variant="outline" onClick={resetFilters}>
-                  {t("transactions.resetFilters")}
-                </Button>
-              ) : null}
-            </div>
-          </div>
+          <SectionEmptyState
+            description={t("transactions.emptyDescription")}
+            actions={[
+              {
+                label: t("transactions.addTransaction"),
+                onClick: () => setFormOpen(true),
+              },
+              ...(hasActiveFilters
+                ? [
+                    {
+                      label: t("transactions.resetFilters"),
+                      onClick: resetFilters,
+                      variant: "outline" as const,
+                    },
+                  ]
+                : []),
+            ]}
+          />
         ) : null}
 
         {!transactionsQuery.isLoading &&

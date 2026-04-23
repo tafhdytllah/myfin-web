@@ -8,6 +8,7 @@ import { PageHeader } from "@/components/shared/page-header";
 import { PasswordInput } from "@/components/shared/password-input";
 import { RetryCard } from "@/components/shared/retry-card";
 import { SectionCard } from "@/components/shared/section-card";
+import { StackSkeleton } from "@/components/shared/stack-skeleton";
 import { usePageTrail } from "@/components/layout/page-trail-context";
 import { Button } from "@/components/ui/button";
 import {
@@ -144,12 +145,11 @@ export function ProfilePageView() {
         <div className="grid gap-6 xl:grid-cols-2">
           {Array.from({ length: 2 }).map((_, index) => (
             <SectionCard key={index} title=" ">
-              <div className="space-y-4">
-                <div className="h-4 w-32 rounded bg-muted" />
-                <div className="h-11 rounded bg-muted" />
-                <div className="h-4 w-28 rounded bg-muted" />
-                <div className="h-11 rounded bg-muted" />
-              </div>
+              <StackSkeleton
+                count={4}
+                itemClassName="rounded bg-muted"
+                className="space-y-4 [&>*:nth-child(1)]:h-4 [&>*:nth-child(1)]:w-32 [&>*:nth-child(2)]:h-11 [&>*:nth-child(3)]:h-4 [&>*:nth-child(3)]:w-28 [&>*:nth-child(4)]:h-11"
+              />
             </SectionCard>
           ))}
         </div>

@@ -4,8 +4,12 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 
 import { usePageTrail } from "@/components/layout/page-trail-context";
+import { InlineRetryState } from "@/components/shared/inline-retry-state";
 import { PageHeader } from "@/components/shared/page-header";
+import { RetryCard } from "@/components/shared/retry-card";
 import { SectionCard } from "@/components/shared/section-card";
+import { SectionEmptyState } from "@/components/shared/section-empty-state";
+import { StackSkeleton } from "@/components/shared/stack-skeleton";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -156,14 +160,12 @@ export function DashboardPageView() {
       ) : null}
 
       {summaryQuery.isError ? (
-        <SectionCard
+        <RetryCard
           title={t("dashboard.loadErrorTitle")}
           description={t("dashboard.loadErrorDescription")}
-        >
-          <Button variant="outline" onClick={() => summaryQuery.refetch()}>
-            {t("dashboard.retry")}
-          </Button>
-        </SectionCard>
+          retryLabel={t("dashboard.retry")}
+          onRetry={() => summaryQuery.refetch()}
+        />
       ) : null}
 
       {!summaryQuery.isLoading && !summaryQuery.isError ? (
@@ -196,25 +198,25 @@ export function DashboardPageView() {
           }
         >
           {recentTransactionsQuery.isLoading ? (
-            <div className="space-y-4">
-              {Array.from({ length: 3 }).map((_, index) => (
-                <div key={index} className="h-20 rounded-3xl bg-muted" />
-              ))}
-            </div>
+            <StackSkeleton
+              count={3}
+              className="space-y-4"
+              itemClassName="h-20 rounded-3xl bg-muted"
+            />
           ) : null}
 
           {recentTransactionsQuery.isError ? (
-            <div className="rounded-2xl border border-border bg-muted/30 p-4 text-sm text-muted-foreground">
-              {t("dashboard.recentLoadError")}
-            </div>
+            <InlineRetryState
+              description={t("dashboard.recentLoadError")}
+              retryLabel={t("dashboard.retry")}
+              onRetry={() => recentTransactionsQuery.refetch()}
+            />
           ) : null}
 
           {!recentTransactionsQuery.isLoading &&
           !recentTransactionsQuery.isError &&
           recentTransactions.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-border p-6 text-sm text-muted-foreground">
-              {t("dashboard.recentEmpty")}
-            </div>
+            <SectionEmptyState description={t("dashboard.recentEmpty")} dashed />
           ) : null}
 
           {!recentTransactionsQuery.isLoading &&
@@ -264,17 +266,19 @@ export function DashboardPageView() {
           }
         >
           {activeAccountsQuery.isLoading ? (
-            <div className="space-y-4">
-              {Array.from({ length: 3 }).map((_, index) => (
-                <div key={index} className="h-24 rounded-3xl bg-muted" />
-              ))}
-            </div>
+            <StackSkeleton
+              count={3}
+              className="space-y-4"
+              itemClassName="h-24 rounded-3xl bg-muted"
+            />
           ) : null}
 
           {activeAccountsQuery.isError ? (
-            <div className="rounded-2xl border border-border bg-muted/30 p-4 text-sm text-muted-foreground">
-              {t("dashboard.accountsLoadError")}
-            </div>
+            <InlineRetryState
+              description={t("dashboard.accountsLoadError")}
+              retryLabel={t("dashboard.retry")}
+              onRetry={() => activeAccountsQuery.refetch()}
+            />
           ) : null}
 
           {!activeAccountsQuery.isLoading &&

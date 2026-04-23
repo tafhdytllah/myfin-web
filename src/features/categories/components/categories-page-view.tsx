@@ -23,6 +23,7 @@ import {
 import { PageHeader } from "@/components/shared/page-header";
 import { RetryCard } from "@/components/shared/retry-card";
 import { SectionCard } from "@/components/shared/section-card";
+import { StackSkeleton } from "@/components/shared/stack-skeleton";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { SummaryStatCard } from "@/components/shared/summary-stat-card";
 import { usePageTrail } from "@/components/layout/page-trail-context";
@@ -235,11 +236,7 @@ export function CategoriesPageView() {
           title={t("categories.tableTitle")}
           description={t("categories.tableDescription")}
         >
-          <div className="space-y-3">
-            {Array.from({ length: 4 }).map((_, index) => (
-              <div key={index} className="h-12 rounded-xl bg-muted" />
-            ))}
-          </div>
+          <StackSkeleton count={4} itemClassName="h-12 rounded-xl bg-muted" />
         </SectionCard>
       ) : null}
 
