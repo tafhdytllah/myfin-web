@@ -1,15 +1,9 @@
 import { ApiError } from "@/lib/api/types";
 
 export function getApiFieldError(error: unknown, field: string) {
-  if (!(error instanceof ApiError)) {
+  if (!ApiError.isApiError(error)) {
     return undefined;
   }
 
-  const detail = error.details?.[field];
-
-  if (Array.isArray(detail)) {
-    return detail[0];
-  }
-
-  return detail;
+  return error.getFieldError(field);
 }

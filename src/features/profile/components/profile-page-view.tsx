@@ -30,7 +30,7 @@ import {
   useCurrentProfile,
   useUpdateProfile,
 } from "@/features/profile/hooks/use-profile-queries";
-import { getApiFieldError } from "@/lib/api/error-fields";
+import { applyApiFieldErrors } from "@/lib/api/apply-field-errors";
 import { ApiError } from "@/lib/api/types";
 import { useTranslations } from "@/lib/i18n/use-translations";
 import { useAuthStore } from "@/stores/auth-store";
@@ -83,18 +83,9 @@ export function ProfilePageView() {
 
     updateProfileMutation.mutate(values, {
       onError: (error) => {
-        const usernameError = getApiFieldError(error, "username");
-        const emailError = getApiFieldError(error, "email");
+        applyApiFieldErrors(error, ["username", "email"], profileForm.setError);
 
-        if (usernameError) {
-          profileForm.setError("username", { message: usernameError });
-        }
-
-        if (emailError) {
-          profileForm.setError("email", { message: emailError });
-        }
-
-        if (error instanceof ApiError) {
+        if (ApiError.isApiError(error)) {
           setProfileFormError(error.message);
         }
       },
@@ -114,22 +105,13 @@ export function ProfilePageView() {
           passwordForm.reset();
         },
         onError: (error) => {
-          const currentPasswordError = getApiFieldError(error, "currentPassword");
-          const newPasswordError = getApiFieldError(error, "newPassword");
+          applyApiFieldErrors(
+            error,
+            ["currentPassword", "newPassword"],
+            passwordForm.setError,
+          );
 
-          if (currentPasswordError) {
-            passwordForm.setError("currentPassword", {
-              message: currentPasswordError,
-            });
-          }
-
-          if (newPasswordError) {
-            passwordForm.setError("newPassword", {
-              message: newPasswordError,
-            });
-          }
-
-          if (error instanceof ApiError) {
+          if (ApiError.isApiError(error)) {
             setPasswordFormError(error.message);
           }
         },

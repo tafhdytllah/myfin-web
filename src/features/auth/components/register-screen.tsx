@@ -27,6 +27,7 @@ import {
   createRegisterSchema,
   type RegisterSchema,
 } from "@/features/auth/schemas/register-schema";
+import { applyApiFieldErrors } from "@/lib/api/apply-field-errors";
 import { ApiError } from "@/lib/api/types";
 import { useTranslations } from "@/lib/i18n/use-translations";
 import { routes } from "@/lib/constants/routes";
@@ -61,31 +62,8 @@ export function RegisterScreen() {
         password: values.password,
       });
     } catch (error) {
-      if (error instanceof ApiError) {
-        if (error.details?.username) {
-          setError("username", {
-            message: Array.isArray(error.details.username)
-              ? error.details.username[0]
-              : error.details.username,
-          });
-        }
-
-        if (error.details?.email) {
-          setError("email", {
-            message: Array.isArray(error.details.email)
-              ? error.details.email[0]
-              : error.details.email,
-          });
-        }
-
-        if (error.details?.password) {
-          setError("password", {
-            message: Array.isArray(error.details.password)
-              ? error.details.password[0]
-              : error.details.password,
-          });
-        }
-
+      if (ApiError.isApiError(error)) {
+        applyApiFieldErrors(error, ["username", "email", "password"], setError);
         setFormError(error.message);
         return;
       }
