@@ -1,5 +1,6 @@
 "use client";
 
+import { InfoNotice } from "@/components/shared/info-notice";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -53,11 +54,7 @@ export function ConfirmActionDialog({
           <AlertDialogTitle>{title}</AlertDialogTitle>
           <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
-        {hint ? (
-          <div className="rounded-2xl border border-border bg-muted/30 p-4 text-sm text-muted-foreground">
-            {hint}
-          </div>
-        ) : null}
+        {hint ? <InfoNotice>{hint}</InfoNotice> : null}
         {details}
         <AlertDialogFooter>
           <AlertDialogCancel disabled={pending}>{cancelLabel}</AlertDialogCancel>

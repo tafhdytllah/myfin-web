@@ -4,15 +4,10 @@ import { useEffect, useMemo } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useWatch } from "react-hook-form";
 
+import { DialogFormHeader } from "@/components/shared/dialog-form-header";
 import { DialogFormActions } from "@/components/shared/dialog-form-actions";
 import { FormFieldItem } from "@/components/shared/form-field-item";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -147,16 +142,16 @@ export function CategoryFormDialog({
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="rounded-3xl sm:max-w-lg">
-        <DialogHeader>
-          <DialogTitle>
-            {isEditMode ? t("categories.editCategory") : t("categories.addCategory")}
-          </DialogTitle>
-          <DialogDescription>
-            {isEditMode
+        <DialogFormHeader
+          title={
+            isEditMode ? t("categories.editCategory") : t("categories.addCategory")
+          }
+          description={
+            isEditMode
               ? t("categories.editDescription")
-              : t("categories.createDescription")}
-          </DialogDescription>
-        </DialogHeader>
+              : t("categories.createDescription")
+          }
+        />
 
         <form className="space-y-5" onSubmit={form.handleSubmit(handleSubmit)}>
           <FormFieldItem

@@ -5,15 +5,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useForm, useWatch } from "react-hook-form";
 
+import { DialogFormHeader } from "@/components/shared/dialog-form-header";
 import { DialogFormActions } from "@/components/shared/dialog-form-actions";
 import { FormFieldItem } from "@/components/shared/form-field-item";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { InfoNotice } from "@/components/shared/info-notice";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { FieldDescription } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import {
@@ -162,12 +158,10 @@ export function TransactionFormDialog({
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="rounded-3xl sm:max-w-2xl">
-        <DialogHeader>
-          <DialogTitle>{t("transactions.addTransaction")}</DialogTitle>
-          <DialogDescription>
-            {t("transactions.createDescription")}
-          </DialogDescription>
-        </DialogHeader>
+        <DialogFormHeader
+          title={t("transactions.addTransaction")}
+          description={t("transactions.createDescription")}
+        />
 
         <form className="space-y-5" onSubmit={form.handleSubmit(handleSubmit)}>
           <div className="grid gap-4 md:grid-cols-2">
@@ -309,9 +303,9 @@ export function TransactionFormDialog({
             />
           </FormFieldItem>
 
-          <div className="rounded-2xl border border-border bg-muted/30 p-4 text-sm text-muted-foreground">
+          <InfoNotice>
             {t("transactions.dateInfo")}
-          </div>
+          </InfoNotice>
 
           <DialogFormActions
             cancelLabel={t("transactions.cancel")}

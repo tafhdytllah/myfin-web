@@ -4,16 +4,12 @@ import { useEffect, useMemo } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
+import { DialogFormHeader } from "@/components/shared/dialog-form-header";
 import { DialogFormActions } from "@/components/shared/dialog-form-actions";
 import { FormFieldItem } from "@/components/shared/form-field-item";
+import { InfoNotice } from "@/components/shared/info-notice";
 import { InfoMetricBlock } from "@/components/shared/info-metric-block";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { FieldDescription } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import {
@@ -148,16 +144,14 @@ export function AccountFormDialog({
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="rounded-3xl sm:max-w-lg">
-        <DialogHeader>
-          <DialogTitle>
-            {isEditMode ? t("accounts.editAccount") : t("accounts.addAccount")}
-          </DialogTitle>
-          <DialogDescription>
-            {isEditMode
+        <DialogFormHeader
+          title={isEditMode ? t("accounts.editAccount") : t("accounts.addAccount")}
+          description={
+            isEditMode
               ? t("accounts.editDescription")
-              : t("accounts.createDescription")}
-          </DialogDescription>
-        </DialogHeader>
+              : t("accounts.createDescription")
+          }
+        />
 
         {isEditMode ? (
           <form
@@ -176,7 +170,7 @@ export function AccountFormDialog({
               />
             </FormFieldItem>
 
-            <div className="rounded-2xl border border-border bg-muted/30 p-4">
+            <InfoNotice className="text-foreground">
               <InfoMetricBlock
                 eyebrow={t("accounts.currentBalance")}
                 value={formatCurrency(account?.currentBalance ?? 0)}
@@ -184,7 +178,7 @@ export function AccountFormDialog({
                 eyebrowClassName="text-muted-foreground"
                 valueClassName="text-lg font-semibold text-foreground"
               />
-            </div>
+            </InfoNotice>
 
             <DialogFormActions
               cancelLabel={t("accounts.cancel")}
