@@ -32,8 +32,16 @@ export function AccountStatusDialog({
     return null;
   }
 
+  const handleOpenChange = (nextOpen: boolean) => {
+    if (toggleMutation.isPending) {
+      return;
+    }
+
+    onOpenChange(nextOpen);
+  };
+
   return (
-    <AlertDialog open={open} onOpenChange={onOpenChange}>
+    <AlertDialog open={open} onOpenChange={handleOpenChange}>
       <AlertDialogContent className="rounded-3xl">
         <AlertDialogHeader>
           <AlertDialogTitle>{t("accounts.deactivateTitle")}</AlertDialogTitle>

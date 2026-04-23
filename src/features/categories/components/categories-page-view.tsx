@@ -344,6 +344,7 @@ export function CategoriesPageView() {
                             </DropdownMenuItem>
                           ) : (
                             <DropdownMenuItem
+                              disabled={toggleStatusMutation.isPending}
                               onClick={() =>
                                 toggleStatusMutation.mutate({
                                   category,

@@ -196,9 +196,16 @@ export function TransactionFormDialog({
   }
 
   const isSubmitting = createMutation.isPending;
+  const handleOpenChange = (nextOpen: boolean) => {
+    if (isSubmitting) {
+      return;
+    }
+
+    onOpenChange(nextOpen);
+  };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="rounded-3xl sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>{t("transactions.addTransaction")}</DialogTitle>
@@ -358,7 +365,12 @@ export function TransactionFormDialog({
           </div>
 
           <div className="flex justify-end gap-3">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              disabled={isSubmitting}
+              onClick={() => onOpenChange(false)}
+            >
               {t("transactions.cancel")}
             </Button>
             <Button

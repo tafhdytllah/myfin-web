@@ -184,9 +184,16 @@ export function AccountFormDialog({
   }
 
   const isSubmitting = createMutation.isPending || updateMutation.isPending;
+  const handleOpenChange = (nextOpen: boolean) => {
+    if (isSubmitting) {
+      return;
+    }
+
+    onOpenChange(nextOpen);
+  };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="rounded-3xl sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>
@@ -229,6 +236,7 @@ export function AccountFormDialog({
               <Button
                 type="button"
                 variant="outline"
+                disabled={isSubmitting}
                 onClick={() => onOpenChange(false)}
               >
                 {t("accounts.cancel")}
@@ -281,6 +289,7 @@ export function AccountFormDialog({
               <Button
                 type="button"
                 variant="outline"
+                disabled={isSubmitting}
                 onClick={() => onOpenChange(false)}
               >
                 {t("accounts.cancel")}

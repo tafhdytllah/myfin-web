@@ -39,9 +39,16 @@ export function TransactionDeleteDialog({
   }
 
   const dateLocale = locale === "id" ? "id-ID" : "en-US";
+  const handleOpenChange = (nextOpen: boolean) => {
+    if (deleteMutation.isPending) {
+      return;
+    }
+
+    onOpenChange(nextOpen);
+  };
 
   return (
-    <AlertDialog open={open} onOpenChange={onOpenChange}>
+    <AlertDialog open={open} onOpenChange={handleOpenChange}>
       <AlertDialogContent className="rounded-3xl">
         <AlertDialogHeader>
           <AlertDialogTitle>{t("transactions.deleteTitle")}</AlertDialogTitle>

@@ -289,6 +289,7 @@ export function AccountsPageView() {
                         </DropdownMenuItem>
                       ) : (
                         <DropdownMenuItem
+                          disabled={toggleStatusMutation.isPending}
                           onClick={() =>
                             toggleStatusMutation.mutate({
                               account,
