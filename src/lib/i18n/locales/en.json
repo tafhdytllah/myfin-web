@@ -157,6 +157,7 @@
     "searchPlaceholder": "Search by account name",
     "statusFilter": "Status filter",
     "statusAll": "All statuses",
+    "resetFilters": "Reset Filters",
     "currentBalance": "Current Balance",
     "usedTransactions": "Used in {count} transactions",
     "openingBalanceValue": "Opening balance: {amount}",

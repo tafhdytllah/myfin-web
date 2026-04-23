@@ -157,6 +157,7 @@
     "searchPlaceholder": "Cari berdasarkan nama akun",
     "statusFilter": "Filter status",
     "statusAll": "Semua status",
+    "resetFilters": "Reset Filter",
     "currentBalance": "Saldo Saat Ini",
     "usedTransactions": "Dipakai di {count} transaksi",
     "openingBalanceValue": "Saldo awal: {amount}",

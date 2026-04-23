@@ -7,6 +7,7 @@ import {
   Power,
   PowerOff,
   RefreshCw,
+  RotateCcw,
 } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
@@ -58,6 +59,7 @@ export function AccountsPageView() {
   const [statusDialogAccount, setStatusDialogAccount] = useState<Account | null>(null);
 
   const accounts = useMemo(() => accountsQuery.data ?? [], [accountsQuery.data]);
+  const hasActiveFilters = Boolean(filters.keyword || filters.status !== "all");
 
   const summary = useMemo(
     () => ({
@@ -85,13 +87,20 @@ export function AccountsPageView() {
     setFormOpen(true);
   }
 
+  function resetFilters() {
+    updateFilters({
+      keyword: "",
+      status: "all",
+    });
+  }
+
   return (
     <div className="space-y-6">
       <PageHeader
         title={t("accounts.title")}
         description={t("accounts.description")}
         action={
-          <Button className="h-11 rounded-2xl px-5 text-sm font-semibold" onClick={openCreateDialog}>
+          <Button className="h-11 rounded-2xl px-5 text-sm font-semibold max-sm:w-full" onClick={openCreateDialog}>
             {t("accounts.addAccount")}
           </Button>
         }
@@ -114,6 +123,18 @@ export function AccountsPageView() {
       <SectionCard
         title={t("accounts.searchTitle")}
         description={t("accounts.searchDescription")}
+        action={
+          hasActiveFilters ? (
+            <Button
+              variant="outline"
+              className="rounded-full"
+              onClick={resetFilters}
+            >
+              <RotateCcw className="size-4" />
+              {t("accounts.resetFilters")}
+            </Button>
+          ) : null
+        }
       >
         <div className="grid gap-3 md:grid-cols-2">
           <Input
@@ -182,9 +203,16 @@ export function AccountsPageView() {
           title={t("accounts.emptyTitle")}
           description={t("accounts.emptyDescription")}
         >
-          <Button className="rounded-2xl" onClick={openCreateDialog}>
-            {t("accounts.addAccount")}
-          </Button>
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <Button className="rounded-2xl" onClick={openCreateDialog}>
+              {t("accounts.addAccount")}
+            </Button>
+            {hasActiveFilters ? (
+              <Button variant="outline" className="rounded-2xl" onClick={resetFilters}>
+                {t("accounts.resetFilters")}
+              </Button>
+            ) : null}
+          </div>
         </SectionCard>
       ) : null}
 

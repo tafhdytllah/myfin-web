@@ -96,14 +96,14 @@ export function DashboardPageView() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title={t("dashboard.title", { username: user?.username ?? "Guest" })}
+        title={t("dashboard.title", { username: user?.username ?? t("common.guest") })}
         description={t("dashboard.description", {
           date: formatDate(new Date().toISOString(), dateLocale),
         })}
         action={
           <Button
             render={<Link href={routes.transactions} />}
-            className="h-11 rounded-2xl px-5 text-sm font-semibold"
+            className="h-11 rounded-2xl px-5 text-sm font-semibold max-sm:w-full"
           >
             {t("dashboard.addTransaction")}
           </Button>
@@ -166,7 +166,7 @@ export function DashboardPageView() {
               title={t(card.key)}
               description={t("dashboard.summaryDescription")}
             >
-              <div className="flex items-end justify-between">
+              <div className="flex items-end justify-between gap-4">
                 <p className="text-3xl font-semibold text-[var(--color-foreground)]">
                   {formatCurrency(card.value)}
                 </p>
@@ -185,7 +185,7 @@ export function DashboardPageView() {
             <Button
               render={<Link href={routes.transactions} />}
               variant="outline"
-              className="rounded-full"
+              className="rounded-full max-sm:w-full"
             >
               {t("common.viewAll")}
             </Button>
@@ -223,15 +223,15 @@ export function DashboardPageView() {
                   className="rounded-3xl border-[var(--color-border)] bg-[var(--color-surface)] py-0 text-left transition hover:bg-muted/60"
                 >
                   <CardContent className="flex items-center justify-between gap-4 p-4">
-                    <div>
-                      <p className="font-medium text-[var(--color-foreground)]">
+                    <div className="min-w-0">
+                      <p className="truncate font-medium text-[var(--color-foreground)]">
                         {item.categoryName}
                       </p>
-                      <p className="mt-1 text-sm text-[var(--color-foreground-muted)]">
+                      <p className="mt-1 truncate text-sm text-[var(--color-foreground-muted)]">
                         {item.accountName} · {formatDate(item.createdAt, dateLocale)}
                       </p>
                     </div>
-                    <div className="text-right">
+                    <div className="shrink-0 text-right">
                       <StatusBadge
                         tone={item.type === "INCOME" ? "income" : "expense"}
                       >
@@ -257,7 +257,7 @@ export function DashboardPageView() {
             <Button
               render={<Link href={routes.accounts} />}
               variant="outline"
-              className="rounded-full"
+              className="rounded-full max-sm:w-full"
             >
               {t("common.seeAll")}
             </Button>
@@ -288,8 +288,8 @@ export function DashboardPageView() {
                 >
                   <CardContent className="p-4">
                     <div className="flex items-start justify-between gap-4">
-                      <div>
-                        <p className="font-medium text-[var(--color-foreground)]">
+                      <div className="min-w-0">
+                        <p className="truncate font-medium text-[var(--color-foreground)]">
                           {item.name}
                         </p>
                         <p className="mt-1 text-sm text-[var(--color-foreground-muted)]">
