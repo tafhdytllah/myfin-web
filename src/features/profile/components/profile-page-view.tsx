@@ -194,46 +194,48 @@ export function ProfilePageView() {
               className="grid gap-4"
               onSubmit={profileForm.handleSubmit(handleProfileSubmit)}
             >
-            <FormError message={profileFormError} />
+              <FormError message={profileFormError} />
 
-            <div className="space-y-2">
-              <Label htmlFor="profile-username">{t("auth.username")}</Label>
-              <Input
-                id="profile-username"
-                {...profileForm.register("username")}
-                placeholder={t("profile.usernamePlaceholder")}
-              />
-              {profileForm.formState.errors.username?.message ? (
-                <p className="text-sm text-destructive">
-                  {profileForm.formState.errors.username.message}
-                </p>
-              ) : null}
-            </div>
+              <div className="space-y-2">
+                <Label htmlFor="profile-username">{t("auth.username")}</Label>
+                <Input
+                  id="profile-username"
+                  {...profileForm.register("username")}
+                  placeholder={t("profile.usernamePlaceholder")}
+                />
+                {profileForm.formState.errors.username?.message ? (
+                  <p className="text-sm text-destructive">
+                    {profileForm.formState.errors.username.message}
+                  </p>
+                ) : null}
+              </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="profile-email">{t("auth.email")}</Label>
-              <Input
-                id="profile-email"
-                type="email"
-                {...profileForm.register("email")}
-                placeholder={t("profile.emailPlaceholder")}
-              />
-              {profileForm.formState.errors.email?.message ? (
-                <p className="text-sm text-destructive">
-                  {profileForm.formState.errors.email.message}
-                </p>
-              ) : null}
-            </div>
+              <div className="space-y-2">
+                <Label htmlFor="profile-email">{t("auth.email")}</Label>
+                <Input
+                  id="profile-email"
+                  type="email"
+                  {...profileForm.register("email")}
+                  placeholder={t("profile.emailPlaceholder")}
+                />
+                {profileForm.formState.errors.email?.message ? (
+                  <p className="text-sm text-destructive">
+                    {profileForm.formState.errors.email.message}
+                  </p>
+                ) : null}
+              </div>
 
-            <Button
-              type="submit"
-              disabled={updateProfileMutation.isPending || !profileForm.formState.isDirty}
-              className="h-11 w-fit rounded-2xl px-5 text-sm font-semibold"
-            >
-              {updateProfileMutation.isPending
-                ? t("profile.savingProfile")
-                : t("profile.saveProfile")}
-            </Button>
+              <Button
+                type="submit"
+                disabled={
+                  updateProfileMutation.isPending || !profileForm.formState.isDirty
+                }
+                className="h-11 w-fit rounded-2xl px-5 text-sm font-semibold"
+              >
+                {updateProfileMutation.isPending
+                  ? t("profile.savingProfile")
+                  : t("profile.saveProfile")}
+              </Button>
             </form>
           </SectionCard>
 
