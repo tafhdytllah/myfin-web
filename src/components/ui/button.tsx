@@ -9,16 +9,16 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-primary text-[var(--color-primary-foreground)] visited:text-[var(--color-primary-foreground)] hover:bg-primary/80 hover:text-[var(--color-primary-foreground)] active:text-[var(--color-primary-foreground)] [&_svg]:text-[var(--color-primary-foreground)]",
+          "bg-primary !text-[var(--color-primary-foreground)] visited:!text-[var(--color-primary-foreground)] hover:bg-primary/80 hover:!text-[var(--color-primary-foreground)] active:!text-[var(--color-primary-foreground)] [&:any-link]:!text-[var(--color-primary-foreground)] [&:any-link:hover]:!text-[var(--color-primary-foreground)] [&_svg]:text-[var(--color-primary-foreground)]",
         outline:
-          "border-border bg-background text-[var(--color-foreground)] visited:text-[var(--color-foreground)] hover:bg-muted hover:text-[var(--color-foreground)] aria-expanded:bg-muted aria-expanded:text-[var(--color-foreground)] dark:border-input dark:bg-input/30 dark:hover:bg-input/50",
+          "border-border bg-background !text-[var(--color-foreground)] visited:!text-[var(--color-foreground)] hover:bg-muted hover:!text-[var(--color-foreground)] aria-expanded:bg-muted aria-expanded:!text-[var(--color-foreground)] [&:any-link]:!text-[var(--color-foreground)] [&:any-link:hover]:!text-[var(--color-foreground)] dark:border-input dark:bg-input/30 dark:hover:bg-input/50",
         secondary:
-          "bg-secondary text-[var(--color-secondary-foreground)] visited:text-[var(--color-secondary-foreground)] hover:bg-secondary/80 hover:text-[var(--color-secondary-foreground)] aria-expanded:bg-secondary aria-expanded:text-[var(--color-secondary-foreground)]",
+          "bg-secondary !text-[var(--color-secondary-foreground)] visited:!text-[var(--color-secondary-foreground)] hover:bg-secondary/80 hover:!text-[var(--color-secondary-foreground)] aria-expanded:bg-secondary aria-expanded:!text-[var(--color-secondary-foreground)] [&:any-link]:!text-[var(--color-secondary-foreground)] [&:any-link:hover]:!text-[var(--color-secondary-foreground)]",
         ghost:
-          "text-[var(--color-foreground)] visited:text-[var(--color-foreground)] hover:bg-muted hover:text-[var(--color-foreground)] aria-expanded:bg-muted aria-expanded:text-[var(--color-foreground)] dark:hover:bg-muted/50",
+          "!text-[var(--color-foreground)] visited:!text-[var(--color-foreground)] hover:bg-muted hover:!text-[var(--color-foreground)] aria-expanded:bg-muted aria-expanded:!text-[var(--color-foreground)] [&:any-link]:!text-[var(--color-foreground)] [&:any-link:hover]:!text-[var(--color-foreground)] dark:hover:bg-muted/50",
         destructive:
-          "bg-destructive/10 text-destructive visited:text-destructive hover:bg-destructive/20 hover:text-destructive focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:focus-visible:ring-destructive/40",
-        link: "text-primary visited:text-primary underline-offset-4 hover:underline",
+          "bg-destructive/10 !text-destructive visited:!text-destructive hover:bg-destructive/20 hover:!text-destructive [&:any-link]:!text-destructive [&:any-link:hover]:!text-destructive focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:focus-visible:ring-destructive/40",
+        link: "!text-primary visited:!text-primary underline-offset-4 hover:underline",
       },
       size: {
         default:
@@ -52,6 +52,7 @@ type RenderableButtonElementProps = {
 
 type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> &
   VariantProps<typeof buttonVariants> & {
+    asChild?: boolean;
     nativeButton?: boolean;
     render?: React.ReactElement<RenderableButtonElementProps>;
   };
@@ -60,14 +61,39 @@ function Button({
   className,
   variant = "default",
   size = "default",
+  asChild = false,
   nativeButton: _nativeButton,
   render,
+  children,
   type,
   disabled,
   ...props
 }: ButtonProps) {
   void _nativeButton;
   const classes = cn(buttonVariants({ variant, size }), className);
+
+  if (asChild && React.isValidElement(children)) {
+    const childElement = children as React.ReactElement<RenderableButtonElementProps>;
+    const childProps = childElement.props;
+
+    return React.cloneElement(childElement, {
+      ...props,
+      "data-slot": "button",
+      className: cn(classes, childProps.className),
+      "aria-disabled": disabled || undefined,
+      tabIndex: disabled ? -1 : childProps.tabIndex,
+      onClick: (event: React.MouseEvent) => {
+        if (disabled) {
+          event.preventDefault();
+          event.stopPropagation();
+          return;
+        }
+
+        childProps.onClick?.(event);
+        (props as { onClick?: React.MouseEventHandler }).onClick?.(event);
+      },
+    });
+  }
 
   if (render && React.isValidElement(render)) {
     const renderedElement = render;
@@ -99,7 +125,9 @@ function Button({
       disabled={disabled}
       type={type ?? "button"}
       {...props}
-    />
+    >
+      {children}
+    </button>
   );
 }
 
