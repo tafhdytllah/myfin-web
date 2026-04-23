@@ -127,6 +127,7 @@
     "tableDescription": "Tinjau, filter, dan kelola riwayat transaksi berpaginasi di sini.",
     "loadErrorDescription": "Daftar transaksi belum bisa dimuat sekarang. Coba lagi sebentar.",
     "retry": "Coba Lagi",
+    "resetFilters": "Reset Filter",
     "emptyDescription": "Belum ada transaksi yang cocok dengan filter saat ini.",
     "edit": "Ubah",
     "editUnavailable": "Edit transaksi butuh endpoint update dari backend sebelum bisa diaktifkan.",

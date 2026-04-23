@@ -5,6 +5,7 @@ import {
   MoreHorizontal,
   PencilLine,
   RefreshCw,
+  RotateCcw,
   Trash2,
 } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -137,6 +138,14 @@ export function TransactionsPageView() {
     ? transactionsEnvelope.meta.page + 1
     : filters.page;
   const dateLocale = locale === "id" ? "id-ID" : "en-US";
+  const hasActiveFilters = Boolean(
+    filters.keyword ||
+      filters.accountId ||
+      filters.type !== "all" ||
+      filters.categoryId ||
+      filters.startDate ||
+      filters.endDate,
+  );
 
   function updateFilters(nextFilters: typeof filters) {
     const params = buildTransactionSearchParams(nextFilters);
@@ -152,9 +161,23 @@ export function TransactionsPageView() {
     });
   }
 
+  function resetFilters() {
+    updateFilters({
+      keyword: "",
+      accountId: "",
+      type: "all",
+      categoryId: "",
+      startDate: "",
+      endDate: "",
+      page: 1,
+      size: filters.size,
+    });
+  }
+
   function getCategoryOptions() {
     return categories.filter((category) => {
-      const typeMatches = filters.type === "all" || !filters.type || category.type === filters.type;
+      const typeMatches =
+        filters.type === "all" || !filters.type || category.type === filters.type;
       return typeMatches;
     });
   }
@@ -194,6 +217,18 @@ export function TransactionsPageView() {
       <SectionCard
         title={t("transactions.filtersTitle")}
         description={t("transactions.filtersDescription")}
+        action={
+          hasActiveFilters ? (
+            <Button
+              variant="outline"
+              className="rounded-full"
+              onClick={resetFilters}
+            >
+              <RotateCcw className="size-4" />
+              {t("transactions.resetFilters")}
+            </Button>
+          ) : null
+        }
       >
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
           <Input
@@ -333,7 +368,16 @@ export function TransactionsPageView() {
             <p className="text-sm text-muted-foreground">
               {t("transactions.emptyDescription")}
             </p>
-            <Button onClick={() => setFormOpen(true)}>{t("transactions.addTransaction")}</Button>
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <Button onClick={() => setFormOpen(true)}>
+                {t("transactions.addTransaction")}
+              </Button>
+              {hasActiveFilters ? (
+                <Button variant="outline" onClick={resetFilters}>
+                  {t("transactions.resetFilters")}
+                </Button>
+              ) : null}
+            </div>
           </div>
         ) : null}
 
@@ -342,7 +386,7 @@ export function TransactionsPageView() {
         rows.length > 0 ? (
           <>
             <div className="overflow-x-auto">
-              <Table>
+              <Table className="min-w-[860px]">
                 <TableHeader>
                   <TableRow className="hover:bg-transparent">
                     <TableHead className="text-[var(--color-foreground-muted)]">
@@ -374,13 +418,15 @@ export function TransactionsPageView() {
                       <TableCell>{formatDate(row.createdAt, dateLocale)}</TableCell>
                       <TableCell>
                         <StatusBadge tone={row.type === "INCOME" ? "income" : "expense"}>
-                          {row.type === "INCOME" ? t("common.income") : t("common.expense")}
+                          {row.type === "INCOME"
+                            ? t("common.income")
+                            : t("common.expense")}
                         </StatusBadge>
                       </TableCell>
                       <TableCell>{row.accountName}</TableCell>
                       <TableCell>{row.categoryName}</TableCell>
                       <TableCell className="max-w-xs truncate text-[var(--color-foreground-muted)]">
-                        {row.description || "—"}
+                        {row.description || "-"}
                       </TableCell>
                       <TableCell className="font-semibold">
                         {formatCurrency(row.amount)}
@@ -413,7 +459,7 @@ export function TransactionsPageView() {
             </div>
 
             {totalPages > 1 ? (
-              <Pagination className="mt-6 justify-end">
+              <Pagination className="mt-6 justify-center md:justify-end">
                 <PaginationContent>
                   <PaginationItem>
                     <PaginationPrevious
