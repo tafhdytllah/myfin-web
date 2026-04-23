@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { PencilLine, Power, PowerOff, RotateCcw } from "lucide-react";
+import { PencilLine, Power, PowerOff } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { AccountFormDialog } from "@/features/accounts/components/account-form-dialog";
@@ -19,13 +19,13 @@ import { ActionMenuTrigger } from "@/components/shared/action-menu-trigger";
 import { EmptySectionCard } from "@/components/shared/empty-section-card";
 import { PageActionButton } from "@/components/shared/page-action-button";
 import { PageHeader } from "@/components/shared/page-header";
+import { ResetFiltersButton } from "@/components/shared/reset-filters-button";
 import { RetryCard } from "@/components/shared/retry-card";
 import { SectionCard } from "@/components/shared/section-card";
 import { StackSkeleton } from "@/components/shared/stack-skeleton";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { SummaryStatCard } from "@/components/shared/summary-stat-card";
 import { usePageTrail } from "@/components/layout/page-trail-context";
-import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -162,14 +162,10 @@ export function AccountsPageView() {
         description={t("accounts.searchDescription")}
         action={
           hasActiveFilters ? (
-            <Button
-              variant="outline"
-              className="rounded-full"
+            <ResetFiltersButton
+              label={t("accounts.resetFilters")}
               onClick={resetFilters}
-            >
-              <RotateCcw className="size-4" />
-              {t("accounts.resetFilters")}
-            </Button>
+            />
           ) : null
         }
       >

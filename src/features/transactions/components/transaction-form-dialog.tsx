@@ -5,6 +5,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useForm, useWatch } from "react-hook-form";
 
+import { DialogFormActions } from "@/components/shared/dialog-form-actions";
+import { FormFieldItem } from "@/components/shared/form-field-item";
 import {
   Dialog,
   DialogContent,
@@ -12,14 +14,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import {
-  Field,
-  FieldContent,
-  FieldDescription,
-  FieldError,
-  FieldLabel,
-} from "@/components/ui/field";
+import { FieldDescription } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -176,61 +171,33 @@ export function TransactionFormDialog({
 
         <form className="space-y-5" onSubmit={form.handleSubmit(handleSubmit)}>
           <div className="grid gap-4 md:grid-cols-2">
-            <Field>
-              <FieldLabel>{t("common.type")}</FieldLabel>
-              <FieldContent>
-                <Select
-                  value={selectedType}
-                  onValueChange={(value) =>
-                    form.setValue("type", value as TransactionFormValues["type"], {
-                      shouldDirty: true,
-                      shouldValidate: true,
-                    })
-                  }
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder={t("common.type")}>
-                      {selectedTypeLabel}
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="INCOME">{t("common.income")}</SelectItem>
-                    <SelectItem value="EXPENSE">{t("common.expense")}</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FieldError errors={[form.formState.errors.type]} />
-              </FieldContent>
-            </Field>
+            <FormFieldItem label={t("common.type")} errors={[form.formState.errors.type]}>
+              <Select
+                value={selectedType}
+                onValueChange={(value) =>
+                  form.setValue("type", value as TransactionFormValues["type"], {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  })
+                }
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder={t("common.type")}>
+                    {selectedTypeLabel}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="INCOME">{t("common.income")}</SelectItem>
+                  <SelectItem value="EXPENSE">{t("common.expense")}</SelectItem>
+                </SelectContent>
+              </Select>
+            </FormFieldItem>
 
-            <Field>
-              <FieldLabel>{t("common.account")}</FieldLabel>
-              <FieldContent>
-                <Select
-                  value={selectedAccountId}
-                  disabled={!hasActiveAccounts}
-                  onValueChange={(value) =>
-                    form.setValue("accountId", value ?? "", {
-                      shouldDirty: true,
-                      shouldValidate: true,
-                    })
-                  }
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder={t("transactions.accountPlaceholder")}>
-                      {selectedAccountName}
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent>
-                    {activeAccounts.map((account) => (
-                      <SelectItem key={account.id} value={account.id}>
-                        {account.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {form.formState.errors.accountId ? (
-                  <FieldError errors={[form.formState.errors.accountId]} />
-                ) : !hasActiveAccounts ? (
+            <FormFieldItem
+              label={t("common.account")}
+              errors={[form.formState.errors.accountId]}
+              description={
+                !hasActiveAccounts ? (
                   <FieldDescription>
                     {t("transactions.noActiveAccounts")}{" "}
                     <Link
@@ -241,41 +208,41 @@ export function TransactionFormDialog({
                       {t("transactions.goToAccounts")}
                     </Link>
                   </FieldDescription>
-                ) : null}
-              </FieldContent>
-            </Field>
+                ) : undefined
+              }
+            >
+              <Select
+                value={selectedAccountId}
+                disabled={!hasActiveAccounts}
+                onValueChange={(value) =>
+                  form.setValue("accountId", value ?? "", {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  })
+                }
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder={t("transactions.accountPlaceholder")}>
+                    {selectedAccountName}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {activeAccounts.map((account) => (
+                    <SelectItem key={account.id} value={account.id}>
+                      {account.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </FormFieldItem>
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">
-            <Field>
-              <FieldLabel>{t("common.category")}</FieldLabel>
-              <FieldContent>
-                <Select
-                  value={selectedCategoryId}
-                  disabled={!hasMatchingCategories}
-                  onValueChange={(value) =>
-                    form.setValue("categoryId", value ?? "", {
-                      shouldDirty: true,
-                      shouldValidate: true,
-                    })
-                  }
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder={t("transactions.categoryPlaceholder")}>
-                      {selectedCategoryName}
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent>
-                    {activeCategories.map((category) => (
-                      <SelectItem key={category.id} value={category.id}>
-                        {category.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {form.formState.errors.categoryId ? (
-                  <FieldError errors={[form.formState.errors.categoryId]} />
-                ) : !hasMatchingCategories ? (
+            <FormFieldItem
+              label={t("common.category")}
+              errors={[form.formState.errors.categoryId]}
+              description={
+                !hasMatchingCategories ? (
                   <FieldDescription>
                     {t("transactions.noMatchingCategories")}{" "}
                     <Link
@@ -286,60 +253,76 @@ export function TransactionFormDialog({
                       {t("transactions.goToCategories")}
                     </Link>
                   </FieldDescription>
-                ) : null}
-              </FieldContent>
-            </Field>
+                ) : undefined
+              }
+            >
+              <Select
+                value={selectedCategoryId}
+                disabled={!hasMatchingCategories}
+                onValueChange={(value) =>
+                  form.setValue("categoryId", value ?? "", {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  })
+                }
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder={t("transactions.categoryPlaceholder")}>
+                    {selectedCategoryName}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {activeCategories.map((category) => (
+                    <SelectItem key={category.id} value={category.id}>
+                      {category.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </FormFieldItem>
 
-            <Field>
-              <FieldLabel htmlFor="transaction-amount">{t("common.amount")}</FieldLabel>
-              <FieldContent>
-                <Input
-                  id="transaction-amount"
-                  min={0}
-                  step="1"
-                  type="number"
-                  {...form.register("amount")}
-                  placeholder={t("transactions.amountPlaceholder")}
-                />
-                <FieldError errors={[form.formState.errors.amount]} />
-              </FieldContent>
-            </Field>
+            <FormFieldItem
+              label={t("common.amount")}
+              htmlFor="transaction-amount"
+              errors={[form.formState.errors.amount]}
+            >
+              <Input
+                id="transaction-amount"
+                min={0}
+                step="1"
+                type="number"
+                {...form.register("amount")}
+                placeholder={t("transactions.amountPlaceholder")}
+              />
+            </FormFieldItem>
           </div>
 
-          <Field>
-            <FieldLabel htmlFor="transaction-description">
-              {t("common.description")}
-            </FieldLabel>
-            <FieldContent>
-              <Textarea
-                id="transaction-description"
-                {...form.register("description")}
-                placeholder={t("transactions.descriptionPlaceholder")}
-              />
-              <FieldError errors={[form.formState.errors.description]} />
-            </FieldContent>
-          </Field>
+          <FormFieldItem
+            label={t("common.description")}
+            htmlFor="transaction-description"
+            errors={[form.formState.errors.description]}
+          >
+            <Textarea
+              id="transaction-description"
+              {...form.register("description")}
+              placeholder={t("transactions.descriptionPlaceholder")}
+            />
+          </FormFieldItem>
 
           <div className="rounded-2xl border border-border bg-muted/30 p-4 text-sm text-muted-foreground">
             {t("transactions.dateInfo")}
           </div>
 
-          <div className="flex justify-end gap-3">
-            <Button
-              type="button"
-              variant="outline"
-              disabled={isSubmitting}
-              onClick={() => onOpenChange(false)}
-            >
-              {t("transactions.cancel")}
-            </Button>
-            <Button
-              type="submit"
-              disabled={isSubmitting || !hasActiveAccounts || !hasMatchingCategories}
-            >
-              {isSubmitting ? t("transactions.saving") : t("common.save")}
-            </Button>
-          </div>
+          <DialogFormActions
+            cancelLabel={t("transactions.cancel")}
+            submitLabel={t("common.save")}
+            pendingLabel={t("transactions.saving")}
+            isPending={isSubmitting}
+            onCancel={() => onOpenChange(false)}
+            submitDisabled={
+              isSubmitting || !hasActiveAccounts || !hasMatchingCategories
+            }
+          />
         </form>
       </DialogContent>
     </Dialog>

@@ -4,6 +4,8 @@ import { useEffect, useMemo } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useWatch } from "react-hook-form";
 
+import { DialogFormActions } from "@/components/shared/dialog-form-actions";
+import { FormFieldItem } from "@/components/shared/form-field-item";
 import {
   Dialog,
   DialogContent,
@@ -11,13 +13,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import {
-  Field,
-  FieldContent,
-  FieldError,
-  FieldLabel,
-} from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -164,61 +159,47 @@ export function CategoryFormDialog({
         </DialogHeader>
 
         <form className="space-y-5" onSubmit={form.handleSubmit(handleSubmit)}>
-          <Field>
-            <FieldLabel htmlFor="category-name">{t("categories.categoryName")}</FieldLabel>
-            <FieldContent>
-              <Input
-                id="category-name"
-                {...form.register("name")}
-                placeholder={t("categories.categoryNamePlaceholder")}
-              />
-              <FieldError errors={[form.formState.errors.name]} />
-            </FieldContent>
-          </Field>
+          <FormFieldItem
+            label={t("categories.categoryName")}
+            htmlFor="category-name"
+            errors={[form.formState.errors.name]}
+          >
+            <Input
+              id="category-name"
+              {...form.register("name")}
+              placeholder={t("categories.categoryNamePlaceholder")}
+            />
+          </FormFieldItem>
 
-          <Field>
-            <FieldLabel>{t("common.type")}</FieldLabel>
-            <FieldContent>
-              <Select
-                value={selectedType}
-                onValueChange={(value) =>
-                  form.setValue("type", value as CategoryFormValues["type"], {
-                    shouldDirty: true,
-                    shouldValidate: true,
-                  })
-                }
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder={t("common.type")}>
-                    {selectedTypeLabel}
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="INCOME">{t("common.income")}</SelectItem>
-                  <SelectItem value="EXPENSE">{t("common.expense")}</SelectItem>
-                </SelectContent>
-              </Select>
-              <FieldError errors={[form.formState.errors.type]} />
-            </FieldContent>
-          </Field>
-
-          <div className="flex justify-end gap-3">
-            <Button
-              type="button"
-              variant="outline"
-              disabled={isSubmitting}
-              onClick={() => onOpenChange(false)}
+          <FormFieldItem label={t("common.type")} errors={[form.formState.errors.type]}>
+            <Select
+              value={selectedType}
+              onValueChange={(value) =>
+                form.setValue("type", value as CategoryFormValues["type"], {
+                  shouldDirty: true,
+                  shouldValidate: true,
+                })
+              }
             >
-              {t("categories.cancel")}
-            </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting
-                ? t("categories.saving")
-                : isEditMode
-                  ? t("common.update")
-                  : t("common.save")}
-            </Button>
-          </div>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder={t("common.type")}>
+                  {selectedTypeLabel}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="INCOME">{t("common.income")}</SelectItem>
+                <SelectItem value="EXPENSE">{t("common.expense")}</SelectItem>
+              </SelectContent>
+            </Select>
+          </FormFieldItem>
+
+          <DialogFormActions
+            cancelLabel={t("categories.cancel")}
+            submitLabel={isEditMode ? t("common.update") : t("common.save")}
+            pendingLabel={t("categories.saving")}
+            isPending={isSubmitting}
+            onCancel={() => onOpenChange(false)}
+          />
         </form>
       </DialogContent>
     </Dialog>

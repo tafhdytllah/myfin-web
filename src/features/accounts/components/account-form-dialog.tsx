@@ -4,7 +4,8 @@ import { useEffect, useMemo } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
-import { Button } from "@/components/ui/button";
+import { DialogFormActions } from "@/components/shared/dialog-form-actions";
+import { FormFieldItem } from "@/components/shared/form-field-item";
 import {
   Dialog,
   DialogContent,
@@ -12,13 +13,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  Field,
-  FieldContent,
-  FieldDescription,
-  FieldError,
-  FieldLabel,
-} from "@/components/ui/field";
+import { FieldDescription } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import {
   createAccountFormSchema,
@@ -168,17 +163,17 @@ export function AccountFormDialog({
             className="space-y-5"
             onSubmit={updateForm.handleSubmit(handleUpdateSubmit)}
           >
-            <Field>
-              <FieldLabel htmlFor="account-name">{t("accounts.accountName")}</FieldLabel>
-              <FieldContent>
-                <Input
-                  id="account-name"
-                  {...updateForm.register("name")}
-                  placeholder={t("accounts.accountNamePlaceholder")}
-                />
-                <FieldError errors={[updateForm.formState.errors.name]} />
-              </FieldContent>
-            </Field>
+            <FormFieldItem
+              label={t("accounts.accountName")}
+              htmlFor="account-name"
+              errors={[updateForm.formState.errors.name]}
+            >
+              <Input
+                id="account-name"
+                {...updateForm.register("name")}
+                placeholder={t("accounts.accountNamePlaceholder")}
+              />
+            </FormFieldItem>
 
             <div className="rounded-2xl border border-border bg-muted/30 p-4">
               <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
@@ -189,72 +184,53 @@ export function AccountFormDialog({
               </p>
             </div>
 
-            <div className="flex justify-end gap-3">
-              <Button
-                type="button"
-                variant="outline"
-                disabled={isSubmitting}
-                onClick={() => onOpenChange(false)}
-              >
-                {t("accounts.cancel")}
-              </Button>
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? t("accounts.saving") : t("common.update")}
-              </Button>
-            </div>
+            <DialogFormActions
+              cancelLabel={t("accounts.cancel")}
+              submitLabel={t("common.update")}
+              pendingLabel={t("accounts.saving")}
+              isPending={isSubmitting}
+              onCancel={() => onOpenChange(false)}
+            />
           </form>
         ) : (
           <form
             className="space-y-5"
             onSubmit={createForm.handleSubmit(handleCreateSubmit)}
           >
-            <Field>
-              <FieldLabel htmlFor="new-account-name">
-                {t("accounts.accountName")}
-              </FieldLabel>
-              <FieldContent>
-                <Input
-                  id="new-account-name"
-                  {...createForm.register("name")}
-                  placeholder={t("accounts.accountNamePlaceholder")}
-                />
-                <FieldError errors={[createForm.formState.errors.name]} />
-              </FieldContent>
-            </Field>
+            <FormFieldItem
+              label={t("accounts.accountName")}
+              htmlFor="new-account-name"
+              errors={[createForm.formState.errors.name]}
+            >
+              <Input
+                id="new-account-name"
+                {...createForm.register("name")}
+                placeholder={t("accounts.accountNamePlaceholder")}
+              />
+            </FormFieldItem>
 
-            <Field>
-              <FieldLabel htmlFor="opening-balance">
-                {t("accounts.openingBalance")}
-              </FieldLabel>
-              <FieldContent>
-                <Input
-                  id="opening-balance"
-                  min={0}
-                  step="1"
-                  type="number"
-                  {...createForm.register("openingBalance")}
-                />
-                {createForm.formState.errors.openingBalance ? (
-                  <FieldError errors={[createForm.formState.errors.openingBalance]} />
-                ) : (
-                  <FieldDescription>{t("accounts.openingBalanceHint")}</FieldDescription>
-                )}
-              </FieldContent>
-            </Field>
+            <FormFieldItem
+              label={t("accounts.openingBalance")}
+              htmlFor="opening-balance"
+              errors={[createForm.formState.errors.openingBalance]}
+              description={<FieldDescription>{t("accounts.openingBalanceHint")}</FieldDescription>}
+            >
+              <Input
+                id="opening-balance"
+                min={0}
+                step="1"
+                type="number"
+                {...createForm.register("openingBalance")}
+              />
+            </FormFieldItem>
 
-            <div className="flex justify-end gap-3">
-              <Button
-                type="button"
-                variant="outline"
-                disabled={isSubmitting}
-                onClick={() => onOpenChange(false)}
-              >
-                {t("accounts.cancel")}
-              </Button>
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? t("accounts.saving") : t("common.save")}
-              </Button>
-            </div>
+            <DialogFormActions
+              cancelLabel={t("accounts.cancel")}
+              submitLabel={t("common.save")}
+              pendingLabel={t("accounts.saving")}
+              isPending={isSubmitting}
+              onCancel={() => onOpenChange(false)}
+            />
           </form>
         )}
       </DialogContent>

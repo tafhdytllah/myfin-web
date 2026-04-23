@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { PencilLine, RotateCcw, Trash2 } from "lucide-react";
+import { PencilLine, Trash2 } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { useAccounts } from "@/features/accounts/hooks/use-account-queries";
@@ -21,13 +21,14 @@ import { ActionMenuTrigger } from "@/components/shared/action-menu-trigger";
 import { PageHeader } from "@/components/shared/page-header";
 import { InlineRetryState } from "@/components/shared/inline-retry-state";
 import { PageActionButton } from "@/components/shared/page-action-button";
+import { ResetFiltersButton } from "@/components/shared/reset-filters-button";
 import { SectionCard } from "@/components/shared/section-card";
 import { SectionEmptyState } from "@/components/shared/section-empty-state";
 import { StackSkeleton } from "@/components/shared/stack-skeleton";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { SummaryStatCard } from "@/components/shared/summary-stat-card";
+import { TableHeaderCell } from "@/components/shared/table-header-cell";
 import { usePageTrail } from "@/components/layout/page-trail-context";
-import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -53,7 +54,6 @@ import {
   Table,
   TableBody,
   TableCell,
-  TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
@@ -259,14 +259,10 @@ export function TransactionsPageView() {
         description={t("transactions.filtersDescription")}
         action={
           hasActiveFilters ? (
-            <Button
-              variant="outline"
-              className="rounded-full"
+            <ResetFiltersButton
+              label={t("transactions.resetFilters")}
               onClick={resetFilters}
-            >
-              <RotateCcw className="size-4" />
-              {t("transactions.resetFilters")}
-            </Button>
+            />
           ) : null
         }
       >
@@ -424,27 +420,15 @@ export function TransactionsPageView() {
               <Table className="min-w-[860px]">
                 <TableHeader>
                   <TableRow className="hover:bg-transparent">
-                    <TableHead className="text-[var(--color-foreground-muted)]">
-                      {t("common.date")}
-                    </TableHead>
-                    <TableHead className="text-[var(--color-foreground-muted)]">
-                      {t("common.type")}
-                    </TableHead>
-                    <TableHead className="text-[var(--color-foreground-muted)]">
-                      {t("common.account")}
-                    </TableHead>
-                    <TableHead className="text-[var(--color-foreground-muted)]">
-                      {t("common.category")}
-                    </TableHead>
-                    <TableHead className="text-[var(--color-foreground-muted)]">
-                      {t("common.description")}
-                    </TableHead>
-                    <TableHead className="text-[var(--color-foreground-muted)]">
-                      {t("common.amount")}
-                    </TableHead>
-                    <TableHead className="text-right text-[var(--color-foreground-muted)]">
+                    <TableHeaderCell>{t("common.date")}</TableHeaderCell>
+                    <TableHeaderCell>{t("common.type")}</TableHeaderCell>
+                    <TableHeaderCell>{t("common.account")}</TableHeaderCell>
+                    <TableHeaderCell>{t("common.category")}</TableHeaderCell>
+                    <TableHeaderCell>{t("common.description")}</TableHeaderCell>
+                    <TableHeaderCell>{t("common.amount")}</TableHeaderCell>
+                    <TableHeaderCell className="text-right">
                       {t("common.actions")}
-                    </TableHead>
+                    </TableHeaderCell>
                   </TableRow>
                 </TableHeader>
                 <TableBody>

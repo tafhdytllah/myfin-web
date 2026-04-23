@@ -24,6 +24,7 @@ import { SectionCard } from "@/components/shared/section-card";
 import { StackSkeleton } from "@/components/shared/stack-skeleton";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { SummaryStatCard } from "@/components/shared/summary-stat-card";
+import { TableHeaderCell } from "@/components/shared/table-header-cell";
 import { usePageTrail } from "@/components/layout/page-trail-context";
 import {
   DropdownMenu,
@@ -42,7 +43,6 @@ import {
   Table,
   TableBody,
   TableCell,
-  TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
@@ -268,21 +268,13 @@ export function CategoriesPageView() {
             <Table>
               <TableHeader>
                 <TableRow className="hover:bg-transparent">
-                  <TableHead className="text-[var(--color-foreground-muted)]">
-                    {t("common.category")}
-                  </TableHead>
-                  <TableHead className="text-[var(--color-foreground-muted)]">
-                    {t("common.type")}
-                  </TableHead>
-                  <TableHead className="text-[var(--color-foreground-muted)]">
-                    {t("common.status")}
-                  </TableHead>
-                  <TableHead className="text-[var(--color-foreground-muted)]">
-                    {t("common.used")}
-                  </TableHead>
-                  <TableHead className="text-right text-[var(--color-foreground-muted)]">
+                  <TableHeaderCell>{t("common.category")}</TableHeaderCell>
+                  <TableHeaderCell>{t("common.type")}</TableHeaderCell>
+                  <TableHeaderCell>{t("common.status")}</TableHeaderCell>
+                  <TableHeaderCell>{t("common.used")}</TableHeaderCell>
+                  <TableHeaderCell className="text-right">
                     {t("common.actions")}
-                  </TableHead>
+                  </TableHeaderCell>
                 </TableRow>
               </TableHeader>
               <TableBody>

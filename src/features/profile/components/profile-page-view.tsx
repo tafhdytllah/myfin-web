@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
+import { FormFieldItem } from "@/components/shared/form-field-item";
 import { PageHeader } from "@/components/shared/page-header";
 import { PasswordInput } from "@/components/shared/password-input";
 import { RetryCard } from "@/components/shared/retry-card";
@@ -11,13 +12,7 @@ import { SectionCard } from "@/components/shared/section-card";
 import { StackSkeleton } from "@/components/shared/stack-skeleton";
 import { usePageTrail } from "@/components/layout/page-trail-context";
 import { Button } from "@/components/ui/button";
-import {
-  Field,
-  FieldContent,
-  FieldDescription,
-  FieldError,
-  FieldLabel,
-} from "@/components/ui/field";
+import { FieldDescription, FieldError } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import {
   createChangePasswordSchema,
@@ -158,30 +153,30 @@ export function ProfilePageView() {
             >
               <FieldError>{profileFormError}</FieldError>
 
-              <Field>
-                <FieldLabel htmlFor="profile-username">{t("auth.username")}</FieldLabel>
-                <FieldContent>
-                  <Input
-                    id="profile-username"
-                    {...profileForm.register("username")}
-                    placeholder={t("profile.usernamePlaceholder")}
-                  />
-                  <FieldError errors={[profileForm.formState.errors.username]} />
-                </FieldContent>
-              </Field>
+              <FormFieldItem
+                label={t("auth.username")}
+                htmlFor="profile-username"
+                errors={[profileForm.formState.errors.username]}
+              >
+                <Input
+                  id="profile-username"
+                  {...profileForm.register("username")}
+                  placeholder={t("profile.usernamePlaceholder")}
+                />
+              </FormFieldItem>
 
-              <Field>
-                <FieldLabel htmlFor="profile-email">{t("auth.email")}</FieldLabel>
-                <FieldContent>
-                  <Input
-                    id="profile-email"
-                    type="email"
-                    {...profileForm.register("email")}
-                    placeholder={t("profile.emailPlaceholder")}
-                  />
-                  <FieldError errors={[profileForm.formState.errors.email]} />
-                </FieldContent>
-              </Field>
+              <FormFieldItem
+                label={t("auth.email")}
+                htmlFor="profile-email"
+                errors={[profileForm.formState.errors.email]}
+              >
+                <Input
+                  id="profile-email"
+                  type="email"
+                  {...profileForm.register("email")}
+                  placeholder={t("profile.emailPlaceholder")}
+                />
+              </FormFieldItem>
 
               <Button
                 type="submit"
@@ -207,52 +202,45 @@ export function ProfilePageView() {
             >
               <FieldError>{passwordFormError}</FieldError>
 
-              <Field>
-                <FieldLabel htmlFor="current-password">
-                  {t("profile.currentPassword")}
-                </FieldLabel>
-                <FieldContent>
-                  <PasswordInput
-                    id="current-password"
-                    {...passwordForm.register("currentPassword")}
-                    placeholder={t("auth.passwordPlaceholder")}
-                    toggleLabel={t("profile.togglePasswordVisibility")}
-                  />
-                  <FieldError errors={[passwordForm.formState.errors.currentPassword]} />
-                </FieldContent>
-              </Field>
+              <FormFieldItem
+                label={t("profile.currentPassword")}
+                htmlFor="current-password"
+                errors={[passwordForm.formState.errors.currentPassword]}
+              >
+                <PasswordInput
+                  id="current-password"
+                  {...passwordForm.register("currentPassword")}
+                  placeholder={t("auth.passwordPlaceholder")}
+                  toggleLabel={t("profile.togglePasswordVisibility")}
+                />
+              </FormFieldItem>
 
-              <Field>
-                <FieldLabel htmlFor="new-password">{t("profile.newPassword")}</FieldLabel>
-                <FieldContent>
-                  <PasswordInput
-                    id="new-password"
-                    {...passwordForm.register("newPassword")}
-                    placeholder={t("auth.passwordPlaceholder")}
-                    toggleLabel={t("profile.togglePasswordVisibility")}
-                  />
-                  {passwordForm.formState.errors.newPassword ? (
-                    <FieldError errors={[passwordForm.formState.errors.newPassword]} />
-                  ) : (
-                    <FieldDescription>{t("profile.passwordHint")}</FieldDescription>
-                  )}
-                </FieldContent>
-              </Field>
+              <FormFieldItem
+                label={t("profile.newPassword")}
+                htmlFor="new-password"
+                errors={[passwordForm.formState.errors.newPassword]}
+                description={<FieldDescription>{t("profile.passwordHint")}</FieldDescription>}
+              >
+                <PasswordInput
+                  id="new-password"
+                  {...passwordForm.register("newPassword")}
+                  placeholder={t("auth.passwordPlaceholder")}
+                  toggleLabel={t("profile.togglePasswordVisibility")}
+                />
+              </FormFieldItem>
 
-              <Field>
-                <FieldLabel htmlFor="confirm-password">
-                  {t("profile.confirmNewPassword")}
-                </FieldLabel>
-                <FieldContent>
-                  <PasswordInput
-                    id="confirm-password"
-                    {...passwordForm.register("confirmNewPassword")}
-                    placeholder={t("auth.confirmPasswordPlaceholder")}
-                    toggleLabel={t("profile.togglePasswordVisibility")}
-                  />
-                  <FieldError errors={[passwordForm.formState.errors.confirmNewPassword]} />
-                </FieldContent>
-              </Field>
+              <FormFieldItem
+                label={t("profile.confirmNewPassword")}
+                htmlFor="confirm-password"
+                errors={[passwordForm.formState.errors.confirmNewPassword]}
+              >
+                <PasswordInput
+                  id="confirm-password"
+                  {...passwordForm.register("confirmNewPassword")}
+                  placeholder={t("auth.confirmPasswordPlaceholder")}
+                  toggleLabel={t("profile.togglePasswordVisibility")}
+                />
+              </FormFieldItem>
 
               <Button
                 type="submit"

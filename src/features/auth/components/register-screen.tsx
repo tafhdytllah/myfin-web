@@ -1,20 +1,14 @@
 "use client";
-
-import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { AuthFormCard } from "@/components/shared/auth-form-card";
+import { AuthFormFooterLink } from "@/components/shared/auth-form-footer-link";
+import { FormFieldItem } from "@/components/shared/form-field-item";
 import { PasswordInput } from "@/components/shared/password-input";
 import { Button } from "@/components/ui/button";
-import {
-  Field,
-  FieldContent,
-  FieldDescription,
-  FieldError,
-  FieldLabel,
-} from "@/components/ui/field";
+import { FieldDescription, FieldError } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { useRegister } from "@/features/auth/hooks/use-auth-actions";
 import {
@@ -72,15 +66,11 @@ export function RegisterScreen() {
       title={t("auth.registerTitle")}
       description={t("auth.registerDescription")}
       footer={
-        <p className="mt-6 text-center text-sm text-[var(--color-foreground-muted)] sm:text-left">
-          {t("auth.alreadyHaveAccount")}{" "}
-          <Link
-            className="font-semibold text-[var(--color-primary-strong)]"
-            href={routes.login}
-          >
-            {t("auth.signInLink")}
-          </Link>
-        </p>
+        <AuthFormFooterLink
+          prompt={t("auth.alreadyHaveAccount")}
+          href={routes.login}
+          label={t("auth.signInLink")}
+        />
       }
     >
         <form className="space-y-5" onSubmit={handleSubmit(onSubmit)}>
@@ -98,48 +88,43 @@ export function RegisterScreen() {
               placeholder: t("auth.emailPlaceholder"),
             },
           ].map((field) => (
-            <Field key={field.name}>
-              <FieldLabel>{field.label}</FieldLabel>
-              <FieldContent>
-                <Input
-                  {...register(field.name as "username" | "email")}
-                  className="h-12 rounded-2xl border-[var(--color-border-strong)] bg-white px-4 dark:bg-transparent"
-                  placeholder={field.placeholder}
-                />
-                <FieldError errors={[errors[field.name as "username" | "email"]]} />
-              </FieldContent>
-            </Field>
+            <FormFieldItem
+              key={field.name}
+              label={field.label}
+              errors={[errors[field.name as "username" | "email"]]}
+            >
+              <Input
+                {...register(field.name as "username" | "email")}
+                className="h-12 rounded-2xl border-[var(--color-border-strong)] bg-white px-4 dark:bg-transparent"
+                placeholder={field.placeholder}
+              />
+            </FormFieldItem>
           ))}
 
-          <Field>
-            <FieldLabel>{t("auth.password")}</FieldLabel>
-            <FieldContent>
-              <PasswordInput
-                {...register("password")}
-                className="h-12 rounded-2xl border-[var(--color-border-strong)] bg-white px-4 dark:bg-transparent"
-                placeholder={t("auth.passwordPlaceholder")}
-                toggleLabel={t("auth.togglePasswordVisibility")}
-              />
-              {errors.password ? (
-                <FieldError errors={[errors.password]} />
-              ) : (
-                <FieldDescription>{t("profile.passwordHint")}</FieldDescription>
-              )}
-            </FieldContent>
-          </Field>
+          <FormFieldItem
+            label={t("auth.password")}
+            errors={[errors.password]}
+            description={<FieldDescription>{t("profile.passwordHint")}</FieldDescription>}
+          >
+            <PasswordInput
+              {...register("password")}
+              className="h-12 rounded-2xl border-[var(--color-border-strong)] bg-white px-4 dark:bg-transparent"
+              placeholder={t("auth.passwordPlaceholder")}
+              toggleLabel={t("auth.togglePasswordVisibility")}
+            />
+          </FormFieldItem>
 
-          <Field>
-            <FieldLabel>{t("auth.confirmPassword")}</FieldLabel>
-            <FieldContent>
-              <PasswordInput
-                {...register("confirmPassword")}
-                className="h-12 rounded-2xl border-[var(--color-border-strong)] bg-white px-4 dark:bg-transparent"
-                placeholder={t("auth.confirmPasswordPlaceholder")}
-                toggleLabel={t("auth.togglePasswordVisibility")}
-              />
-              <FieldError errors={[errors.confirmPassword]} />
-            </FieldContent>
-          </Field>
+          <FormFieldItem
+            label={t("auth.confirmPassword")}
+            errors={[errors.confirmPassword]}
+          >
+            <PasswordInput
+              {...register("confirmPassword")}
+              className="h-12 rounded-2xl border-[var(--color-border-strong)] bg-white px-4 dark:bg-transparent"
+              placeholder={t("auth.confirmPasswordPlaceholder")}
+              toggleLabel={t("auth.togglePasswordVisibility")}
+            />
+          </FormFieldItem>
 
           <Button
             type="submit"
