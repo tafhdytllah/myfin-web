@@ -60,6 +60,10 @@ export function DashboardPageView() {
         .slice(0, 3),
     [activeAccounts],
   );
+  const selectedAccountName = useMemo(
+    () => activeAccounts.find((account) => account.id === selectedAccountId)?.name,
+    [activeAccounts, selectedAccountId],
+  );
 
   const recentTransactions = useMemo(() => {
     const accountsMap = new Map(activeAccounts.map((account) => [account.id, account]));
@@ -120,7 +124,9 @@ export function DashboardPageView() {
             onValueChange={(value) => setSelectedAccountId(value ?? "all")}
           >
             <SelectTrigger className="h-11 w-full rounded-2xl">
-              <SelectValue placeholder={t("dashboard.accountScopePlaceholder")} />
+              <SelectValue placeholder={t("dashboard.accountScopePlaceholder")}>
+                {selectedAccountId !== "all" ? selectedAccountName : undefined}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">{t("dashboard.allAccounts")}</SelectItem>

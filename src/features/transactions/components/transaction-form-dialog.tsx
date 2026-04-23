@@ -124,10 +124,19 @@ export function TransactionFormDialog({
     () => accountsQuery.data ?? [],
     [accountsQuery.data],
   );
+  const selectedAccountName = useMemo(
+    () => activeAccounts.find((account) => account.id === selectedAccountId)?.name,
+    [activeAccounts, selectedAccountId],
+  );
   const activeCategories = useMemo(
     () =>
       (categoriesQuery.data ?? []).filter((category) => category.type === selectedType),
     [categoriesQuery.data, selectedType],
+  );
+  const selectedCategoryName = useMemo(
+    () =>
+      activeCategories.find((category) => category.id === selectedCategoryId)?.name,
+    [activeCategories, selectedCategoryId],
   );
   const hasActiveAccounts = activeAccounts.length > 0;
   const hasMatchingCategories = activeCategories.length > 0;
@@ -237,7 +246,9 @@ export function TransactionFormDialog({
                   }
                 >
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder={t("transactions.accountPlaceholder")} />
+                    <SelectValue placeholder={t("transactions.accountPlaceholder")}>
+                      {selectedAccountName}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {activeAccounts.map((account) => (
@@ -280,7 +291,9 @@ export function TransactionFormDialog({
                   }
                 >
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder={t("transactions.categoryPlaceholder")} />
+                    <SelectValue placeholder={t("transactions.categoryPlaceholder")}>
+                      {selectedCategoryName}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {activeCategories.map((category) => (

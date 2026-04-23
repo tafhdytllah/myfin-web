@@ -133,6 +133,14 @@ export function TransactionsPageView() {
       })),
     [accountsMap, categoriesMap, t, transactions],
   );
+  const selectedAccountName = useMemo(
+    () => accounts.find((account) => account.id === filters.accountId)?.name,
+    [accounts, filters.accountId],
+  );
+  const selectedCategoryName = useMemo(
+    () => categories.find((category) => category.id === filters.categoryId)?.name,
+    [categories, filters.categoryId],
+  );
 
   const totalPages = transactionsEnvelope?.meta?.totalPages ?? 1;
   const currentPage = transactionsEnvelope?.meta?.page
@@ -268,7 +276,9 @@ export function TransactionsPageView() {
             }
           >
             <SelectTrigger className="w-full">
-              <SelectValue placeholder={t("common.account")} />
+              <SelectValue placeholder={t("common.account")}>
+                {filters.accountId ? selectedAccountName : undefined}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">{t("transactions.allAccounts")}</SelectItem>
@@ -312,7 +322,9 @@ export function TransactionsPageView() {
             }
           >
             <SelectTrigger className="w-full">
-              <SelectValue placeholder={t("common.category")} />
+              <SelectValue placeholder={t("common.category")}>
+                {filters.categoryId ? selectedCategoryName : undefined}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">{t("transactions.allCategories")}</SelectItem>
