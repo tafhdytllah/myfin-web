@@ -2,11 +2,11 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { RefreshCw } from "lucide-react";
 import { useForm } from "react-hook-form";
 
 import { PageHeader } from "@/components/shared/page-header";
 import { PasswordInput } from "@/components/shared/password-input";
+import { RetryCard } from "@/components/shared/retry-card";
 import { SectionCard } from "@/components/shared/section-card";
 import { usePageTrail } from "@/components/layout/page-trail-context";
 import { Button } from "@/components/ui/button";
@@ -156,19 +156,12 @@ export function ProfilePageView() {
       ) : null}
 
       {profileQuery.isError ? (
-        <SectionCard
+        <RetryCard
           title={t("profile.loadErrorTitle")}
           description={t("profile.loadErrorDescription")}
-        >
-          <Button
-            onClick={() => profileQuery.refetch()}
-            variant="outline"
-            className="rounded-2xl"
-          >
-            <RefreshCw className="size-4" />
-            {t("profile.retry")}
-          </Button>
-        </SectionCard>
+          retryLabel={t("profile.retry")}
+          onRetry={() => profileQuery.refetch()}
+        />
       ) : null}
 
       {!profileQuery.isLoading && !profileQuery.isError ? (

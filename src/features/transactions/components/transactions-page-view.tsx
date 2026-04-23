@@ -4,7 +4,6 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   MoreHorizontal,
   PencilLine,
-  RefreshCw,
   RotateCcw,
   Trash2,
 } from "lucide-react";
@@ -24,8 +23,10 @@ import {
   parseTransactionFilters,
 } from "@/features/transactions/utils/transaction-search-params";
 import { PageHeader } from "@/components/shared/page-header";
+import { RetryCard } from "@/components/shared/retry-card";
 import { SectionCard } from "@/components/shared/section-card";
 import { StatusBadge } from "@/components/shared/status-badge";
+import { SummaryStatCard } from "@/components/shared/summary-stat-card";
 import { usePageTrail } from "@/components/layout/page-trail-context";
 import { Button } from "@/components/ui/button";
 import {
@@ -254,11 +255,7 @@ export function TransactionsPageView() {
           { label: t("common.income"), value: formatCurrency(summary.totalIncome) },
           { label: t("common.expense"), value: formatCurrency(summary.totalExpense) },
         ].map((item) => (
-          <SectionCard key={item.label} title={item.label}>
-            <p className="text-2xl font-semibold text-[var(--color-foreground)]">
-              {item.value}
-            </p>
-          </SectionCard>
+          <SummaryStatCard key={item.label} label={item.label} value={item.value} />
         ))}
       </div>
 
@@ -398,15 +395,12 @@ export function TransactionsPageView() {
         ) : null}
 
         {transactionsQuery.isError ? (
-          <div className="space-y-4">
-            <p className="text-sm text-muted-foreground">
-              {t("transactions.loadErrorDescription")}
-            </p>
-            <Button variant="outline" onClick={() => transactionsQuery.refetch()}>
-              <RefreshCw className="size-4" />
-              {t("transactions.retry")}
-            </Button>
-          </div>
+          <RetryCard
+            title={t("transactions.loadErrorTitle")}
+            description={t("transactions.loadErrorDescription")}
+            retryLabel={t("transactions.retry")}
+            onRetry={() => transactionsQuery.refetch()}
+          />
         ) : null}
 
         {!transactionsQuery.isLoading &&

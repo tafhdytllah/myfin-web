@@ -6,7 +6,6 @@ import {
   PencilLine,
   Power,
   PowerOff,
-  RefreshCw,
   RotateCcw,
 } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -23,8 +22,10 @@ import {
   parseAccountFilters,
 } from "@/features/accounts/utils/account-search-params";
 import { PageHeader } from "@/components/shared/page-header";
+import { RetryCard } from "@/components/shared/retry-card";
 import { SectionCard } from "@/components/shared/section-card";
 import { StatusBadge } from "@/components/shared/status-badge";
+import { SummaryStatCard } from "@/components/shared/summary-stat-card";
 import { usePageTrail } from "@/components/layout/page-trail-context";
 import { Button } from "@/components/ui/button";
 import {
@@ -158,11 +159,7 @@ export function AccountsPageView() {
           { label: t("common.active"), value: String(summary.active) },
           { label: t("common.inactive"), value: String(summary.inactive) },
         ].map((item) => (
-          <SectionCard key={item.label} title={item.label}>
-            <p className="text-2xl font-semibold text-[var(--color-foreground)]">
-              {item.value}
-            </p>
-          </SectionCard>
+          <SummaryStatCard key={item.label} label={item.label} value={item.value} />
         ))}
       </div>
 
@@ -226,19 +223,12 @@ export function AccountsPageView() {
       ) : null}
 
       {accountsQuery.isError ? (
-        <SectionCard
+        <RetryCard
           title={t("accounts.loadErrorTitle")}
           description={t("accounts.loadErrorDescription")}
-        >
-          <Button
-            onClick={() => accountsQuery.refetch()}
-            variant="outline"
-            className="rounded-2xl"
-          >
-            <RefreshCw className="size-4" />
-            {t("accounts.retry")}
-          </Button>
-        </SectionCard>
+          retryLabel={t("accounts.retry")}
+          onRetry={() => accountsQuery.refetch()}
+        />
       ) : null}
 
       {!accountsQuery.isLoading && !accountsQuery.isError && accounts.length === 0 ? (

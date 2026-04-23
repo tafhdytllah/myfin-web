@@ -6,7 +6,6 @@ import {
   PencilLine,
   Power,
   PowerOff,
-  RefreshCw,
 } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
@@ -22,8 +21,10 @@ import {
   parseCategoryFilters,
 } from "@/features/categories/utils/category-search-params";
 import { PageHeader } from "@/components/shared/page-header";
+import { RetryCard } from "@/components/shared/retry-card";
 import { SectionCard } from "@/components/shared/section-card";
 import { StatusBadge } from "@/components/shared/status-badge";
+import { SummaryStatCard } from "@/components/shared/summary-stat-card";
 import { usePageTrail } from "@/components/layout/page-trail-context";
 import { Button } from "@/components/ui/button";
 import {
@@ -172,11 +173,7 @@ export function CategoriesPageView() {
           { label: t("common.income"), value: String(summary.income) },
           { label: t("common.expense"), value: String(summary.expense) },
         ].map((item) => (
-          <SectionCard key={item.label} title={item.label}>
-            <p className="text-2xl font-semibold text-[var(--color-foreground)]">
-              {item.value}
-            </p>
-          </SectionCard>
+          <SummaryStatCard key={item.label} label={item.label} value={item.value} />
         ))}
       </div>
 
@@ -247,19 +244,12 @@ export function CategoriesPageView() {
       ) : null}
 
       {categoriesQuery.isError ? (
-        <SectionCard
+        <RetryCard
           title={t("categories.loadErrorTitle")}
           description={t("categories.loadErrorDescription")}
-        >
-          <Button
-            onClick={() => categoriesQuery.refetch()}
-            variant="outline"
-            className="rounded-2xl"
-          >
-            <RefreshCw className="size-4" />
-            {t("categories.retry")}
-          </Button>
-        </SectionCard>
+          retryLabel={t("categories.retry")}
+          onRetry={() => categoriesQuery.refetch()}
+        />
       ) : null}
 
       {!categoriesQuery.isLoading &&
