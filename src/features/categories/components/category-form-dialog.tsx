@@ -94,6 +94,7 @@ export function CategoryFormDialog({
     control: form.control,
     name: "type",
   });
+  const selectedTypeLabel = selectedType === "INCOME" ? t("common.income") : t("common.expense");
 
   useEffect(() => {
     if (!open) {
@@ -209,7 +210,9 @@ export function CategoryFormDialog({
                 }
               >
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder={t("common.type")} />
+                  <SelectValue placeholder={t("common.type")}>
+                    {selectedTypeLabel}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="INCOME">{t("common.income")}</SelectItem>

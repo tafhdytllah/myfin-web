@@ -140,6 +140,16 @@ export function TransactionsPageView() {
     () => accounts.find((account) => account.id === filters.accountId)?.name,
     [accounts, filters.accountId],
   );
+  const selectedTypeLabel = useMemo(() => {
+    switch (filters.type) {
+      case "INCOME":
+        return t("common.income");
+      case "EXPENSE":
+        return t("common.expense");
+      default:
+        return t("transactions.allTypes");
+    }
+  }, [filters.type, t]);
   const selectedCategoryName = useMemo(
     () => categories.find((category) => category.id === filters.categoryId)?.name,
     [categories, filters.categoryId],
@@ -312,7 +322,9 @@ export function TransactionsPageView() {
             }
           >
             <SelectTrigger className="w-full">
-              <SelectValue placeholder={t("common.type")} />
+              <SelectValue placeholder={t("common.type")}>
+                {selectedTypeLabel}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">{t("transactions.allTypes")}</SelectItem>

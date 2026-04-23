@@ -124,6 +124,7 @@ export function TransactionFormDialog({
     () => accountsQuery.data ?? [],
     [accountsQuery.data],
   );
+  const selectedTypeLabel = selectedType === "INCOME" ? t("common.income") : t("common.expense");
   const selectedAccountName = useMemo(
     () => activeAccounts.find((account) => account.id === selectedAccountId)?.name,
     [activeAccounts, selectedAccountId],
@@ -221,7 +222,9 @@ export function TransactionFormDialog({
                   }
                 >
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder={t("common.type")} />
+                    <SelectValue placeholder={t("common.type")}>
+                      {selectedTypeLabel}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="INCOME">{t("common.income")}</SelectItem>

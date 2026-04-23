@@ -72,6 +72,26 @@ export function CategoriesPageView() {
     () => categoriesQuery.data ?? [],
     [categoriesQuery.data],
   );
+  const selectedTypeLabel = useMemo(() => {
+    switch (filters.type) {
+      case "INCOME":
+        return t("common.income");
+      case "EXPENSE":
+        return t("common.expense");
+      default:
+        return t("categories.typeAll");
+    }
+  }, [filters.type, t]);
+  const selectedStatusLabel = useMemo(() => {
+    switch (filters.status) {
+      case "active":
+        return t("common.active");
+      case "inactive":
+        return t("common.inactive");
+      default:
+        return t("categories.statusAll");
+    }
+  }, [filters.status, t]);
   const modalTrail = useMemo(() => {
     if (statusDialogCategory) {
       return t("common.deactivate");
@@ -180,7 +200,9 @@ export function CategoriesPageView() {
             }
           >
             <SelectTrigger className="w-full">
-              <SelectValue placeholder={t("common.type")} />
+              <SelectValue placeholder={t("common.type")}>
+                {selectedTypeLabel}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">{t("categories.typeAll")}</SelectItem>
@@ -198,7 +220,9 @@ export function CategoriesPageView() {
             }
           >
             <SelectTrigger className="w-full">
-              <SelectValue placeholder={t("common.status")} />
+              <SelectValue placeholder={t("common.status")}>
+                {selectedStatusLabel}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">{t("categories.statusAll")}</SelectItem>

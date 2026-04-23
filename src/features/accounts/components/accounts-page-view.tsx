@@ -64,6 +64,16 @@ export function AccountsPageView() {
 
   const accounts = useMemo(() => accountsQuery.data ?? [], [accountsQuery.data]);
   const hasActiveFilters = Boolean(filters.keyword || filters.status !== "all");
+  const selectedStatusLabel = useMemo(() => {
+    switch (filters.status) {
+      case "active":
+        return t("common.active");
+      case "inactive":
+        return t("common.inactive");
+      default:
+        return t("accounts.statusAll");
+    }
+  }, [filters.status, t]);
   const modalTrail = useMemo(() => {
     if (statusDialogAccount) {
       return t("common.deactivate");
@@ -188,7 +198,9 @@ export function AccountsPageView() {
             }
           >
             <SelectTrigger className="w-full">
-              <SelectValue placeholder={t("accounts.statusFilter")} />
+              <SelectValue placeholder={t("accounts.statusFilter")}>
+                {selectedStatusLabel}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">{t("accounts.statusAll")}</SelectItem>

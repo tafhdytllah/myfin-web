@@ -125,7 +125,9 @@ export function DashboardPageView() {
           >
             <SelectTrigger className="h-11 w-full rounded-2xl">
               <SelectValue placeholder={t("dashboard.accountScopePlaceholder")}>
-                {selectedAccountId !== "all" ? selectedAccountName : undefined}
+                {selectedAccountId === "all"
+                  ? t("dashboard.allAccounts")
+                  : selectedAccountName}
               </SelectValue>
             </SelectTrigger>
             <SelectContent>
