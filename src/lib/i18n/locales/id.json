@@ -108,6 +108,7 @@
     "recentEmpty": "Belum ada transaksi terbaru untuk cakupan yang dipilih.",
     "topAccounts": "Akun Teratas",
     "topAccountsDescription": "Saldo tertinggi di antara akun aktifmu.",
+    "topAccountsEmpty": "Belum ada akun aktif yang tersedia. Buat satu untuk mulai melacak saldo.",
     "accountsLoadError": "Akun teratas belum bisa dimuat sekarang.",
     "usedTransactions": "Dipakai di {count} transaksi"
   },

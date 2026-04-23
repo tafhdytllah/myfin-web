@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 
 import { usePageTrail } from "@/components/layout/page-trail-context";
 import { InlineRetryState } from "@/components/shared/inline-retry-state";
+import { PageActionButton } from "@/components/shared/page-action-button";
 import { PageHeader } from "@/components/shared/page-header";
 import { RetryCard } from "@/components/shared/retry-card";
 import { SectionCard } from "@/components/shared/section-card";
@@ -112,9 +113,9 @@ export function DashboardPageView() {
           date: formatDate(new Date().toISOString(), dateLocale),
         })}
         action={
-          <Button asChild className="h-11 rounded-2xl px-5 text-sm font-semibold max-sm:w-full">
+          <PageActionButton asChild>
             <Link href={routes.transactions}>{t("dashboard.addTransaction")}</Link>
-          </Button>
+          </PageActionButton>
         }
       />
 
@@ -279,6 +280,12 @@ export function DashboardPageView() {
               retryLabel={t("dashboard.retry")}
               onRetry={() => activeAccountsQuery.refetch()}
             />
+          ) : null}
+
+          {!activeAccountsQuery.isLoading &&
+          !activeAccountsQuery.isError &&
+          topAccounts.length === 0 ? (
+            <SectionEmptyState description={t("dashboard.topAccountsEmpty")} dashed />
           ) : null}
 
           {!activeAccountsQuery.isLoading &&

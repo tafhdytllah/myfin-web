@@ -108,6 +108,7 @@
     "recentEmpty": "No recent transactions for the selected scope yet.",
     "topAccounts": "Top Accounts",
     "topAccountsDescription": "Highest balances across your active accounts.",
+    "topAccountsEmpty": "No active accounts are available yet. Create one to start tracking balances.",
     "accountsLoadError": "Top accounts could not be loaded right now.",
     "usedTransactions": "Used in {count} transactions"
   },

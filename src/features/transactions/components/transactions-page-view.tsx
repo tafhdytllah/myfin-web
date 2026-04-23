@@ -20,6 +20,7 @@ import {
 import { ActionMenuTrigger } from "@/components/shared/action-menu-trigger";
 import { PageHeader } from "@/components/shared/page-header";
 import { InlineRetryState } from "@/components/shared/inline-retry-state";
+import { PageActionButton } from "@/components/shared/page-action-button";
 import { SectionCard } from "@/components/shared/section-card";
 import { SectionEmptyState } from "@/components/shared/section-empty-state";
 import { StackSkeleton } from "@/components/shared/stack-skeleton";
@@ -234,12 +235,9 @@ export function TransactionsPageView() {
         title={t("transactions.title")}
         description={t("transactions.description")}
         action={
-          <Button
-            className="h-11 rounded-2xl px-5 text-sm font-semibold max-sm:w-full"
-            onClick={() => setFormOpen(true)}
-          >
+          <PageActionButton onClick={() => setFormOpen(true)}>
             {t("transactions.addTransaction")}
-          </Button>
+          </PageActionButton>
         }
       />
 

@@ -17,6 +17,7 @@ import {
 } from "@/features/accounts/utils/account-search-params";
 import { ActionMenuTrigger } from "@/components/shared/action-menu-trigger";
 import { EmptySectionCard } from "@/components/shared/empty-section-card";
+import { PageActionButton } from "@/components/shared/page-action-button";
 import { PageHeader } from "@/components/shared/page-header";
 import { RetryCard } from "@/components/shared/retry-card";
 import { SectionCard } from "@/components/shared/section-card";
@@ -140,12 +141,9 @@ export function AccountsPageView() {
         title={t("accounts.title")}
         description={t("accounts.description")}
         action={
-          <Button
-            className="h-11 rounded-2xl px-5 text-sm font-semibold max-sm:w-full"
-            onClick={openCreateDialog}
-          >
+          <PageActionButton onClick={openCreateDialog}>
             {t("accounts.addAccount")}
-          </Button>
+          </PageActionButton>
         }
       />
 

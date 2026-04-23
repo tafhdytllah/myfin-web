@@ -17,6 +17,7 @@ import {
 } from "@/features/categories/utils/category-search-params";
 import { ActionMenuTrigger } from "@/components/shared/action-menu-trigger";
 import { EmptySectionCard } from "@/components/shared/empty-section-card";
+import { PageActionButton } from "@/components/shared/page-action-button";
 import { PageHeader } from "@/components/shared/page-header";
 import { RetryCard } from "@/components/shared/retry-card";
 import { SectionCard } from "@/components/shared/section-card";
@@ -24,7 +25,6 @@ import { StackSkeleton } from "@/components/shared/stack-skeleton";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { SummaryStatCard } from "@/components/shared/summary-stat-card";
 import { usePageTrail } from "@/components/layout/page-trail-context";
-import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -153,12 +153,9 @@ export function CategoriesPageView() {
         title={t("categories.title")}
         description={t("categories.description")}
         action={
-          <Button
-            className="h-11 rounded-2xl px-5 text-sm font-semibold max-sm:w-full"
-            onClick={openCreateDialog}
-          >
+          <PageActionButton onClick={openCreateDialog}>
             {t("categories.addCategory")}
-          </Button>
+          </PageActionButton>
         }
       />
 
