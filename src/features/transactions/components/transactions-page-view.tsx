@@ -26,6 +26,7 @@ import {
 import { PageHeader } from "@/components/shared/page-header";
 import { SectionCard } from "@/components/shared/section-card";
 import { StatusBadge } from "@/components/shared/status-badge";
+import { usePageTrail } from "@/components/layout/page-trail-context";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -146,6 +147,19 @@ export function TransactionsPageView() {
       filters.startDate ||
       filters.endDate,
   );
+  const modalTrail = useMemo(() => {
+    if (deletingTransaction) {
+      return t("common.delete");
+    }
+
+    if (formOpen) {
+      return t("common.create");
+    }
+
+    return null;
+  }, [deletingTransaction, formOpen, t]);
+
+  usePageTrail([modalTrail]);
 
   function updateFilters(nextFilters: typeof filters) {
     const params = buildTransactionSearchParams(nextFilters);
@@ -189,7 +203,7 @@ export function TransactionsPageView() {
         description={t("transactions.description")}
         action={
           <Button
-            className="h-11 rounded-2xl px-5 text-sm font-semibold"
+            className="h-11 rounded-2xl px-5 text-sm font-semibold max-sm:w-full"
             onClick={() => setFormOpen(true)}
           >
             {t("transactions.addTransaction")}

@@ -7,6 +7,7 @@ import { useForm } from "react-hook-form";
 
 import { PageHeader } from "@/components/shared/page-header";
 import { SectionCard } from "@/components/shared/section-card";
+import { usePageTrail } from "@/components/layout/page-trail-context";
 import { Button } from "@/components/ui/button";
 import {
   Field,
@@ -61,6 +62,8 @@ export function ProfilePageView() {
 
   const profileInfoSchema = useMemo(() => createProfileInfoSchema(t), [t]);
   const changePasswordSchema = useMemo(() => createChangePasswordSchema(t), [t]);
+
+  usePageTrail([]);
 
   const profileForm = useForm<ProfileInfoSchema>({
     resolver: zodResolver(profileInfoSchema),

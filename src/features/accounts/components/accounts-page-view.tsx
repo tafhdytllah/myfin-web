@@ -25,6 +25,7 @@ import {
 import { PageHeader } from "@/components/shared/page-header";
 import { SectionCard } from "@/components/shared/section-card";
 import { StatusBadge } from "@/components/shared/status-badge";
+import { usePageTrail } from "@/components/layout/page-trail-context";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -60,6 +61,23 @@ export function AccountsPageView() {
 
   const accounts = useMemo(() => accountsQuery.data ?? [], [accountsQuery.data]);
   const hasActiveFilters = Boolean(filters.keyword || filters.status !== "all");
+  const modalTrail = useMemo(() => {
+    if (statusDialogAccount) {
+      return t("common.deactivate");
+    }
+
+    if (formOpen && editingAccount) {
+      return t("common.edit");
+    }
+
+    if (formOpen) {
+      return t("common.create");
+    }
+
+    return null;
+  }, [editingAccount, formOpen, statusDialogAccount, t]);
+
+  usePageTrail([modalTrail]);
 
   const summary = useMemo(
     () => ({
@@ -100,7 +118,10 @@ export function AccountsPageView() {
         title={t("accounts.title")}
         description={t("accounts.description")}
         action={
-          <Button className="h-11 rounded-2xl px-5 text-sm font-semibold max-sm:w-full" onClick={openCreateDialog}>
+          <Button
+            className="h-11 rounded-2xl px-5 text-sm font-semibold max-sm:w-full"
+            onClick={openCreateDialog}
+          >
             {t("accounts.addAccount")}
           </Button>
         }

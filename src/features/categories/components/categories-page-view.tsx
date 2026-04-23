@@ -24,6 +24,7 @@ import {
 import { PageHeader } from "@/components/shared/page-header";
 import { SectionCard } from "@/components/shared/section-card";
 import { StatusBadge } from "@/components/shared/status-badge";
+import { usePageTrail } from "@/components/layout/page-trail-context";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -68,6 +69,23 @@ export function CategoriesPageView() {
     () => categoriesQuery.data ?? [],
     [categoriesQuery.data],
   );
+  const modalTrail = useMemo(() => {
+    if (statusDialogCategory) {
+      return t("common.deactivate");
+    }
+
+    if (formOpen && editingCategory) {
+      return t("common.edit");
+    }
+
+    if (formOpen) {
+      return t("common.create");
+    }
+
+    return null;
+  }, [editingCategory, formOpen, statusDialogCategory, t]);
+
+  usePageTrail([modalTrail]);
 
   const summary = useMemo(
     () => ({
@@ -103,7 +121,10 @@ export function CategoriesPageView() {
         title={t("categories.title")}
         description={t("categories.description")}
         action={
-          <Button className="h-11 rounded-2xl px-5 text-sm font-semibold" onClick={openCreateDialog}>
+          <Button
+            className="h-11 rounded-2xl px-5 text-sm font-semibold max-sm:w-full"
+            onClick={openCreateDialog}
+          >
             {t("categories.addCategory")}
           </Button>
         }

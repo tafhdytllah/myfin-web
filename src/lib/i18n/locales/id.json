@@ -27,6 +27,8 @@
     "date": "Tanggal",
     "description": "Deskripsi",
     "amount": "Nominal"
+    ,"create": "Buat"
+    ,"delete": "Hapus"
   },
   "navigation": {
     "dashboard": "Dashboard",

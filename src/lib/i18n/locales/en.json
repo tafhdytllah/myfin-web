@@ -27,6 +27,8 @@
     "date": "Date",
     "description": "Description",
     "amount": "Amount"
+    ,"create": "Create"
+    ,"delete": "Delete"
   },
   "navigation": {
     "dashboard": "Dashboard",

@@ -6,6 +6,7 @@ import { useMemo, useState } from "react";
 import { PageHeader } from "@/components/shared/page-header";
 import { SectionCard } from "@/components/shared/section-card";
 import { StatusBadge } from "@/components/shared/status-badge";
+import { usePageTrail } from "@/components/layout/page-trail-context";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -92,6 +93,8 @@ export function DashboardPageView() {
   ];
 
   const dateLocale = locale === "id" ? "id-ID" : "en-US";
+
+  usePageTrail([]);
 
   return (
     <div className="space-y-6">
