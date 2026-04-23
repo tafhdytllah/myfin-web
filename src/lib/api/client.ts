@@ -1,5 +1,5 @@
 import { env } from "@/lib/config/env";
-import { ApiError } from "@/lib/api/types";
+import { createApiError } from "@/lib/api/types";
 import { routes } from "@/lib/constants/routes";
 import { dictionaries } from "@/lib/i18n/dictionaries";
 import { useLocaleStore } from "@/stores/locale-store";
@@ -141,7 +141,7 @@ export async function apiRequest<T>(
   if (!response.ok) {
     const errorPayload = payload as BackendErrorPayload | null;
 
-    throw new ApiError({
+    throw createApiError({
       status: response.status,
       code: errorPayload?.errors?.code,
       message:

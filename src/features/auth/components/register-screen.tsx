@@ -27,7 +27,7 @@ import {
   createRegisterSchema,
   type RegisterSchema,
 } from "@/features/auth/schemas/register-schema";
-import { ApiError } from "@/lib/api/types";
+import { isApiError } from "@/lib/api/types";
 import { useTranslations } from "@/lib/i18n/use-translations";
 import { routes } from "@/lib/constants/routes";
 
@@ -61,7 +61,7 @@ export function RegisterScreen() {
         password: values.password,
       });
     } catch (error) {
-      if (error instanceof ApiError) {
+      if (isApiError(error)) {
         if (error.details?.username) {
           setError("username", {
             message: Array.isArray(error.details.username)
