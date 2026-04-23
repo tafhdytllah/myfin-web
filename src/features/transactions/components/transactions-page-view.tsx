@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   MoreHorizontal,
   PencilLine,
@@ -60,6 +60,7 @@ import {
 } from "@/components/ui/table";
 import { formatCurrency } from "@/lib/formatters/currency";
 import { formatDate } from "@/lib/formatters/date";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { useTranslations } from "@/lib/i18n/use-translations";
 import { useLocaleStore } from "@/stores/locale-store";
 
@@ -76,6 +77,8 @@ export function TransactionsPageView() {
   );
   const [formOpen, setFormOpen] = useState(false);
   const [deletingTransaction, setDeletingTransaction] = useState<Transaction | null>(null);
+  const [keyword, setKeyword] = useState(filters.keyword ?? "");
+  const debouncedKeyword = useDebouncedValue(keyword);
 
   const accountsQuery = useAccounts({ status: "all" });
   const categoriesQuery = useCategories({ status: "all", type: "all" });
@@ -169,12 +172,24 @@ export function TransactionsPageView() {
 
   usePageTrail([modalTrail]);
 
-  function updateFilters(nextFilters: typeof filters) {
+  const updateFilters = useCallback((nextFilters: typeof filters) => {
     const params = buildTransactionSearchParams(nextFilters);
     const query = params.toString();
 
     router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
-  }
+  }, [pathname, router]);
+
+  useEffect(() => {
+    if (debouncedKeyword === (filters.keyword ?? "")) {
+      return;
+    }
+
+    updateFilters({
+      ...filters,
+      keyword: debouncedKeyword,
+      page: 1,
+    });
+  }, [debouncedKeyword, filters, updateFilters]);
 
   function changePage(page: number) {
     updateFilters({
@@ -184,6 +199,7 @@ export function TransactionsPageView() {
   }
 
   function resetFilters() {
+    setKeyword("");
     updateFilters({
       keyword: "",
       accountId: "",
@@ -254,14 +270,8 @@ export function TransactionsPageView() {
       >
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
           <Input
-            value={filters.keyword ?? ""}
-            onChange={(event) =>
-              updateFilters({
-                ...filters,
-                keyword: event.target.value,
-                page: 1,
-              })
-            }
+            value={keyword}
+            onChange={(event) => setKeyword(event.target.value)}
             placeholder={t("common.search")}
           />
 

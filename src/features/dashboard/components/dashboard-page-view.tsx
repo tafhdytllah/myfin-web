@@ -3,10 +3,10 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
+import { usePageTrail } from "@/components/layout/page-trail-context";
 import { PageHeader } from "@/components/shared/page-header";
 import { SectionCard } from "@/components/shared/section-card";
 import { StatusBadge } from "@/components/shared/status-badge";
-import { usePageTrail } from "@/components/layout/page-trail-context";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -230,7 +230,7 @@ export function DashboardPageView() {
                         {item.categoryName}
                       </p>
                       <p className="mt-1 truncate text-sm text-[var(--color-foreground-muted)]">
-                        {item.accountName} · {formatDate(item.createdAt, dateLocale)}
+                        {item.accountName} {" - "} {formatDate(item.createdAt, dateLocale)}
                       </p>
                     </div>
                     <div className="shrink-0 text-right">

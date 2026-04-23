@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   MoreHorizontal,
   PencilLine,
@@ -48,6 +48,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { useTranslations } from "@/lib/i18n/use-translations";
 
 export function CategoriesPageView() {
@@ -64,6 +65,8 @@ export function CategoriesPageView() {
   const [formOpen, setFormOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [statusDialogCategory, setStatusDialogCategory] = useState<Category | null>(null);
+  const [keyword, setKeyword] = useState(filters.keyword ?? "");
+  const debouncedKeyword = useDebouncedValue(keyword);
 
   const categories = useMemo(
     () => categoriesQuery.data ?? [],
@@ -98,12 +101,23 @@ export function CategoriesPageView() {
     [categories],
   );
 
-  function updateFilters(nextFilters: typeof filters) {
+  const updateFilters = useCallback((nextFilters: typeof filters) => {
     const params = buildCategorySearchParams(nextFilters);
     const query = params.toString();
 
     router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
-  }
+  }, [pathname, router]);
+
+  useEffect(() => {
+    if (debouncedKeyword === (filters.keyword ?? "")) {
+      return;
+    }
+
+    updateFilters({
+      ...filters,
+      keyword: debouncedKeyword,
+    });
+  }, [debouncedKeyword, filters, updateFilters]);
 
   function openCreateDialog() {
     setEditingCategory(null);
@@ -152,13 +166,8 @@ export function CategoriesPageView() {
       >
         <div className="grid gap-3 md:grid-cols-3">
           <Input
-            value={filters.keyword ?? ""}
-            onChange={(event) =>
-              updateFilters({
-                ...filters,
-                keyword: event.target.value,
-              })
-            }
+            value={keyword}
+            onChange={(event) => setKeyword(event.target.value)}
             placeholder={t("categories.searchPlaceholder")}
           />
           <Select

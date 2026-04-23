@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   MoreHorizontal,
   PencilLine,
@@ -42,6 +42,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { formatCurrency } from "@/lib/formatters/currency";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { useTranslations } from "@/lib/i18n/use-translations";
 
 export function AccountsPageView() {
@@ -58,6 +59,8 @@ export function AccountsPageView() {
   const [formOpen, setFormOpen] = useState(false);
   const [editingAccount, setEditingAccount] = useState<Account | null>(null);
   const [statusDialogAccount, setStatusDialogAccount] = useState<Account | null>(null);
+  const [keyword, setKeyword] = useState(filters.keyword ?? "");
+  const debouncedKeyword = useDebouncedValue(keyword);
 
   const accounts = useMemo(() => accountsQuery.data ?? [], [accountsQuery.data]);
   const hasActiveFilters = Boolean(filters.keyword || filters.status !== "all");
@@ -88,12 +91,23 @@ export function AccountsPageView() {
     [accounts],
   );
 
-  function updateFilters(nextFilters: typeof filters) {
+  const updateFilters = useCallback((nextFilters: typeof filters) => {
     const params = buildAccountSearchParams(nextFilters);
     const query = params.toString();
 
     router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
-  }
+  }, [pathname, router]);
+
+  useEffect(() => {
+    if (debouncedKeyword === (filters.keyword ?? "")) {
+      return;
+    }
+
+    updateFilters({
+      ...filters,
+      keyword: debouncedKeyword,
+    });
+  }, [debouncedKeyword, filters, updateFilters]);
 
   function openCreateDialog() {
     setEditingAccount(null);
@@ -106,6 +120,7 @@ export function AccountsPageView() {
   }
 
   function resetFilters() {
+    setKeyword("");
     updateFilters({
       keyword: "",
       status: "all",
@@ -159,13 +174,8 @@ export function AccountsPageView() {
       >
         <div className="grid gap-3 md:grid-cols-2">
           <Input
-            value={filters.keyword ?? ""}
-            onChange={(event) =>
-              updateFilters({
-                ...filters,
-                keyword: event.target.value,
-              })
-            }
+            value={keyword}
+            onChange={(event) => setKeyword(event.target.value)}
             placeholder={t("accounts.searchPlaceholder")}
           />
           <Select
