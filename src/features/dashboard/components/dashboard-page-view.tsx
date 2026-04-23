@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 
 import { usePageTrail } from "@/components/layout/page-trail-context";
+import { ContentCard } from "@/components/shared/content-card";
 import { InlineRetryState } from "@/components/shared/inline-retry-state";
 import { PageActionButton } from "@/components/shared/page-action-button";
 import { PageHeader } from "@/components/shared/page-header";
@@ -13,7 +14,6 @@ import { SectionEmptyState } from "@/components/shared/section-empty-state";
 import { StackSkeleton } from "@/components/shared/stack-skeleton";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -225,11 +225,11 @@ export function DashboardPageView() {
           recentTransactions.length > 0 ? (
             <div className="space-y-4">
               {recentTransactions.map((item) => (
-                <Card
+                <ContentCard
                   key={item.id}
-                  className="rounded-3xl border-[var(--color-border)] bg-[var(--color-surface)] py-0 text-left transition hover:bg-muted/60"
+                  className="text-left transition hover:bg-muted/60"
+                  contentClassName="flex items-center justify-between gap-4 p-4"
                 >
-                  <CardContent className="flex items-center justify-between gap-4 p-4">
                     <div className="min-w-0">
                       <p className="truncate font-medium text-[var(--color-foreground)]">
                         {item.categoryName}
@@ -250,8 +250,7 @@ export function DashboardPageView() {
                         {formatCurrency(item.amount)}
                       </p>
                     </div>
-                  </CardContent>
-                </Card>
+                </ContentCard>
               ))}
             </div>
           ) : null}
@@ -293,11 +292,10 @@ export function DashboardPageView() {
           topAccounts.length > 0 ? (
             <div className="space-y-4">
               {topAccounts.map((item) => (
-                <Card
+                <ContentCard
                   key={item.id}
-                  className="rounded-3xl border-[var(--color-border)] bg-[var(--color-surface)] py-0"
+                  contentClassName="p-4"
                 >
-                  <CardContent className="p-4">
                     <div className="flex items-start justify-between gap-4">
                       <div className="min-w-0">
                         <p className="truncate font-medium text-[var(--color-foreground)]">
@@ -312,8 +310,7 @@ export function DashboardPageView() {
                     <p className="mt-4 text-2xl font-semibold text-[var(--color-foreground)]">
                       {formatCurrency(item.currentBalance)}
                     </p>
-                  </CardContent>
-                </Card>
+                </ContentCard>
               ))}
             </div>
           ) : null}

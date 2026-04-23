@@ -5,15 +5,9 @@ import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
+import { AuthFormCard } from "@/components/shared/auth-form-card";
 import { PasswordInput } from "@/components/shared/password-input";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import {
   Field,
   FieldContent,
@@ -73,20 +67,22 @@ export function RegisterScreen() {
   };
 
   return (
-    <Card className="rounded-[var(--radius-card)] border-[var(--color-border)] bg-[var(--color-surface-elevated)] py-0 shadow-[var(--shadow-soft)]">
-      <CardHeader className="p-8 pb-0">
-        <p className="text-xs uppercase tracking-[0.24em] text-[var(--color-primary-strong)]">
-          {t("auth.getStarted")}
+    <AuthFormCard
+      eyebrow={t("auth.getStarted")}
+      title={t("auth.registerTitle")}
+      description={t("auth.registerDescription")}
+      footer={
+        <p className="mt-6 text-center text-sm text-[var(--color-foreground-muted)] sm:text-left">
+          {t("auth.alreadyHaveAccount")}{" "}
+          <Link
+            className="font-semibold text-[var(--color-primary-strong)]"
+            href={routes.login}
+          >
+            {t("auth.signInLink")}
+          </Link>
         </p>
-        <CardTitle className="mt-3 font-[var(--font-display)] text-3xl font-semibold text-[var(--color-foreground)]">
-          {t("auth.registerTitle")}
-        </CardTitle>
-        <CardDescription className="mt-2 text-sm text-[var(--color-foreground-muted)]">
-          {t("auth.registerDescription")}
-        </CardDescription>
-      </CardHeader>
-
-      <CardContent className="p-8 pt-8">
+      }
+    >
         <form className="space-y-5" onSubmit={handleSubmit(onSubmit)}>
           <FieldError>{formError}</FieldError>
 
@@ -155,17 +151,6 @@ export function RegisterScreen() {
               : t("auth.createAccount")}
           </Button>
         </form>
-
-        <p className="mt-6 text-center text-sm text-[var(--color-foreground-muted)] sm:text-left">
-          {t("auth.alreadyHaveAccount")}{" "}
-          <Link
-            className="font-semibold text-[var(--color-primary-strong)]"
-            href={routes.login}
-          >
-            {t("auth.signInLink")}
-          </Link>
-        </p>
-      </CardContent>
-    </Card>
+    </AuthFormCard>
   );
 }

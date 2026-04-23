@@ -4,8 +4,8 @@ import { useSyncExternalStore } from "react";
 import { LaptopMinimal, MoonStar, SunMedium } from "lucide-react";
 import { useTheme } from "next-themes";
 
+import { ContentCard } from "@/components/shared/content-card";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { useTranslations } from "@/lib/i18n/use-translations";
 
 const themeOptions = [
@@ -36,8 +36,10 @@ export function ThemeModeToggle() {
   );
 
   return (
-    <Card className="rounded-3xl border-white/10 bg-white/8 py-0 text-white ring-0">
-      <CardContent className="p-4">
+    <ContentCard
+      className="border-white/10 bg-white/8 text-white ring-0"
+      contentClassName="p-4"
+    >
         <p className="text-sm text-sky-100 dark:text-slate-300">{t("theme.title")}</p>
         <div className="mt-3 grid grid-cols-3 gap-2">
           {themeOptions.map((option) => {
@@ -63,7 +65,6 @@ export function ThemeModeToggle() {
             );
           })}
         </div>
-      </CardContent>
-    </Card>
+    </ContentCard>
   );
 }
