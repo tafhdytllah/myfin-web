@@ -17,7 +17,17 @@ type PageTrailContextValue = {
 const PageTrailContext = createContext<PageTrailContextValue | null>(null);
 
 export function PageTrailProvider({ children }: PropsWithChildren) {
-  const [trail, setTrail] = useState<string[]>([]);
+  const [trail, setTrailState] = useState<string[]>([]);
+
+  const setTrail = (nextTrail: string[]) => {
+    setTrailState((prev) => {
+      const isSame =
+        prev.length === nextTrail.length &&
+        prev.every((item, index) => item === nextTrail[index]);
+
+      return isSame ? prev : nextTrail;
+    });
+  };
 
   const value = useMemo(
     () => ({
@@ -28,7 +38,9 @@ export function PageTrailProvider({ children }: PropsWithChildren) {
   );
 
   return (
-    <PageTrailContext.Provider value={value}>{children}</PageTrailContext.Provider>
+    <PageTrailContext.Provider value={value}>
+      {children}
+    </PageTrailContext.Provider>
   );
 }
 
@@ -39,21 +51,25 @@ export function usePageTrail(trail: Array<string | null | undefined>) {
     throw new Error("usePageTrail must be used within PageTrailProvider.");
   }
 
-  const trailKey = trail
-    .filter((item): item is string => typeof item === "string" && item.length > 0)
-    .join("::");
+  const { setTrail } = context;
+
+  const normalizedTrail = useMemo(
+    () =>
+      trail.filter(
+        (item): item is string => typeof item === "string" && item.length > 0,
+      ),
+    [trail],
+  );
 
   useEffect(() => {
-    const normalizedTrail = trail.filter(
-      (item): item is string => typeof item === "string" && item.length > 0,
-    );
+    setTrail(normalizedTrail);
+  }, [normalizedTrail, setTrail]);
 
-    context.setTrail(normalizedTrail);
-
+  useEffect(() => {
     return () => {
-      context.setTrail([]);
+      setTrail([]);
     };
-  }, [context, trailKey, trail]);
+  }, [setTrail]);
 }
 
 export function useCurrentPageTrail() {

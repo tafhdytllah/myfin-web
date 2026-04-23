@@ -32,6 +32,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
+      data-scroll-behavior="smooth"
       className={cn("h-full", display.variable, "font-sans", geist.variable)}
     >
       <body className="min-h-full bg-[var(--color-surface)] text-[var(--color-foreground)] antialiased">

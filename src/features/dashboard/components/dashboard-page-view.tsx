@@ -105,6 +105,7 @@ export function DashboardPageView() {
         })}
         action={
           <Button
+            nativeButton={false}
             render={<Link href={routes.transactions} />}
             className="h-11 rounded-2xl px-5 text-sm font-semibold max-sm:w-full"
           >
@@ -186,6 +187,7 @@ export function DashboardPageView() {
           description={t("dashboard.recentDescription")}
           action={
             <Button
+              nativeButton={false}
               render={<Link href={routes.transactions} />}
               variant="outline"
               className="rounded-full max-sm:w-full"
@@ -258,6 +260,7 @@ export function DashboardPageView() {
           description={t("dashboard.topAccountsDescription")}
           action={
             <Button
+              nativeButton={false}
               render={<Link href={routes.accounts} />}
               variant="outline"
               className="rounded-full max-sm:w-full"
