@@ -1,17 +1,11 @@
 import { accountApiRepository } from "@/features/accounts/repositories/account-api.repository";
 import { AccountRepository } from "@/features/accounts/repositories/account-repository";
+import { ToggleAccountStatusParams } from "@/features/accounts/services/account-service.types";
 import {
-  Account,
   AccountListFilters,
   CreateAccountPayload,
   UpdateAccountPayload,
 } from "@/features/accounts/types/account-types";
-
-type ToggleAccountStatusParams = {
-  accessToken: string;
-  account: Account;
-  active: boolean;
-};
 
 export class AccountService {
   constructor(private readonly repository: AccountRepository) {}
