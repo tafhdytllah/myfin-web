@@ -7,7 +7,7 @@ import { PageHeader } from "@/components/shared/page-header";
 import { SectionCard } from "@/components/shared/section-card";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { usePageTrail } from "@/components/layout/page-trail-context";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Select,
@@ -26,6 +26,7 @@ import { routes } from "@/lib/constants/routes";
 import { formatCurrency } from "@/lib/formatters/currency";
 import { formatDate } from "@/lib/formatters/date";
 import { useTranslations } from "@/lib/i18n/use-translations";
+import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/stores/auth-store";
 import { useLocaleStore } from "@/stores/locale-store";
 
@@ -104,13 +105,15 @@ export function DashboardPageView() {
           date: formatDate(new Date().toISOString(), dateLocale),
         })}
         action={
-          <Button
-            nativeButton={false}
-            render={<Link href={routes.transactions} />}
-            className="h-11 rounded-2xl px-5 text-sm font-semibold max-sm:w-full"
+          <Link
+            href={routes.transactions}
+            className={cn(
+              buttonVariants({ variant: "default" }),
+              "h-11 rounded-2xl px-5 text-sm font-semibold max-sm:w-full",
+            )}
           >
             {t("dashboard.addTransaction")}
-          </Button>
+          </Link>
         }
       />
 
@@ -186,14 +189,15 @@ export function DashboardPageView() {
           title={t("dashboard.recentTransactions")}
           description={t("dashboard.recentDescription")}
           action={
-            <Button
-              nativeButton={false}
-              render={<Link href={routes.transactions} />}
-              variant="outline"
-              className="rounded-full max-sm:w-full"
+            <Link
+              href={routes.transactions}
+              className={cn(
+                buttonVariants({ variant: "outline" }),
+                "rounded-full max-sm:w-full",
+              )}
             >
               {t("common.viewAll")}
-            </Button>
+            </Link>
           }
         >
           {recentTransactionsQuery.isLoading ? (
@@ -259,14 +263,15 @@ export function DashboardPageView() {
           title={t("dashboard.topAccounts")}
           description={t("dashboard.topAccountsDescription")}
           action={
-            <Button
-              nativeButton={false}
-              render={<Link href={routes.accounts} />}
-              variant="outline"
-              className="rounded-full max-sm:w-full"
+            <Link
+              href={routes.accounts}
+              className={cn(
+                buttonVariants({ variant: "outline" }),
+                "rounded-full max-sm:w-full",
+              )}
             >
               {t("common.seeAll")}
-            </Button>
+            </Link>
           }
         >
           {activeAccountsQuery.isLoading ? (

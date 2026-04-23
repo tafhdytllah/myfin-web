@@ -1,23 +1,24 @@
-import { Button as ButtonPrimitive } from "@base-ui/react/button"
-import { cva, type VariantProps } from "class-variance-authority"
+import * as React from "react";
+import { cva, type VariantProps } from "class-variance-authority";
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "group/button inline-flex shrink-0 items-center justify-center rounded-lg border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_a]:text-inherit [&_a]:no-underline [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  "group/button inline-flex shrink-0 items-center justify-center rounded-lg border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/80 hover:text-primary-foreground",
+        default:
+          "bg-primary text-[var(--color-primary-foreground)] visited:text-[var(--color-primary-foreground)] hover:bg-primary/80 hover:text-[var(--color-primary-foreground)] active:text-[var(--color-primary-foreground)] [&_svg]:text-[var(--color-primary-foreground)]",
         outline:
-          "border-border bg-background hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50",
+          "border-border bg-background text-[var(--color-foreground)] visited:text-[var(--color-foreground)] hover:bg-muted hover:text-[var(--color-foreground)] aria-expanded:bg-muted aria-expanded:text-[var(--color-foreground)] dark:border-input dark:bg-input/30 dark:hover:bg-input/50",
         secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80 aria-expanded:bg-secondary aria-expanded:text-secondary-foreground",
+          "bg-secondary text-[var(--color-secondary-foreground)] visited:text-[var(--color-secondary-foreground)] hover:bg-secondary/80 hover:text-[var(--color-secondary-foreground)] aria-expanded:bg-secondary aria-expanded:text-[var(--color-secondary-foreground)]",
         ghost:
-          "hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50",
+          "text-[var(--color-foreground)] visited:text-[var(--color-foreground)] hover:bg-muted hover:text-[var(--color-foreground)] aria-expanded:bg-muted aria-expanded:text-[var(--color-foreground)] dark:hover:bg-muted/50",
         destructive:
-          "bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:focus-visible:ring-destructive/40",
-        link: "text-primary underline-offset-4 hover:underline",
+          "bg-destructive/10 text-destructive visited:text-destructive hover:bg-destructive/20 hover:text-destructive focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:focus-visible:ring-destructive/40",
+        link: "text-primary visited:text-primary underline-offset-4 hover:underline",
       },
       size: {
         default:
@@ -37,22 +38,69 @@ const buttonVariants = cva(
       variant: "default",
       size: "default",
     },
-  }
-)
+  },
+);
+
+type RenderableButtonElementProps = {
+  className?: string;
+  onClick?: React.MouseEventHandler;
+  tabIndex?: number;
+  href?: string;
+  "data-slot"?: string;
+  "aria-disabled"?: boolean;
+};
+
+type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> &
+  VariantProps<typeof buttonVariants> & {
+    nativeButton?: boolean;
+    render?: React.ReactElement<RenderableButtonElementProps>;
+  };
 
 function Button({
   className,
   variant = "default",
   size = "default",
+  nativeButton: _nativeButton,
+  render,
+  type,
+  disabled,
   ...props
-}: ButtonPrimitive.Props & VariantProps<typeof buttonVariants>) {
+}: ButtonProps) {
+  void _nativeButton;
+  const classes = cn(buttonVariants({ variant, size }), className);
+
+  if (render && React.isValidElement(render)) {
+    const renderedElement = render;
+    const renderedProps = renderedElement.props;
+
+    return React.cloneElement(renderedElement, {
+      ...props,
+      "data-slot": "button",
+      className: cn(classes, renderedProps.className),
+      "aria-disabled": disabled || undefined,
+      tabIndex: disabled ? -1 : renderedProps.tabIndex,
+      onClick: (event: React.MouseEvent) => {
+        if (disabled) {
+          event.preventDefault();
+          event.stopPropagation();
+          return;
+        }
+
+        renderedProps.onClick?.(event);
+        (props as { onClick?: React.MouseEventHandler }).onClick?.(event);
+      },
+    });
+  }
+
   return (
-    <ButtonPrimitive
+    <button
       data-slot="button"
-      className={cn(buttonVariants({ variant, size, className }))}
+      className={classes}
+      disabled={disabled}
+      type={type ?? "button"}
       {...props}
     />
-  )
+  );
 }
 
-export { Button, buttonVariants }
+export { Button, buttonVariants };
