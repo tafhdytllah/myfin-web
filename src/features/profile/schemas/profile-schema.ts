@@ -1,26 +1,40 @@
 import { z } from "zod";
+import { createValidationMessages, type TranslateFn } from "@/lib/validation/messages";
 
-export const profileInfoSchema = z.object({
-  username: z.string().trim().min(1, "Username is required."),
-  email: z.string().trim().email("Please enter a valid email address."),
-});
+export function createProfileInfoSchema(t: TranslateFn) {
+  const validation = createValidationMessages(t);
 
-export const changePasswordSchema = z
-  .object({
-    currentPassword: z.string().trim().min(1, "Current password is required."),
-    newPassword: z
-      .string()
-      .trim()
-      .min(8, "Password must be at least 8 characters."),
-    confirmNewPassword: z
-      .string()
-      .trim()
-      .min(1, "Please confirm your new password."),
-  })
-  .refine((values) => values.newPassword === values.confirmNewPassword, {
-    path: ["confirmNewPassword"],
-    message: "Passwords do not match.",
+  return z.object({
+    username: z.string().trim().min(1, validation.required(t("auth.username"))),
+    email: z.string().trim().email(validation.validEmail()),
   });
+}
 
-export type ProfileInfoSchema = z.infer<typeof profileInfoSchema>;
-export type ChangePasswordSchema = z.infer<typeof changePasswordSchema>;
+export function createChangePasswordSchema(t: TranslateFn) {
+  const validation = createValidationMessages(t);
+
+  return z
+    .object({
+      currentPassword: z
+        .string()
+        .trim()
+        .min(1, validation.required(t("profile.currentPassword"))),
+      newPassword: z
+        .string()
+        .trim()
+        .min(8, validation.minCharacters(t("profile.newPassword"), 8)),
+      confirmNewPassword: z
+        .string()
+        .trim()
+        .min(1, validation.required(t("profile.confirmNewPassword"))),
+    })
+    .refine((values) => values.newPassword === values.confirmNewPassword, {
+      path: ["confirmNewPassword"],
+      message: validation.mustMatch(t("profile.confirmNewPassword")),
+    });
+}
+
+export type ProfileInfoSchema = z.infer<ReturnType<typeof createProfileInfoSchema>>;
+export type ChangePasswordSchema = z.infer<
+  ReturnType<typeof createChangePasswordSchema>
+>;

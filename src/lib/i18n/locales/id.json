@@ -48,6 +48,14 @@
     "dark": "Gelap",
     "system": "Sistem"
   },
+  "validation": {
+    "required": "{field} wajib diisi.",
+    "minCharacters": "{field} minimal {count} karakter.",
+    "validEmail": "Masukkan alamat email yang valid.",
+    "mustMatch": "{field} tidak cocok.",
+    "positiveNumber": "{field} harus lebih dari 0.",
+    "nonNegativeNumber": "{field} harus 0 atau lebih."
+  },
   "auth": {
     "welcomeBack": "Selamat datang kembali",
     "loginTitle": "Masuk ke MyFin",

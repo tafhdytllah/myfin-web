@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -24,7 +24,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { useRegister } from "@/features/auth/hooks/use-auth-actions";
 import {
-  registerSchema,
+  createRegisterSchema,
   type RegisterSchema,
 } from "@/features/auth/schemas/register-schema";
 import { ApiError } from "@/lib/api/types";
@@ -36,6 +36,7 @@ export function RegisterScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { t } = useTranslations();
+  const schema = useMemo(() => createRegisterSchema(t), [t]);
   const registerMutation = useRegister();
   const {
     register,
@@ -43,7 +44,7 @@ export function RegisterScreen() {
     setError,
     formState: { errors, isSubmitting },
   } = useForm<RegisterSchema>({
-    resolver: zodResolver(registerSchema),
+    resolver: zodResolver(schema),
     defaultValues: {
       username: "",
       email: "",

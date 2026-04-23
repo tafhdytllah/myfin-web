@@ -1,15 +1,29 @@
 import { z } from "zod";
+import { createValidationMessages, type TranslateFn } from "@/lib/validation/messages";
 
-export const registerSchema = z
-  .object({
-    username: z.string().min(3, "Username must be at least 3 characters."),
-    email: z.email("Enter a valid email address."),
-    password: z.string().min(8, "Password must be at least 8 characters."),
-    confirmPassword: z.string().min(8, "Please confirm your password."),
-  })
-  .refine((value) => value.password === value.confirmPassword, {
-    message: "Passwords do not match.",
-    path: ["confirmPassword"],
-  });
+export function createRegisterSchema(t: TranslateFn) {
+  const validation = createValidationMessages(t);
 
-export type RegisterSchema = z.infer<typeof registerSchema>;
+  return z
+    .object({
+      username: z
+        .string()
+        .trim()
+        .min(3, validation.minCharacters(t("auth.username"), 3)),
+      email: z.string().trim().email(validation.validEmail()),
+      password: z
+        .string()
+        .trim()
+        .min(8, validation.minCharacters(t("auth.password"), 8)),
+      confirmPassword: z
+        .string()
+        .trim()
+        .min(1, validation.required(t("auth.confirmPassword"))),
+    })
+    .refine((value) => value.password === value.confirmPassword, {
+      message: validation.mustMatch(t("auth.confirmPassword")),
+      path: ["confirmPassword"],
+    });
+}
+
+export type RegisterSchema = z.infer<ReturnType<typeof createRegisterSchema>>;

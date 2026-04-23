@@ -48,6 +48,14 @@
     "dark": "Dark",
     "system": "System"
   },
+  "validation": {
+    "required": "{field} is required.",
+    "minCharacters": "{field} must be at least {count} characters.",
+    "validEmail": "Please enter a valid email address.",
+    "mustMatch": "{field} does not match.",
+    "positiveNumber": "{field} must be greater than 0.",
+    "nonNegativeNumber": "{field} must be 0 or greater."
+  },
   "auth": {
     "welcomeBack": "Welcome back",
     "loginTitle": "Sign in to MyFin",

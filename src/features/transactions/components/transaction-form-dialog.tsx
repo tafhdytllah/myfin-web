@@ -37,25 +37,41 @@ import { useCreateTransaction } from "@/features/transactions/hooks/use-transact
 import { ApiError } from "@/lib/api/types";
 import { routes } from "@/lib/constants/routes";
 import { useTranslations } from "@/lib/i18n/use-translations";
-
-const transactionSchema = z.object({
-  type: z.enum(["INCOME", "EXPENSE"]),
-  accountId: z.string().trim().min(1),
-  categoryId: z.string().trim().min(1),
-  amount: z
-    .string()
-    .trim()
-    .min(1)
-    .refine((value) => !Number.isNaN(Number(value)) && Number(value) > 0),
-  description: z.string().trim().optional(),
-});
+import { createValidationMessages } from "@/lib/validation/messages";
 
 type TransactionFormDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 };
 
-type TransactionFormValues = z.infer<typeof transactionSchema>;
+function createTransactionSchema(t: ReturnType<typeof useTranslations>["t"]) {
+  const validation = createValidationMessages(t);
+
+  return z.object({
+    type: z.enum(["INCOME", "EXPENSE"], {
+      error: () => validation.required(t("common.type")),
+    }),
+    accountId: z
+      .string()
+      .trim()
+      .min(1, validation.required(t("common.account"))),
+    categoryId: z
+      .string()
+      .trim()
+      .min(1, validation.required(t("common.category"))),
+    amount: z
+      .string()
+      .trim()
+      .min(1, validation.required(t("common.amount")))
+      .refine(
+        (value) => !Number.isNaN(Number(value)) && Number(value) > 0,
+        validation.positiveNumber(t("common.amount")),
+      ),
+    description: z.string().trim().optional(),
+  });
+}
+
+type TransactionFormValues = z.infer<ReturnType<typeof createTransactionSchema>>;
 
 function getFieldError(error: unknown, field: string) {
   if (!(error instanceof ApiError)) {
@@ -75,12 +91,13 @@ export function TransactionFormDialog({
   onOpenChange,
 }: TransactionFormDialogProps) {
   const { t } = useTranslations();
+  const schema = useMemo(() => createTransactionSchema(t), [t]);
   const createMutation = useCreateTransaction();
   const accountsQuery = useAccounts({ status: "active" });
   const categoriesQuery = useCategories({ status: "active", type: "all" });
 
   const form = useForm<TransactionFormValues>({
-    resolver: zodResolver(transactionSchema),
+    resolver: zodResolver(schema),
     defaultValues: {
       type: "EXPENSE",
       accountId: "",

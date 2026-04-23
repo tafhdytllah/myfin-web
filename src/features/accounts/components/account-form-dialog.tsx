@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -29,19 +29,7 @@ import {
 import { ApiError } from "@/lib/api/types";
 import { formatCurrency } from "@/lib/formatters/currency";
 import { useTranslations } from "@/lib/i18n/use-translations";
-
-const createAccountSchema = z.object({
-  name: z.string().trim().min(1),
-  openingBalance: z
-    .string()
-    .trim()
-    .min(1)
-    .refine((value) => !Number.isNaN(Number(value)) && Number(value) >= 0),
-});
-
-const updateAccountSchema = z.object({
-  name: z.string().trim().min(1),
-});
+import { createValidationMessages } from "@/lib/validation/messages";
 
 type AccountFormDialogProps = {
   account?: Account | null;
@@ -49,8 +37,38 @@ type AccountFormDialogProps = {
   onOpenChange: (open: boolean) => void;
 };
 
-type CreateAccountValues = z.input<typeof createAccountSchema>;
-type UpdateAccountValues = z.infer<typeof updateAccountSchema>;
+function createAccountSchema(t: ReturnType<typeof useTranslations>["t"]) {
+  const validation = createValidationMessages(t);
+
+  return z.object({
+    name: z
+      .string()
+      .trim()
+      .min(1, validation.required(t("accounts.accountName"))),
+    openingBalance: z
+      .string()
+      .trim()
+      .min(1, validation.required(t("accounts.openingBalance")))
+      .refine(
+        (value) => !Number.isNaN(Number(value)) && Number(value) >= 0,
+        validation.nonNegativeNumber(t("accounts.openingBalance")),
+      ),
+  });
+}
+
+function createUpdateAccountSchema(t: ReturnType<typeof useTranslations>["t"]) {
+  const validation = createValidationMessages(t);
+
+  return z.object({
+    name: z
+      .string()
+      .trim()
+      .min(1, validation.required(t("accounts.accountName"))),
+  });
+}
+
+type CreateAccountValues = z.input<ReturnType<typeof createAccountSchema>>;
+type UpdateAccountValues = z.infer<ReturnType<typeof createUpdateAccountSchema>>;
 
 function getFieldError(error: unknown, field: string) {
   if (!(error instanceof ApiError)) {
@@ -73,11 +91,13 @@ export function AccountFormDialog({
 }: AccountFormDialogProps) {
   const { t } = useTranslations();
   const isEditMode = Boolean(account);
+  const createSchema = useMemo(() => createAccountSchema(t), [t]);
+  const updateSchema = useMemo(() => createUpdateAccountSchema(t), [t]);
   const createMutation = useCreateAccount();
   const updateMutation = useUpdateAccount();
 
   const createForm = useForm<CreateAccountValues>({
-    resolver: zodResolver(createAccountSchema),
+    resolver: zodResolver(createSchema),
     defaultValues: {
       name: "",
       openingBalance: "0",
@@ -85,7 +105,7 @@ export function AccountFormDialog({
   });
 
   const updateForm = useForm<UpdateAccountValues>({
-    resolver: zodResolver(updateAccountSchema),
+    resolver: zodResolver(updateSchema),
     defaultValues: {
       name: "",
     },

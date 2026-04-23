@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
@@ -34,11 +34,7 @@ import {
 } from "@/features/categories/hooks/use-category-queries";
 import { ApiError } from "@/lib/api/types";
 import { useTranslations } from "@/lib/i18n/use-translations";
-
-const categorySchema = z.object({
-  name: z.string().trim().min(1),
-  type: z.enum(["INCOME", "EXPENSE"]),
-});
+import { createValidationMessages } from "@/lib/validation/messages";
 
 type CategoryFormDialogProps = {
   category?: Category | null;
@@ -46,7 +42,21 @@ type CategoryFormDialogProps = {
   onOpenChange: (open: boolean) => void;
 };
 
-type CategoryFormValues = z.infer<typeof categorySchema>;
+function createCategorySchema(t: ReturnType<typeof useTranslations>["t"]) {
+  const validation = createValidationMessages(t);
+
+  return z.object({
+    name: z
+      .string()
+      .trim()
+      .min(1, validation.required(t("categories.categoryName"))),
+    type: z.enum(["INCOME", "EXPENSE"], {
+      error: () => validation.required(t("common.type")),
+    }),
+  });
+}
+
+type CategoryFormValues = z.infer<ReturnType<typeof createCategorySchema>>;
 
 function getFieldError(error: unknown, field: string) {
   if (!(error instanceof ApiError)) {
@@ -71,9 +81,10 @@ export function CategoryFormDialog({
   const createMutation = useCreateCategory();
   const updateMutation = useUpdateCategory();
   const isEditMode = Boolean(category);
+  const schema = useMemo(() => createCategorySchema(t), [t]);
 
   const form = useForm<CategoryFormValues>({
-    resolver: zodResolver(categorySchema),
+    resolver: zodResolver(schema),
     defaultValues: {
       name: "",
       type: "EXPENSE",

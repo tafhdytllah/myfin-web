@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -22,7 +22,10 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { useLogin } from "@/features/auth/hooks/use-auth-actions";
-import { loginSchema, type LoginSchema } from "@/features/auth/schemas/login-schema";
+import {
+  createLoginSchema,
+  type LoginSchema,
+} from "@/features/auth/schemas/login-schema";
 import { ApiError } from "@/lib/api/types";
 import { useTranslations } from "@/lib/i18n/use-translations";
 import { routes } from "@/lib/constants/routes";
@@ -31,6 +34,7 @@ export function LoginScreen() {
   const [formError, setFormError] = useState<string | undefined>();
   const [showPassword, setShowPassword] = useState(false);
   const { t } = useTranslations();
+  const schema = useMemo(() => createLoginSchema(t), [t]);
   const loginMutation = useLogin();
   const {
     register,
@@ -38,7 +42,7 @@ export function LoginScreen() {
     setError,
     formState: { errors, isSubmitting },
   } = useForm<LoginSchema>({
-    resolver: zodResolver(loginSchema),
+    resolver: zodResolver(schema),
     defaultValues: {
       username: "",
       password: "",

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff, RefreshCw } from "lucide-react";
 import { useForm } from "react-hook-form";
@@ -17,10 +17,10 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import {
-  changePasswordSchema,
+  createChangePasswordSchema,
+  createProfileInfoSchema,
   ChangePasswordSchema,
   ProfileInfoSchema,
-  profileInfoSchema,
 } from "@/features/profile/schemas/profile-schema";
 import {
   useChangePassword,
@@ -58,6 +58,9 @@ export function ProfilePageView() {
     next: false,
     confirm: false,
   });
+
+  const profileInfoSchema = useMemo(() => createProfileInfoSchema(t), [t]);
+  const changePasswordSchema = useMemo(() => createChangePasswordSchema(t), [t]);
 
   const profileForm = useForm<ProfileInfoSchema>({
     resolver: zodResolver(profileInfoSchema),
