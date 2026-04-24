@@ -1,8 +1,11 @@
+import { ReactNode, useMemo, useState } from "react";
+
 import { DataTable } from "@/components/shared/data-table";
-import { EmptySectionCard } from "@/components/shared/empty-section-card";
-import { RetryCard } from "@/components/shared/retry-card";
-import { SectionCard } from "@/components/shared/section-card";
+import { InlineRetryState } from "@/components/shared/inline-retry-state";
+import { SectionEmptyState } from "@/components/shared/section-empty-state";
 import { StackSkeleton } from "@/components/shared/stack-skeleton";
+import { TableColumnVisibilityMenu } from "@/components/shared/table-column-visibility-menu";
+import { TableWorkspace } from "@/components/shared/table-workspace";
 import {
   buildCategoriesTableColumns,
   CategoryItem,
@@ -14,15 +17,19 @@ type CategoriesTableSectionProps = {
   items: CategoryItem[];
   title: string;
   description: string;
-  retryTitle: string;
   retryDescription: string;
   retryLabel: string;
   onRetry: () => void;
-  emptyTitle: string;
   emptyDescription: string;
   addLabel: string;
   onAdd: () => void;
   labels: {
+    columns: string;
+    columnsMenu: string;
+    selectedRows: (count: number) => string;
+    totalRows: (count: number) => string;
+    selectAllRows: string;
+    selectCategoryRow: (name: string) => string;
     category: string;
     type: string;
     status: string;
@@ -40,6 +47,8 @@ type CategoriesTableSectionProps = {
   onEdit: (item: CategoryItem) => void;
   onDeactivate: (item: CategoryItem) => void;
   onActivate: (item: CategoryItem) => void;
+  filters: ReactNode;
+  primaryAction?: ReactNode;
 };
 
 export function CategoriesTableSection({
@@ -48,11 +57,9 @@ export function CategoriesTableSection({
   items,
   title,
   description,
-  retryTitle,
   retryDescription,
   retryLabel,
   onRetry,
-  emptyTitle,
   emptyDescription,
   addLabel,
   onAdd,
@@ -61,52 +68,97 @@ export function CategoriesTableSection({
   onEdit,
   onDeactivate,
   onActivate,
+  filters,
+  primaryAction,
 }: CategoriesTableSectionProps) {
-  const columns = buildCategoriesTableColumns({
-    labels,
-    activatingPending,
-    onEdit,
-    onDeactivate,
-    onActivate,
-  });
+  const columns = useMemo(
+    () =>
+      buildCategoriesTableColumns({
+        labels,
+        activatingPending,
+        onEdit,
+        onDeactivate,
+        onActivate,
+      }),
+    [activatingPending, labels, onActivate, onDeactivate, onEdit],
+  );
+  const [selectedRowIds, setSelectedRowIds] = useState<string[]>([]);
+  const [columnPreferences, setColumnPreferences] = useState<string[]>([]);
+  const visibleColumnIds = useMemo(() => {
+    const nextColumnIds = columns.map((column) => column.id);
 
-  if (loading) {
-    return (
-      <SectionCard title={title} description={description}>
-        <StackSkeleton count={4} itemClassName="h-12 rounded-xl bg-muted" />
-      </SectionCard>
-    );
-  }
+    if (columnPreferences.length === 0) {
+      return nextColumnIds;
+    }
 
-  if (isError) {
-    return (
-      <RetryCard
-        title={retryTitle}
-        description={retryDescription}
-        retryLabel={retryLabel}
-        onRetry={onRetry}
-      />
-    );
-  }
+    const preservedIds = columnPreferences.filter((id) => nextColumnIds.includes(id));
+    const addedIds = nextColumnIds.filter((id) => !preservedIds.includes(id));
 
-  if (items.length === 0) {
-    return (
-      <EmptySectionCard
-        title={emptyTitle}
-        description={emptyDescription}
-        actions={[
-          {
-            label: addLabel,
-            onClick: onAdd,
-          },
-        ]}
-      />
-    );
-  }
+    return [...preservedIds, ...addedIds];
+  }, [columnPreferences, columns]);
+  const resolvedSelectedRowIds = useMemo(() => {
+    const rowIds = new Set(items.map((item) => item.id));
+
+    return selectedRowIds.filter((id) => rowIds.has(id));
+  }, [items, selectedRowIds]);
 
   return (
-    <SectionCard title={title} description={description}>
-      <DataTable columns={columns} rows={items} rowKey={(item) => item.id} />
-    </SectionCard>
+    <TableWorkspace
+      title={title}
+      description={description}
+      toolbarStart={filters}
+      toolbarEnd={
+        <>
+          {primaryAction}
+          <TableColumnVisibilityMenu
+            columns={columns}
+            visibleColumnIds={visibleColumnIds}
+            onVisibleColumnIdsChange={setColumnPreferences}
+            triggerLabel={labels.columns}
+            menuLabel={labels.columnsMenu}
+          />
+        </>
+      }
+      footerStart={
+        resolvedSelectedRowIds.length > 0
+          ? labels.selectedRows(resolvedSelectedRowIds.length)
+          : labels.totalRows(items.length)
+      }
+    >
+      {loading ? <StackSkeleton count={4} itemClassName="h-12 rounded-xl bg-muted" /> : null}
+
+      {isError ? (
+        <InlineRetryState
+          description={retryDescription}
+          retryLabel={retryLabel}
+          onRetry={onRetry}
+        />
+      ) : null}
+
+      {!loading && !isError && items.length === 0 ? (
+        <SectionEmptyState
+          description={emptyDescription}
+          actions={[
+            {
+              label: addLabel,
+              onClick: onAdd,
+            },
+          ]}
+        />
+      ) : null}
+
+      {!loading && !isError && items.length > 0 ? (
+        <DataTable
+          columns={columns}
+          rows={items}
+          rowKey={(item) => item.id}
+          visibleColumnIds={visibleColumnIds}
+          selectedRowIds={resolvedSelectedRowIds}
+          onSelectedRowIdsChange={setSelectedRowIds}
+          selectAllLabel={labels.selectAllRows}
+          selectRowLabel={(item) => labels.selectCategoryRow(item.name)}
+        />
+      ) : null}
+    </TableWorkspace>
   );
 }

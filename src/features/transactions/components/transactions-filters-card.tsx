@@ -1,5 +1,4 @@
 import { DateRangeFields } from "@/components/shared/date-range-fields";
-import { FilterCardShell } from "@/components/shared/filter-card-shell";
 import { FilterSelect } from "@/components/shared/filter-select";
 import { SearchFilterInput } from "@/components/shared/search-filter-input";
 
@@ -9,11 +8,6 @@ type Option = {
 };
 
 type TransactionsFiltersCardProps = {
-  title: string;
-  description: string;
-  hasActiveFilters: boolean;
-  resetLabel: string;
-  onReset: () => void;
   keyword: string;
   searchPlaceholder: string;
   onKeywordChange: (value: string) => void;
@@ -39,11 +33,6 @@ type TransactionsFiltersCardProps = {
 };
 
 export function TransactionsFiltersCard({
-  title,
-  description,
-  hasActiveFilters,
-  resetLabel,
-  onReset,
   keyword,
   searchPlaceholder,
   onKeywordChange,
@@ -68,14 +57,7 @@ export function TransactionsFiltersCard({
   onEndDateChange,
 }: TransactionsFiltersCardProps) {
   return (
-    <FilterCardShell
-      title={title}
-      description={description}
-      hasActiveFilters={hasActiveFilters}
-      resetLabel={resetLabel}
-      onReset={onReset}
-      className="grid gap-3 md:grid-cols-2 xl:grid-cols-5"
-    >
+    <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
       <SearchFilterInput
         value={keyword}
         onValueChange={onKeywordChange}
@@ -112,6 +94,6 @@ export function TransactionsFiltersCard({
         onStartDateChange={onStartDateChange}
         onEndDateChange={onEndDateChange}
       />
-    </FilterCardShell>
+    </div>
   );
 }

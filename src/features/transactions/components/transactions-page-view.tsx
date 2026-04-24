@@ -19,8 +19,8 @@ import {
   buildTransactionSearchParams,
   parseTransactionFilters,
 } from "@/features/transactions/utils/transaction-search-params";
-import { PageHeader } from "@/components/shared/page-header";
 import { PageActionButton } from "@/components/shared/page-action-button";
+import { ResetFiltersButton } from "@/components/shared/reset-filters-button";
 import { usePageTrail } from "@/components/layout/page-trail-context";
 import { formatCurrency } from "@/lib/formatters/currency";
 import { formatDate } from "@/lib/formatters/date";
@@ -196,16 +196,6 @@ export function TransactionsPageView() {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title={t("transactions.title")}
-        description={t("transactions.description")}
-        action={
-          <PageActionButton onClick={() => setFormOpen(true)}>
-            {t("transactions.addTransaction")}
-          </PageActionButton>
-        }
-      />
-
       <TransactionsSummaryCards
         items={[
           {
@@ -217,86 +207,9 @@ export function TransactionsPageView() {
         ]}
       />
 
-      <TransactionsFiltersCard
-        title={t("transactions.filtersTitle")}
-        description={t("transactions.filtersDescription")}
-        hasActiveFilters={hasActiveFilters}
-        resetLabel={t("transactions.resetFilters")}
-        onReset={resetFilters}
-        keyword={keyword}
-        searchPlaceholder={t("common.search")}
-        onKeywordChange={setKeyword}
-        accountValue={filters.accountId || "all"}
-        accountPlaceholder={t("common.account")}
-        accountDisplayValue={filters.accountId ? selectedAccountName : undefined}
-        accountOptions={[
-          { value: "all", label: t("transactions.allAccounts") },
-          ...accounts.map((account) => ({
-            value: account.id,
-            label: account.name,
-          })),
-        ]}
-        onAccountChange={(value) =>
-          updateFilters({
-            ...filters,
-            accountId: value === "all" || value == null ? "" : value,
-            page: 1,
-          })
-        }
-        typeValue={filters.type ?? "all"}
-        typePlaceholder={t("common.type")}
-        typeDisplayValue={selectedTypeLabel}
-        typeOptions={[
-          { value: "all", label: t("transactions.allTypes") },
-          { value: "INCOME", label: t("common.income") },
-          { value: "EXPENSE", label: t("common.expense") },
-        ]}
-        onTypeChange={(value) =>
-          updateFilters({
-            ...filters,
-            type: (value ?? "all") as "all" | "INCOME" | "EXPENSE",
-            categoryId: "",
-            page: 1,
-          })
-        }
-        categoryValue={filters.categoryId || "all"}
-        categoryPlaceholder={t("common.category")}
-        categoryDisplayValue={filters.categoryId ? selectedCategoryName : undefined}
-        categoryOptions={[
-          { value: "all", label: t("transactions.allCategories") },
-          ...getCategoryOptions().map((category) => ({
-            value: category.id,
-            label: category.name,
-          })),
-        ]}
-        onCategoryChange={(value) =>
-          updateFilters({
-            ...filters,
-            categoryId: value === "all" || value == null ? "" : value,
-            page: 1,
-          })
-        }
-        startDate={filters.startDate ?? ""}
-        endDate={filters.endDate ?? ""}
-        onStartDateChange={(value) =>
-          updateFilters({
-            ...filters,
-            startDate: value,
-            page: 1,
-          })
-        }
-        onEndDateChange={(value) =>
-          updateFilters({
-            ...filters,
-            endDate: value,
-            page: 1,
-          })
-        }
-      />
-
       <TransactionsTableSection
-        title={t("transactions.tableTitle")}
-        description={t("transactions.tableDescription")}
+        title={t("transactions.title")}
+        description={t("transactions.description")}
         loading={transactionsQuery.isLoading}
         isError={transactionsQuery.isError}
         rows={rows}
@@ -312,6 +225,14 @@ export function TransactionsPageView() {
         formatDate={(value) => formatDate(value, dateLocale)}
         formatCurrency={formatCurrency}
         labels={{
+          columns: t("common.columns"),
+          columnsMenu: t("common.columns"),
+          selectedRows: (count) => t("common.selectedRows", { count }),
+          totalRows: (count) => t("common.totalRows", { count }),
+          pageSummary: (current, total) => t("common.pageSummary", { current, total }),
+          selectAllRows: t("common.selectAllRows"),
+          selectTransactionRow: (date) =>
+            t("common.selectTransactionRow", { date }),
           date: t("common.date"),
           type: t("common.type"),
           account: t("common.account"),
@@ -331,7 +252,98 @@ export function TransactionsPageView() {
         onPageChange={changePage}
         onEdit={notifyEditUnavailable}
         onDelete={setDeletingTransaction}
+        filters={
+          <TransactionsFiltersCard
+            keyword={keyword}
+            searchPlaceholder={t("common.search")}
+            onKeywordChange={setKeyword}
+            accountValue={filters.accountId || "all"}
+            accountPlaceholder={t("common.account")}
+            accountDisplayValue={filters.accountId ? selectedAccountName : undefined}
+            accountOptions={[
+              { value: "all", label: t("transactions.allAccounts") },
+              ...accounts.map((account) => ({
+                value: account.id,
+                label: account.name,
+              })),
+            ]}
+            onAccountChange={(value) =>
+              updateFilters({
+                ...filters,
+                accountId: value === "all" || value == null ? "" : value,
+                page: 1,
+              })
+            }
+            typeValue={filters.type ?? "all"}
+            typePlaceholder={t("common.type")}
+            typeDisplayValue={selectedTypeLabel}
+            typeOptions={[
+              { value: "all", label: t("transactions.allTypes") },
+              { value: "INCOME", label: t("common.income") },
+              { value: "EXPENSE", label: t("common.expense") },
+            ]}
+            onTypeChange={(value) =>
+              updateFilters({
+                ...filters,
+                type: (value ?? "all") as "all" | "INCOME" | "EXPENSE",
+                categoryId: "",
+                page: 1,
+              })
+            }
+            categoryValue={filters.categoryId || "all"}
+            categoryPlaceholder={t("common.category")}
+            categoryDisplayValue={filters.categoryId ? selectedCategoryName : undefined}
+            categoryOptions={[
+              { value: "all", label: t("transactions.allCategories") },
+              ...getCategoryOptions().map((category) => ({
+                value: category.id,
+                label: category.name,
+              })),
+            ]}
+            onCategoryChange={(value) =>
+              updateFilters({
+                ...filters,
+                categoryId: value === "all" || value == null ? "" : value,
+                page: 1,
+              })
+            }
+            startDate={filters.startDate ?? ""}
+            endDate={filters.endDate ?? ""}
+            onStartDateChange={(value) =>
+              updateFilters({
+                ...filters,
+                startDate: value,
+                page: 1,
+              })
+            }
+            onEndDateChange={(value) =>
+              updateFilters({
+                ...filters,
+                endDate: value,
+                page: 1,
+              })
+            }
+          />
+        }
+        primaryAction={
+          <>
+            {hasActiveFilters ? (
+              <ResetFiltersButton
+                label={t("transactions.resetFilters")}
+                onClick={resetFilters}
+              />
+            ) : null}
+            <PageActionButton onClick={() => setFormOpen(true)}>
+              {t("transactions.addTransaction")}
+            </PageActionButton>
+          </>
+        }
       />
+
+      <div className="sr-only">
+        <h1>{t("transactions.title")}</h1>
+        <p>{t("transactions.description")}</p>
+      </div>
 
       <TransactionFormDialog open={formOpen} onOpenChange={setFormOpen} />
       <TransactionDeleteDialog

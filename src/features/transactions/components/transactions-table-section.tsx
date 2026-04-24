@@ -1,9 +1,12 @@
+import { ReactNode, useMemo, useState } from "react";
+
 import { DataTable } from "@/components/shared/data-table";
 import { DataTablePagination } from "@/components/shared/data-table-pagination";
 import { InlineRetryState } from "@/components/shared/inline-retry-state";
-import { SectionCard } from "@/components/shared/section-card";
 import { SectionEmptyState } from "@/components/shared/section-empty-state";
 import { StackSkeleton } from "@/components/shared/stack-skeleton";
+import { TableColumnVisibilityMenu } from "@/components/shared/table-column-visibility-menu";
+import { TableWorkspace } from "@/components/shared/table-workspace";
 import {
   buildTransactionsTableColumns,
   TransactionRow,
@@ -27,6 +30,13 @@ type TransactionsTableSectionProps = {
   formatDate: (value: string) => string;
   formatCurrency: (value: number) => string;
   labels: {
+    columns: string;
+    columnsMenu: string;
+    selectedRows: (count: number) => string;
+    totalRows: (count: number) => string;
+    pageSummary: (current: number, total: number) => string;
+    selectAllRows: string;
+    selectTransactionRow: (date: string) => string;
     date: string;
     type: string;
     account: string;
@@ -46,6 +56,8 @@ type TransactionsTableSectionProps = {
   onPageChange: (page: number) => void;
   onEdit: (row: TransactionRow) => void;
   onDelete: (row: TransactionRow) => void;
+  filters: ReactNode;
+  primaryAction?: ReactNode;
 };
 
 export function TransactionsTableSection({
@@ -71,17 +83,77 @@ export function TransactionsTableSection({
   onPageChange,
   onEdit,
   onDelete,
+  filters,
+  primaryAction,
 }: TransactionsTableSectionProps) {
-  const columns = buildTransactionsTableColumns({
-    formatCurrency,
-    formatDate,
-    labels,
-    onEdit,
-    onDelete,
-  });
+  const columns = useMemo(
+    () =>
+      buildTransactionsTableColumns({
+        formatCurrency,
+        formatDate,
+        labels,
+        onEdit,
+        onDelete,
+      }),
+    [formatCurrency, formatDate, labels, onDelete, onEdit],
+  );
+  const [selectedRowIds, setSelectedRowIds] = useState<string[]>([]);
+  const [columnPreferences, setColumnPreferences] = useState<string[]>([]);
+  const visibleColumnIds = useMemo(() => {
+    const nextColumnIds = columns.map((column) => column.id);
+
+    if (columnPreferences.length === 0) {
+      return nextColumnIds;
+    }
+
+    const preservedIds = columnPreferences.filter((id) => nextColumnIds.includes(id));
+    const addedIds = nextColumnIds.filter((id) => !preservedIds.includes(id));
+
+    return [...preservedIds, ...addedIds];
+  }, [columnPreferences, columns]);
+  const resolvedSelectedRowIds = useMemo(() => {
+    const rowIds = new Set(rows.map((row) => row.id));
+
+    return selectedRowIds.filter((id) => rowIds.has(id));
+  }, [rows, selectedRowIds]);
 
   return (
-    <SectionCard title={title} description={description}>
+    <TableWorkspace
+      title={title}
+      description={description}
+      toolbarStart={filters}
+      toolbarEnd={
+        <>
+          {primaryAction}
+          <TableColumnVisibilityMenu
+            columns={columns}
+            visibleColumnIds={visibleColumnIds}
+            onVisibleColumnIdsChange={setColumnPreferences}
+            triggerLabel={labels.columns}
+            menuLabel={labels.columnsMenu}
+          />
+        </>
+      }
+      footerStart={
+        resolvedSelectedRowIds.length > 0
+          ? labels.selectedRows(resolvedSelectedRowIds.length)
+          : labels.totalRows(rows.length)
+      }
+      footerEnd={
+        !loading && !isError && rows.length > 0 ? (
+          <div className="flex flex-col items-start gap-3 md:items-end">
+            <span>{labels.pageSummary(currentPage, totalPages)}</span>
+            <DataTablePagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              previousLabel={labels.previous}
+              nextLabel={labels.next}
+              onPageChange={onPageChange}
+            />
+          </div>
+        ) : null
+      }
+    >
       {loading ? <StackSkeleton count={5} itemClassName="h-14 rounded-xl bg-muted" /> : null}
 
       {isError ? (
@@ -114,23 +186,20 @@ export function TransactionsTableSection({
       ) : null}
 
       {!loading && !isError && rows.length > 0 ? (
-        <>
           <DataTable
             columns={columns}
             rows={rows}
             rowKey={(row) => row.id}
             minWidthClassName="min-w-[860px]"
+            visibleColumnIds={visibleColumnIds}
+            selectedRowIds={resolvedSelectedRowIds}
+            onSelectedRowIdsChange={setSelectedRowIds}
+            selectAllLabel={labels.selectAllRows}
+            selectRowLabel={(row) =>
+              labels.selectTransactionRow(formatDate(row.createdAt))
+            }
           />
-
-          <DataTablePagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            previousLabel={labels.previous}
-            nextLabel={labels.next}
-            onPageChange={onPageChange}
-          />
-        </>
       ) : null}
-    </SectionCard>
+    </TableWorkspace>
   );
 }

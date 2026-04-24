@@ -49,11 +49,13 @@ export function buildTransactionsTableColumns({
     {
       id: "date",
       header: labels.date,
+      visibilityLabel: labels.date,
       cell: (row) => formatDate(row.createdAt),
     },
     {
       id: "type",
       header: labels.type,
+      visibilityLabel: labels.type,
       cell: (row) => (
         <StatusBadge tone={row.type === "INCOME" ? "income" : "expense"}>
           {row.type === "INCOME" ? labels.income : labels.expense}
@@ -63,30 +65,36 @@ export function buildTransactionsTableColumns({
     {
       id: "account",
       header: labels.account,
+      visibilityLabel: labels.account,
       cell: (row) => row.accountName,
     },
     {
       id: "category",
       header: labels.category,
+      visibilityLabel: labels.category,
       cell: (row) => row.categoryName,
     },
     {
       id: "description",
       header: labels.description,
+      visibilityLabel: labels.description,
       cellClassName: "max-w-xs truncate text-[var(--color-foreground-muted)]",
       cell: (row) => row.description || "-",
     },
     {
       id: "amount",
       header: labels.amount,
+      visibilityLabel: labels.amount,
       cellClassName: "font-semibold",
       cell: (row) => formatCurrency(row.amount),
     },
     {
       id: "actions",
       header: labels.actions,
+      visibilityLabel: labels.actions,
       headerClassName: "text-right",
       cellClassName: "text-right",
+      canHide: false,
       cell: (row) => (
         <RowActionsMenu
           srLabel={labels.actions}

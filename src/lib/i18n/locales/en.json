@@ -23,12 +23,19 @@
     "dateRange": "Date Range",
     "status": "Status",
     "actions": "Actions",
+    "columns": "Columns",
     "used": "Used",
     "date": "Date",
     "description": "Description",
-    "amount": "Amount"
-    ,"create": "Create"
-    ,"delete": "Delete"
+    "amount": "Amount",
+    "selectedRows": "{count} selected",
+    "totalRows": "{count} rows",
+    "pageSummary": "Page {current} of {total}",
+    "selectAllRows": "Select all rows",
+    "selectTransactionRow": "Select transaction on {date}",
+    "selectCategoryRow": "Select category {name}",
+    "create": "Create",
+    "delete": "Delete"
   },
   "navigation": {
     "dashboard": "Dashboard",
@@ -206,6 +213,7 @@
     "searchPlaceholder": "Search by category name",
     "typeAll": "All types",
     "statusAll": "All statuses",
+    "resetFilters": "Reset Filters",
     "tableTitle": "Category Table",
     "tableDescription": "Manage category names, types, and active states from one place.",
     "createDescription": "Create a new category for income or expense transactions.",

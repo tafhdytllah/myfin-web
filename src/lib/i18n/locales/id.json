@@ -23,12 +23,19 @@
     "dateRange": "Rentang Tanggal",
     "status": "Status",
     "actions": "Aksi",
+    "columns": "Kolom",
     "used": "Dipakai",
     "date": "Tanggal",
     "description": "Deskripsi",
-    "amount": "Nominal"
-    ,"create": "Buat"
-    ,"delete": "Hapus"
+    "amount": "Nominal",
+    "selectedRows": "{count} dipilih",
+    "totalRows": "{count} baris",
+    "pageSummary": "Halaman {current} dari {total}",
+    "selectAllRows": "Pilih semua baris",
+    "selectTransactionRow": "Pilih transaksi pada {date}",
+    "selectCategoryRow": "Pilih kategori {name}",
+    "create": "Buat",
+    "delete": "Hapus"
   },
   "navigation": {
     "dashboard": "Dashboard",
@@ -206,6 +213,7 @@
     "searchPlaceholder": "Cari berdasarkan nama kategori",
     "typeAll": "Semua tipe",
     "statusAll": "Semua status",
+    "resetFilters": "Reset Filter",
     "tableTitle": "Tabel Kategori",
     "tableDescription": "Kelola nama kategori, tipe, dan status aktif dari satu tempat.",
     "createDescription": "Buat kategori baru untuk transaksi pemasukan atau pengeluaran.",

@@ -17,9 +17,9 @@ import {
   buildCategorySearchParams,
   parseCategoryFilters,
 } from "@/features/categories/utils/category-search-params";
-import { PageActionButton } from "@/components/shared/page-action-button";
-import { PageHeader } from "@/components/shared/page-header";
 import { usePageTrail } from "@/components/layout/page-trail-context";
+import { PageActionButton } from "@/components/shared/page-action-button";
+import { ResetFiltersButton } from "@/components/shared/reset-filters-button";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { useTranslations } from "@/lib/i18n/use-translations";
 
@@ -92,6 +92,9 @@ export function CategoriesPageView() {
     }),
     [categories],
   );
+  const hasActiveFilters = Boolean(
+    filters.keyword || filters.type !== "all" || filters.status !== "all",
+  );
 
   const updateFilters = useCallback((nextFilters: typeof filters) => {
     const params = buildCategorySearchParams(nextFilters);
@@ -121,18 +124,17 @@ export function CategoriesPageView() {
     setFormOpen(true);
   }
 
+  function resetFilters() {
+    setKeyword("");
+    updateFilters({
+      keyword: "",
+      type: "all",
+      status: "all",
+    });
+  }
+
   return (
     <div className="space-y-6">
-      <PageHeader
-        title={t("categories.title")}
-        description={t("categories.description")}
-        action={
-          <PageActionButton onClick={openCreateDialog}>
-            {t("categories.addCategory")}
-          </PageActionButton>
-        }
-      />
-
       <CategoriesSummaryCards
         items={[
           { label: t("categories.total"), value: String(summary.total) },
@@ -143,57 +145,25 @@ export function CategoriesPageView() {
         ]}
       />
 
-      <CategoriesFiltersCard
-        title={t("categories.searchTitle")}
-        description={t("categories.searchDescription")}
-        keyword={keyword}
-        searchPlaceholder={t("categories.searchPlaceholder")}
-        onKeywordChange={setKeyword}
-        typeValue={filters.type ?? "all"}
-        typePlaceholder={t("common.type")}
-        typeDisplayValue={selectedTypeLabel}
-        typeOptions={[
-          { value: "all", label: t("categories.typeAll") },
-          { value: "INCOME", label: t("common.income") },
-          { value: "EXPENSE", label: t("common.expense") },
-        ]}
-        onTypeChange={(value) =>
-          updateFilters({
-            ...filters,
-            type: value as "all" | "INCOME" | "EXPENSE",
-          })
-        }
-        statusValue={filters.status ?? "all"}
-        statusPlaceholder={t("common.status")}
-        statusDisplayValue={selectedStatusLabel}
-        statusOptions={[
-          { value: "all", label: t("categories.statusAll") },
-          { value: "active", label: t("common.active") },
-          { value: "inactive", label: t("common.inactive") },
-        ]}
-        onStatusChange={(value) =>
-          updateFilters({
-            ...filters,
-            status: value as "all" | "active" | "inactive",
-          })
-        }
-      />
-
       <CategoriesTableSection
         loading={categoriesQuery.isLoading}
         isError={categoriesQuery.isError}
         items={categories}
-        title={t("categories.tableTitle")}
-        description={t("categories.tableDescription")}
-        retryTitle={t("categories.loadErrorTitle")}
+        title={t("categories.title")}
+        description={t("categories.description")}
         retryDescription={t("categories.loadErrorDescription")}
         retryLabel={t("categories.retry")}
         onRetry={() => categoriesQuery.refetch()}
-        emptyTitle={t("categories.emptyTitle")}
         emptyDescription={t("categories.emptyDescription")}
         addLabel={t("categories.addCategory")}
         onAdd={openCreateDialog}
         labels={{
+          columns: t("common.columns"),
+          columnsMenu: t("common.columns"),
+          selectedRows: (count) => t("common.selectedRows", { count }),
+          totalRows: (count) => t("common.totalRows", { count }),
+          selectAllRows: t("common.selectAllRows"),
+          selectCategoryRow: (name) => t("common.selectCategoryRow", { name }),
           category: t("common.category"),
           type: t("common.type"),
           status: t("common.status"),
@@ -215,6 +185,54 @@ export function CategoriesPageView() {
             category,
             active: true,
           })
+        }
+        filters={
+          <CategoriesFiltersCard
+            keyword={keyword}
+            searchPlaceholder={t("categories.searchPlaceholder")}
+            onKeywordChange={setKeyword}
+            typeValue={filters.type ?? "all"}
+            typePlaceholder={t("common.type")}
+            typeDisplayValue={selectedTypeLabel}
+            typeOptions={[
+              { value: "all", label: t("categories.typeAll") },
+              { value: "INCOME", label: t("common.income") },
+              { value: "EXPENSE", label: t("common.expense") },
+            ]}
+            onTypeChange={(value) =>
+              updateFilters({
+                ...filters,
+                type: value as "all" | "INCOME" | "EXPENSE",
+              })
+            }
+            statusValue={filters.status ?? "all"}
+            statusPlaceholder={t("common.status")}
+            statusDisplayValue={selectedStatusLabel}
+            statusOptions={[
+              { value: "all", label: t("categories.statusAll") },
+              { value: "active", label: t("common.active") },
+              { value: "inactive", label: t("common.inactive") },
+            ]}
+            onStatusChange={(value) =>
+              updateFilters({
+                ...filters,
+                status: value as "all" | "active" | "inactive",
+              })
+            }
+          />
+        }
+        primaryAction={
+          <>
+            {hasActiveFilters ? (
+              <ResetFiltersButton
+                label={t("categories.resetFilters")}
+                onClick={resetFilters}
+              />
+            ) : null}
+            <PageActionButton onClick={openCreateDialog}>
+              {t("categories.addCategory")}
+            </PageActionButton>
+          </>
         }
       />
 

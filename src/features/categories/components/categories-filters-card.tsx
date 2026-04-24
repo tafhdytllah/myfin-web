@@ -1,10 +1,7 @@
-import { FilterCardShell } from "@/components/shared/filter-card-shell";
 import { FilterSelect } from "@/components/shared/filter-select";
 import { SearchFilterInput } from "@/components/shared/search-filter-input";
 
 type CategoriesFiltersCardProps = {
-  title: string;
-  description: string;
   keyword: string;
   searchPlaceholder: string;
   onKeywordChange: (value: string) => void;
@@ -21,8 +18,6 @@ type CategoriesFiltersCardProps = {
 };
 
 export function CategoriesFiltersCard({
-  title,
-  description,
   keyword,
   searchPlaceholder,
   onKeywordChange,
@@ -38,11 +33,7 @@ export function CategoriesFiltersCard({
   onStatusChange,
 }: CategoriesFiltersCardProps) {
   return (
-    <FilterCardShell
-      title={title}
-      description={description}
-      className="grid gap-3 md:grid-cols-3"
-    >
+    <div className="grid gap-3 md:grid-cols-3">
       <SearchFilterInput
         value={keyword}
         onValueChange={onKeywordChange}
@@ -62,6 +53,6 @@ export function CategoriesFiltersCard({
         options={statusOptions}
         onValueChange={onStatusChange}
       />
-    </FilterCardShell>
+    </div>
   );
 }

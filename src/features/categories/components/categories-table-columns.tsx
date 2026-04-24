@@ -46,12 +46,14 @@ export function buildCategoriesTableColumns({
     {
       id: "name",
       header: labels.category,
+      visibilityLabel: labels.category,
       cellClassName: "font-medium",
       cell: (item) => item.name,
     },
     {
       id: "type",
       header: labels.type,
+      visibilityLabel: labels.type,
       cell: (item) => (
         <StatusBadge tone={item.type === "INCOME" ? "income" : "expense"}>
           {item.type === "INCOME" ? labels.income : labels.expense}
@@ -61,6 +63,7 @@ export function buildCategoriesTableColumns({
     {
       id: "status",
       header: labels.status,
+      visibilityLabel: labels.status,
       cell: (item) => (
         <StatusBadge tone={item.active ? "active" : "inactive"}>
           {item.active ? labels.active : labels.inactive}
@@ -70,13 +73,16 @@ export function buildCategoriesTableColumns({
     {
       id: "used",
       header: labels.used,
+      visibilityLabel: labels.used,
       cell: (item) => item.usageCount,
     },
     {
       id: "actions",
       header: labels.actions,
+      visibilityLabel: labels.actions,
       headerClassName: "text-right",
       cellClassName: "text-right",
+      canHide: false,
       cell: (item) => (
         <RowActionsMenu
           srLabel={labels.actions}

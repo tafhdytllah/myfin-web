@@ -27,7 +27,7 @@ export function DataTablePagination({
   }
 
   return (
-    <Pagination className="mt-6 justify-center md:justify-end">
+    <Pagination className="justify-center md:justify-end">
       <PaginationContent>
         <PaginationItem>
           <PaginationPrevious
