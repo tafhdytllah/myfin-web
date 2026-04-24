@@ -1,11 +1,9 @@
-import Link from "next/link";
-
-import { Button } from "@/components/ui/button";
 import { ContentCard } from "@/components/shared/content-card";
 import { InlineRetryState } from "@/components/shared/inline-retry-state";
 import { ItemMeta } from "@/components/shared/item-meta";
 import { SectionCard } from "@/components/shared/section-card";
 import { SectionEmptyState } from "@/components/shared/section-empty-state";
+import { SectionLinkAction } from "@/components/shared/section-link-action";
 import { StackSkeleton } from "@/components/shared/stack-skeleton";
 import { StatusBadge } from "@/components/shared/status-badge";
 
@@ -53,11 +51,7 @@ export function DashboardTopAccountsSection({
     <SectionCard
       title={title}
       description={description}
-      action={
-        <Button asChild variant="outline" className="rounded-full max-sm:w-full">
-          <Link href={seeAllHref}>{seeAllLabel}</Link>
-        </Button>
-      }
+      action={<SectionLinkAction href={seeAllHref} label={seeAllLabel} />}
     >
       {loading ? (
         <StackSkeleton
