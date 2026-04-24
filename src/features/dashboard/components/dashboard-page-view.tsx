@@ -4,24 +4,12 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 
 import { usePageTrail } from "@/components/layout/page-trail-context";
-import { ContentCard } from "@/components/shared/content-card";
-import { ItemMeta } from "@/components/shared/item-meta";
-import { InlineRetryState } from "@/components/shared/inline-retry-state";
+import { DashboardAccountScopeCard } from "@/features/dashboard/components/dashboard-account-scope-card";
+import { DashboardRecentTransactionsSection } from "@/features/dashboard/components/dashboard-recent-transactions-section";
+import { DashboardSummarySection } from "@/features/dashboard/components/dashboard-summary-section";
+import { DashboardTopAccountsSection } from "@/features/dashboard/components/dashboard-top-accounts-section";
 import { PageActionButton } from "@/components/shared/page-action-button";
 import { PageHeader } from "@/components/shared/page-header";
-import { RetryCard } from "@/components/shared/retry-card";
-import { SectionCard } from "@/components/shared/section-card";
-import { SectionEmptyState } from "@/components/shared/section-empty-state";
-import { StackSkeleton } from "@/components/shared/stack-skeleton";
-import { StatusBadge } from "@/components/shared/status-badge";
-import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { useAccounts } from "@/features/accounts/hooks/use-account-queries";
 import { useCategories } from "@/features/categories/hooks/use-category-queries";
 import {
@@ -120,199 +108,71 @@ export function DashboardPageView() {
         }
       />
 
-      <SectionCard
+      <DashboardAccountScopeCard
         title={t("dashboard.accountScopeTitle")}
         description={t("dashboard.accountScopeDescription")}
-      >
-        <div className="max-w-sm">
-          <Select
-            value={selectedAccountId}
-            onValueChange={(value) => setSelectedAccountId(value ?? "all")}
-          >
-            <SelectTrigger className="h-11 w-full rounded-2xl">
-              <SelectValue placeholder={t("dashboard.accountScopePlaceholder")}>
-                {selectedAccountId === "all"
-                  ? t("dashboard.allAccounts")
-                  : selectedAccountName}
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">{t("dashboard.allAccounts")}</SelectItem>
-              {activeAccounts.map((account) => (
-                <SelectItem key={account.id} value={account.id}>
-                  {account.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      </SectionCard>
+        value={selectedAccountId}
+        placeholder={t("dashboard.accountScopePlaceholder")}
+        displayValue={selectedAccountName}
+        allAccountsLabel={t("dashboard.allAccounts")}
+        options={activeAccounts.map((account) => ({
+          value: account.id,
+          label: account.name,
+        }))}
+        onValueChange={(value) => setSelectedAccountId(value ?? "all")}
+      />
 
-      {summaryQuery.isLoading ? (
-        <div className="grid gap-4 xl:grid-cols-3">
-          {Array.from({ length: 3 }).map((_, index) => (
-            <SectionCard key={index} title=" ">
-              <div className="space-y-3">
-                <div className="h-4 w-24 rounded bg-muted" />
-                <div className="h-10 w-40 rounded bg-muted" />
-              </div>
-            </SectionCard>
-          ))}
-        </div>
-      ) : null}
-
-      {summaryQuery.isError ? (
-        <RetryCard
-          title={t("dashboard.loadErrorTitle")}
-          description={t("dashboard.loadErrorDescription")}
-          retryLabel={t("dashboard.retry")}
-          onRetry={() => summaryQuery.refetch()}
-        />
-      ) : null}
-
-      {!summaryQuery.isLoading && !summaryQuery.isError ? (
-        <div className="grid gap-4 xl:grid-cols-3">
-          {summaryCards.map((card) => (
-            <SectionCard
-              key={card.key}
-              title={t(card.key)}
-              description={t("dashboard.summaryDescription")}
-            >
-              <div className="flex items-end justify-between gap-4">
-                <p className="text-3xl font-semibold text-[var(--color-foreground)]">
-                  {formatCurrency(card.value)}
-                </p>
-                <StatusBadge tone={card.tone}>{t(card.key)}</StatusBadge>
-              </div>
-            </SectionCard>
-          ))}
-        </div>
-      ) : null}
+      <DashboardSummarySection
+        loading={summaryQuery.isLoading}
+        isError={summaryQuery.isError}
+        cards={summaryCards.map((card) => ({
+          key: card.key,
+          label: t(card.key),
+          tone: card.tone,
+          value: formatCurrency(card.value),
+        }))}
+        summaryDescription={t("dashboard.summaryDescription")}
+        retryTitle={t("dashboard.loadErrorTitle")}
+        retryDescription={t("dashboard.loadErrorDescription")}
+        retryLabel={t("dashboard.retry")}
+        onRetry={() => summaryQuery.refetch()}
+      />
 
       <div className="grid gap-6 xl:grid-cols-[1.3fr_0.9fr]">
-        <SectionCard
+        <DashboardRecentTransactionsSection
           title={t("dashboard.recentTransactions")}
           description={t("dashboard.recentDescription")}
-          action={
-            <Button asChild variant="outline" className="rounded-full max-sm:w-full">
-              <Link href={routes.transactions}>{t("common.viewAll")}</Link>
-            </Button>
-          }
-        >
-          {recentTransactionsQuery.isLoading ? (
-            <StackSkeleton
-              count={3}
-              className="space-y-4"
-              itemClassName="h-20 rounded-3xl bg-muted"
-            />
-          ) : null}
+          viewAllLabel={t("common.viewAll")}
+          viewAllHref={routes.transactions}
+          loading={recentTransactionsQuery.isLoading}
+          isError={recentTransactionsQuery.isError}
+          items={recentTransactions}
+          emptyDescription={t("dashboard.recentEmpty")}
+          errorDescription={t("dashboard.recentLoadError")}
+          retryLabel={t("dashboard.retry")}
+          onRetry={() => recentTransactionsQuery.refetch()}
+          formatDate={(value) => formatDate(value, dateLocale)}
+          formatCurrency={formatCurrency}
+          incomeLabel={t("common.income")}
+          expenseLabel={t("common.expense")}
+        />
 
-          {recentTransactionsQuery.isError ? (
-            <InlineRetryState
-              description={t("dashboard.recentLoadError")}
-              retryLabel={t("dashboard.retry")}
-              onRetry={() => recentTransactionsQuery.refetch()}
-            />
-          ) : null}
-
-          {!recentTransactionsQuery.isLoading &&
-          !recentTransactionsQuery.isError &&
-          recentTransactions.length === 0 ? (
-            <SectionEmptyState description={t("dashboard.recentEmpty")} dashed />
-          ) : null}
-
-          {!recentTransactionsQuery.isLoading &&
-          !recentTransactionsQuery.isError &&
-          recentTransactions.length > 0 ? (
-            <div className="space-y-4">
-              {recentTransactions.map((item) => (
-                <ContentCard
-                  key={item.id}
-                  className="text-left transition hover:bg-muted/60"
-                  contentClassName="flex items-center justify-between gap-4 p-4"
-                >
-                  <ItemMeta
-                    title={item.categoryName}
-                    subtitle={
-                      <>
-                        {item.accountName} {" - "} {formatDate(item.createdAt, dateLocale)}
-                      </>
-                    }
-                    subtitleClassName="truncate"
-                  />
-                  <div className="shrink-0 text-right">
-                    <StatusBadge tone={item.type === "INCOME" ? "income" : "expense"}>
-                      {item.type === "INCOME"
-                        ? t("common.income")
-                        : t("common.expense")}
-                    </StatusBadge>
-                    <p className="mt-2 font-semibold text-[var(--color-foreground)]">
-                      {formatCurrency(item.amount)}
-                    </p>
-                  </div>
-                </ContentCard>
-              ))}
-            </div>
-          ) : null}
-        </SectionCard>
-
-        <SectionCard
+        <DashboardTopAccountsSection
           title={t("dashboard.topAccounts")}
           description={t("dashboard.topAccountsDescription")}
-          action={
-            <Button asChild variant="outline" className="rounded-full max-sm:w-full">
-              <Link href={routes.accounts}>{t("common.seeAll")}</Link>
-            </Button>
-          }
-        >
-          {activeAccountsQuery.isLoading ? (
-            <StackSkeleton
-              count={3}
-              className="space-y-4"
-              itemClassName="h-24 rounded-3xl bg-muted"
-            />
-          ) : null}
-
-          {activeAccountsQuery.isError ? (
-            <InlineRetryState
-              description={t("dashboard.accountsLoadError")}
-              retryLabel={t("dashboard.retry")}
-              onRetry={() => activeAccountsQuery.refetch()}
-            />
-          ) : null}
-
-          {!activeAccountsQuery.isLoading &&
-          !activeAccountsQuery.isError &&
-          topAccounts.length === 0 ? (
-            <SectionEmptyState description={t("dashboard.topAccountsEmpty")} dashed />
-          ) : null}
-
-          {!activeAccountsQuery.isLoading &&
-          !activeAccountsQuery.isError &&
-          topAccounts.length > 0 ? (
-            <div className="space-y-4">
-              {topAccounts.map((item) => (
-                <ContentCard
-                  key={item.id}
-                  contentClassName="p-4"
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <ItemMeta
-                      title={item.name}
-                      subtitle={t("dashboard.usedTransactions", {
-                        count: item.usageCount,
-                      })}
-                    />
-                    <StatusBadge tone="active">{t("common.active")}</StatusBadge>
-                  </div>
-                  <p className="mt-4 text-2xl font-semibold text-[var(--color-foreground)]">
-                    {formatCurrency(item.currentBalance)}
-                  </p>
-                </ContentCard>
-              ))}
-            </div>
-          ) : null}
-        </SectionCard>
+          seeAllLabel={t("common.seeAll")}
+          seeAllHref={routes.accounts}
+          loading={activeAccountsQuery.isLoading}
+          isError={activeAccountsQuery.isError}
+          items={topAccounts}
+          emptyDescription={t("dashboard.topAccountsEmpty")}
+          errorDescription={t("dashboard.accountsLoadError")}
+          retryLabel={t("dashboard.retry")}
+          onRetry={() => activeAccountsQuery.refetch()}
+          activeLabel={t("common.active")}
+          usedTransactionsLabel={(count) => t("dashboard.usedTransactions", { count })}
+          formatCurrency={formatCurrency}
+        />
       </div>
     </div>
   );

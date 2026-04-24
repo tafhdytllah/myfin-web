@@ -4,16 +4,13 @@ import { useEffect, useMemo, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
-import { FormFieldItem } from "@/components/shared/form-field-item";
+import { ChangePasswordSection } from "@/features/profile/components/change-password-section";
 import { PageHeader } from "@/components/shared/page-header";
-import { PasswordInput } from "@/components/shared/password-input";
+import { ProfileInfoSection } from "@/features/profile/components/profile-info-section";
 import { RetryCard } from "@/components/shared/retry-card";
 import { SectionCard } from "@/components/shared/section-card";
 import { StackSkeleton } from "@/components/shared/stack-skeleton";
 import { usePageTrail } from "@/components/layout/page-trail-context";
-import { Button } from "@/components/ui/button";
-import { FieldDescription, FieldError } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
 import {
   createChangePasswordSchema,
   createProfileInfoSchema,
@@ -143,118 +140,42 @@ export function ProfilePageView() {
 
       {!profileQuery.isLoading && !profileQuery.isError ? (
         <div className="grid gap-6 xl:grid-cols-2">
-          <SectionCard
+          <ProfileInfoSection
             title={t("profile.profileInfo")}
             description={t("profile.profileInfoDescription")}
-          >
-            <form
-              className="grid gap-4"
-              onSubmit={profileForm.handleSubmit(handleProfileSubmit)}
-            >
-              <FieldError>{profileFormError}</FieldError>
+            submitLabel={t("profile.saveProfile")}
+            pendingLabel={t("profile.savingProfile")}
+            formError={profileFormError}
+            pending={updateProfileMutation.isPending}
+            form={profileForm}
+            onSubmit={handleProfileSubmit}
+            labels={{
+              username: t("auth.username"),
+              usernamePlaceholder: t("profile.usernamePlaceholder"),
+              email: t("auth.email"),
+              emailPlaceholder: t("profile.emailPlaceholder"),
+            }}
+          />
 
-              <FormFieldItem
-                label={t("auth.username")}
-                htmlFor="profile-username"
-                errors={[profileForm.formState.errors.username]}
-              >
-                <Input
-                  id="profile-username"
-                  {...profileForm.register("username")}
-                  placeholder={t("profile.usernamePlaceholder")}
-                />
-              </FormFieldItem>
-
-              <FormFieldItem
-                label={t("auth.email")}
-                htmlFor="profile-email"
-                errors={[profileForm.formState.errors.email]}
-              >
-                <Input
-                  id="profile-email"
-                  type="email"
-                  {...profileForm.register("email")}
-                  placeholder={t("profile.emailPlaceholder")}
-                />
-              </FormFieldItem>
-
-              <Button
-                type="submit"
-                disabled={
-                  updateProfileMutation.isPending || !profileForm.formState.isDirty
-                }
-                className="h-11 w-full rounded-2xl px-5 text-sm font-semibold sm:w-fit"
-              >
-                {updateProfileMutation.isPending
-                  ? t("profile.savingProfile")
-                  : t("profile.saveProfile")}
-              </Button>
-            </form>
-          </SectionCard>
-
-          <SectionCard
+          <ChangePasswordSection
             title={t("profile.changePassword")}
             description={t("profile.changePasswordDescription")}
-          >
-            <form
-              className="grid gap-4"
-              onSubmit={passwordForm.handleSubmit(handlePasswordSubmit)}
-            >
-              <FieldError>{passwordFormError}</FieldError>
-
-              <FormFieldItem
-                label={t("profile.currentPassword")}
-                htmlFor="current-password"
-                errors={[passwordForm.formState.errors.currentPassword]}
-              >
-                <PasswordInput
-                  id="current-password"
-                  {...passwordForm.register("currentPassword")}
-                  placeholder={t("auth.passwordPlaceholder")}
-                  toggleLabel={t("profile.togglePasswordVisibility")}
-                />
-              </FormFieldItem>
-
-              <FormFieldItem
-                label={t("profile.newPassword")}
-                htmlFor="new-password"
-                errors={[passwordForm.formState.errors.newPassword]}
-                description={<FieldDescription>{t("profile.passwordHint")}</FieldDescription>}
-              >
-                <PasswordInput
-                  id="new-password"
-                  {...passwordForm.register("newPassword")}
-                  placeholder={t("auth.passwordPlaceholder")}
-                  toggleLabel={t("profile.togglePasswordVisibility")}
-                />
-              </FormFieldItem>
-
-              <FormFieldItem
-                label={t("profile.confirmNewPassword")}
-                htmlFor="confirm-password"
-                errors={[passwordForm.formState.errors.confirmNewPassword]}
-              >
-                <PasswordInput
-                  id="confirm-password"
-                  {...passwordForm.register("confirmNewPassword")}
-                  placeholder={t("auth.confirmPasswordPlaceholder")}
-                  toggleLabel={t("profile.togglePasswordVisibility")}
-                />
-              </FormFieldItem>
-
-              <Button
-                type="submit"
-                disabled={
-                  changePasswordMutation.isPending || !passwordForm.formState.isDirty
-                }
-                className="h-11 w-full rounded-2xl px-5 text-sm font-semibold sm:w-fit"
-              >
-                {changePasswordMutation.isPending
-                  ? t("profile.savingPassword")
-                  : t("profile.updatePassword")}
-              </Button>
-            </form>
-          </SectionCard>
+            submitLabel={t("profile.updatePassword")}
+            pendingLabel={t("profile.savingPassword")}
+            passwordHint={t("profile.passwordHint")}
+            toggleLabel={t("profile.togglePasswordVisibility")}
+            formError={passwordFormError}
+            pending={changePasswordMutation.isPending}
+            form={passwordForm}
+            onSubmit={handlePasswordSubmit}
+            labels={{
+              currentPassword: t("profile.currentPassword"),
+              newPassword: t("profile.newPassword"),
+              confirmNewPassword: t("profile.confirmNewPassword"),
+              passwordPlaceholder: t("auth.passwordPlaceholder"),
+              confirmPasswordPlaceholder: t("auth.confirmPasswordPlaceholder"),
+            }}
+          />
         </div>
       ) : null}
     </div>
