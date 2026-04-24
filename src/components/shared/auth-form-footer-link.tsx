@@ -12,10 +12,10 @@ export function AuthFormFooterLink({
   label,
 }: AuthFormFooterLinkProps) {
   return (
-    <p className="mt-6 text-center text-sm text-[var(--color-foreground-muted)] sm:text-left">
+    <p className="mt-6 text-center text-sm text-(--color-foreground-muted) sm:text-left">
       {prompt}{" "}
       <Link
-        className="font-semibold text-[var(--color-primary-strong)]"
+        className="font-semibold text-(--color-primary-strong)"
         href={href}
       >
         {label}

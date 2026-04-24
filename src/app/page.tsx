@@ -24,7 +24,7 @@ export default function HomePage() {
   }, [hasInitialized, isAuthenticated, router]);
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[var(--color-surface)] text-[var(--color-foreground-muted)]">
+    <main className="flex min-h-screen items-center justify-center bg-(--color-surface) text-(--color-foreground-muted)">
       <p className="text-sm">
         {status === "bootstrapping" ? "Restoring session..." : "Redirecting..."}
       </p>

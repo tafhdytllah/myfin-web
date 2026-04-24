@@ -16,7 +16,7 @@ export function ContentCard({
   return (
     <Card
       className={cn(
-        "rounded-3xl border-[var(--color-border)] bg-[var(--color-surface)] py-0",
+        "rounded-3xl border-(--color-border) bg-(--color-surface) py-0",
         className,
       )}
     >

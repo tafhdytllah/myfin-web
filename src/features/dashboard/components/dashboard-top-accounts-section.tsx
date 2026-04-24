@@ -84,7 +84,7 @@ export function DashboardTopAccountsSection({
                 />
                 <StatusBadge tone="active">{activeLabel}</StatusBadge>
               </div>
-              <p className="mt-4 text-2xl font-semibold text-[var(--color-foreground)]">
+              <p className="mt-4 text-2xl font-semibold text-(--color-foreground)">
                 {formatCurrency(item.currentBalance)}
               </p>
             </ContentCard>

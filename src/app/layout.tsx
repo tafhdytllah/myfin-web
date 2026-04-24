@@ -35,7 +35,7 @@ export default function RootLayout({
       data-scroll-behavior="smooth"
       className={cn("h-full", display.variable, "font-sans", geist.variable)}
     >
-      <body className="min-h-full bg-[var(--color-surface)] text-[var(--color-foreground)] antialiased">
+      <body className="min-h-full bg-(--color-surface) text-(--color-foreground) antialiased">
         <TooltipProvider>
           <Providers>
             {children}

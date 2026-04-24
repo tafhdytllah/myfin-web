@@ -98,7 +98,7 @@ export function DashboardRecentTransactionsSection({
                 <StatusBadge tone={item.type === "INCOME" ? "income" : "expense"}>
                   {item.type === "INCOME" ? incomeLabel : expenseLabel}
                 </StatusBadge>
-                <p className="mt-2 font-semibold text-[var(--color-foreground)]">
+                <p className="mt-2 font-semibold text-(--color-foreground)">
                   {formatCurrency(item.amount)}
                 </p>
               </div>

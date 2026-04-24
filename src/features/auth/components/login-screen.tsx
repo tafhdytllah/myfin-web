@@ -74,7 +74,7 @@ export function LoginScreen() {
           label={t("auth.username")}
           registration={register("username")}
           error={errors.username?.message}
-          className="h-12 rounded-2xl border-[var(--color-border-strong)] bg-white px-4 dark:bg-transparent"
+          className="h-12 rounded-2xl border-(--color-border-strong) bg-white px-4 dark:bg-transparent"
           placeholder={t("auth.usernamePlaceholder")}
         />
 
@@ -82,7 +82,7 @@ export function LoginScreen() {
           label={t("auth.password")}
           registration={register("password")}
           error={errors.password?.message}
-          className="h-12 rounded-2xl border-[var(--color-border-strong)] bg-white px-4 dark:bg-transparent"
+          className="h-12 rounded-2xl border-(--color-border-strong) bg-white px-4 dark:bg-transparent"
           placeholder={t("auth.passwordPlaceholder")}
           toggleLabel={t("auth.togglePasswordVisibility")}
         />
@@ -91,7 +91,7 @@ export function LoginScreen() {
           idleLabel={t("auth.signIn")}
           pendingLabel={t("auth.signingIn")}
           pending={isSubmitting || loginMutation.isPending}
-          className="h-12 w-full rounded-2xl bg-[var(--color-surface-sidebar)] font-medium text-white hover:bg-[var(--color-surface-sidebar)]/95"
+          className="h-12 w-full rounded-2xl bg-(--color-surface-sidebar) font-medium text-white hover:bg-surface-sidebar/95"
         />
       </FormLayout>
     </AuthFormCard>

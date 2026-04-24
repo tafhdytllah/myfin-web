@@ -33,7 +33,7 @@ export function AppSidebar() {
 
   return (
     <Sidebar collapsible="icon" className="border-r-0" variant="sidebar">
-      <SidebarHeader className="bg-[var(--color-surface-sidebar)] p-4 text-sidebar-foreground">
+      <SidebarHeader className="bg-(--color-surface-sidebar) p-4 text-sidebar-foreground">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarBrand
@@ -44,7 +44,7 @@ export function AppSidebar() {
         </SidebarMenu>
       </SidebarHeader>
 
-      <SidebarContent className="bg-[var(--color-surface-sidebar)] px-2 text-sidebar-foreground">
+      <SidebarContent className="bg-(--color-surface-sidebar) px-2 text-sidebar-foreground">
         <SidebarMenu>
           {sidebarNavigation.map((item) => {
             const Icon = item.icon;
@@ -66,7 +66,7 @@ export function AppSidebar() {
         </SidebarMenu>
       </SidebarContent>
 
-      <SidebarFooter className="gap-4 bg-[var(--color-surface-sidebar)] p-4 text-sidebar-foreground">
+      <SidebarFooter className="gap-4 bg-(--color-surface-sidebar) p-4 text-sidebar-foreground">
         <SidebarSeparator className="bg-white/10" />
 
         <SidebarMenu>

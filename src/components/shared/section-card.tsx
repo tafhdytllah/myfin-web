@@ -22,13 +22,13 @@ export function SectionCard({
   children,
 }: SectionCardProps) {
   return (
-    <Card className="rounded-[var(--radius-card)] border-[var(--color-border)] bg-[var(--color-surface-elevated)] py-0 shadow-[var(--shadow-soft)]">
+    <Card className="rounded-(--radius-card) border-(--color-border) bg-(--color-surface-elevated) py-0 shadow-(--shadow-soft)">
       <CardHeader className="p-6 pb-0">
-        <CardTitle className="text-lg font-semibold text-[var(--color-foreground)]">
+        <CardTitle className="text-lg font-semibold text-(--color-foreground)">
           {title}
         </CardTitle>
         {description ? (
-          <CardDescription className="text-sm text-[var(--color-foreground-muted)]">
+          <CardDescription className="text-sm text-(--color-foreground-muted)">
             {description}
           </CardDescription>
         ) : null}

@@ -35,8 +35,8 @@ export function AuthGuard({ children, mode }: AuthGuardProps) {
 
   if (!hasInitialized || status === "bootstrapping") {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[var(--color-surface)]">
-        <div className="rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface-elevated)] px-6 py-5 text-sm text-[var(--color-foreground-muted)] shadow-[var(--shadow-soft)]">
+      <div className="flex min-h-screen items-center justify-center bg-(--color-surface)">
+        <div className="rounded-(--radius-card) border border-(--color-border) bg-(--color-surface-elevated) px-6 py-5 text-sm text-(--color-foreground-muted) shadow-(--shadow-soft)">
           Restoring your session...
         </div>
       </div>

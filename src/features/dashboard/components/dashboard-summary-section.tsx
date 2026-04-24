@@ -63,7 +63,7 @@ export function DashboardSummarySection({
           description={summaryDescription}
         >
           <div className="flex items-end justify-between gap-4">
-            <p className="text-3xl font-semibold text-[var(--color-foreground)]">
+            <p className="text-3xl font-semibold text-(--color-foreground)">
               {card.value}
             </p>
             <StatusBadge tone={card.tone}>{card.label}</StatusBadge>
