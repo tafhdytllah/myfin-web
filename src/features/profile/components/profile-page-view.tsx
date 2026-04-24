@@ -8,8 +8,7 @@ import { ChangePasswordSection } from "@/features/profile/components/change-pass
 import { PageHeader } from "@/components/shared/page-header";
 import { ProfileInfoSection } from "@/features/profile/components/profile-info-section";
 import { RetryCard } from "@/components/shared/retry-card";
-import { SectionCard } from "@/components/shared/section-card";
-import { StackSkeleton } from "@/components/shared/stack-skeleton";
+import { SectionCardSkeletonGrid } from "@/components/shared/section-card-skeleton-grid";
 import { usePageTrail } from "@/components/layout/page-trail-context";
 import {
   createChangePasswordSchema,
@@ -116,17 +115,13 @@ export function ProfilePageView() {
       <PageHeader title={t("profile.title")} description={t("profile.description")} />
 
       {profileQuery.isLoading ? (
-        <div className="grid gap-6 xl:grid-cols-2">
-          {Array.from({ length: 2 }).map((_, index) => (
-            <SectionCard key={index} title=" ">
-              <StackSkeleton
-                count={4}
-                itemClassName="rounded bg-muted"
-                className="space-y-4 [&>*:nth-child(1)]:h-4 [&>*:nth-child(1)]:w-32 [&>*:nth-child(2)]:h-11 [&>*:nth-child(3)]:h-4 [&>*:nth-child(3)]:w-28 [&>*:nth-child(4)]:h-11"
-              />
-            </SectionCard>
-          ))}
-        </div>
+        <SectionCardSkeletonGrid
+          count={2}
+          gridClassName="gap-6 xl:grid-cols-2"
+          skeletonCount={4}
+          skeletonItemClassName="rounded bg-muted"
+          skeletonClassName="space-y-4 [&>*:nth-child(1)]:h-4 [&>*:nth-child(1)]:w-32 [&>*:nth-child(2)]:h-11 [&>*:nth-child(3)]:h-4 [&>*:nth-child(3)]:w-28 [&>*:nth-child(4)]:h-11"
+        />
       ) : null}
 
       {profileQuery.isError ? (

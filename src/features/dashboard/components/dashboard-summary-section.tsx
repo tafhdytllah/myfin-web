@@ -1,5 +1,6 @@
 import { SectionCard } from "@/components/shared/section-card";
 import { RetryCard } from "@/components/shared/retry-card";
+import { SectionCardSkeletonGrid } from "@/components/shared/section-card-skeleton-grid";
 import { StatusBadge } from "@/components/shared/status-badge";
 
 type SummaryCard = {
@@ -32,16 +33,13 @@ export function DashboardSummarySection({
 }: DashboardSummarySectionProps) {
   if (loading) {
     return (
-      <div className="grid gap-4 xl:grid-cols-3">
-        {Array.from({ length: 3 }).map((_, index) => (
-          <SectionCard key={index} title=" ">
-            <div className="space-y-3">
-              <div className="h-4 w-24 rounded bg-muted" />
-              <div className="h-10 w-40 rounded bg-muted" />
-            </div>
-          </SectionCard>
-        ))}
-      </div>
+      <SectionCardSkeletonGrid
+        count={3}
+        gridClassName="xl:grid-cols-3"
+        skeletonCount={2}
+        skeletonItemClassName="rounded bg-muted"
+        skeletonClassName="space-y-3 [&>*:nth-child(1)]:h-4 [&>*:nth-child(1)]:w-24 [&>*:nth-child(2)]:h-10 [&>*:nth-child(2)]:w-40"
+      />
     );
   }
 

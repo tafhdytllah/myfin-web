@@ -1,7 +1,6 @@
 import { EmptySectionCard } from "@/components/shared/empty-section-card";
 import { RetryCard } from "@/components/shared/retry-card";
-import { SectionCard } from "@/components/shared/section-card";
-import { StackSkeleton } from "@/components/shared/stack-skeleton";
+import { SectionCardSkeletonGrid } from "@/components/shared/section-card-skeleton-grid";
 import {
   AccountItem,
   AccountOverviewCard,
@@ -64,17 +63,13 @@ export function AccountsGridSection({
 }: AccountsGridSectionProps) {
   if (loading) {
     return (
-      <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
-        {Array.from({ length: 3 }).map((_, index) => (
-          <SectionCard key={index} title=" ">
-            <StackSkeleton
-              count={3}
-              itemClassName="h-4 rounded bg-muted"
-              className="space-y-3 [&>*:nth-child(2)]:h-10 [&>*:nth-child(2)]:w-40 [&>*:nth-child(1)]:w-24 [&>*:nth-child(3)]:w-32"
-            />
-          </SectionCard>
-        ))}
-      </div>
+      <SectionCardSkeletonGrid
+        count={3}
+        gridClassName="lg:grid-cols-2 xl:grid-cols-3"
+        skeletonCount={3}
+        skeletonItemClassName="h-4 rounded bg-muted"
+        skeletonClassName="space-y-3 [&>*:nth-child(2)]:h-10 [&>*:nth-child(2)]:w-40 [&>*:nth-child(1)]:w-24 [&>*:nth-child(3)]:w-32"
+      />
     );
   }
 
