@@ -8,7 +8,7 @@ type SummaryStatCardProps = {
 export function SummaryStatCard({ label, value }: SummaryStatCardProps) {
   return (
     <SectionCard title={label}>
-      <p className="text-2xl font-semibold text-[var(--color-foreground)]">
+      <p className="text-2xl font-semibold text-(--color-foreground)">
         {value}
       </p>
     </SectionCard>

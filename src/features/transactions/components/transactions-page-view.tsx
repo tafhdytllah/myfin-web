@@ -8,7 +8,6 @@ import { useCategories } from "@/features/categories/hooks/use-category-queries"
 import { TransactionDeleteDialog } from "@/features/transactions/components/transaction-delete-dialog";
 import { TransactionsFiltersCard } from "@/features/transactions/components/transactions-filters-card";
 import { TransactionFormDialog } from "@/features/transactions/components/transaction-form-dialog";
-import { TransactionsSummaryCards } from "@/features/transactions/components/transactions-summary-cards";
 import { TransactionsTableSection } from "@/features/transactions/components/transactions-table-section";
 import {
   useEditTransactionUnavailable,
@@ -47,11 +46,6 @@ export function TransactionsPageView() {
   const accountsQuery = useAccounts({ status: "all" });
   const categoriesQuery = useCategories({ status: "all", type: "all" });
   const transactionsQuery = useTransactions(filters);
-  const summaryListQuery = useTransactions({
-    ...filters,
-    page: 1,
-    size: 1000,
-  });
 
   const accounts = useMemo(() => accountsQuery.data ?? [], [accountsQuery.data]);
   const categories = useMemo(() => categoriesQuery.data ?? [], [categoriesQuery.data]);
@@ -60,25 +54,6 @@ export function TransactionsPageView() {
     () => transactionsEnvelope?.data ?? [],
     [transactionsEnvelope?.data],
   );
-  const summaryTransactions = useMemo(
-    () => summaryListQuery.data?.data ?? [],
-    [summaryListQuery.data?.data],
-  );
-
-  const summary = useMemo(() => {
-    const totalIncome = summaryTransactions
-      .filter((transaction) => transaction.type === "INCOME")
-      .reduce((sum, transaction) => sum + transaction.amount, 0);
-    const totalExpense = summaryTransactions
-      .filter((transaction) => transaction.type === "EXPENSE")
-      .reduce((sum, transaction) => sum + transaction.amount, 0);
-
-    return {
-      totalTransactions: summaryListQuery.data?.meta?.totalElements ?? 0,
-      totalIncome,
-      totalExpense,
-    };
-  }, [summaryListQuery.data?.meta?.totalElements, summaryTransactions]);
 
   const accountsMap = useMemo(
     () => new Map(accounts.map((account) => [account.id, account])),
@@ -196,17 +171,6 @@ export function TransactionsPageView() {
 
   return (
     <div className="space-y-6">
-      <TransactionsSummaryCards
-        items={[
-          {
-            label: t("transactions.totalTransactions"),
-            value: String(summary.totalTransactions),
-          },
-          { label: t("common.income"), value: formatCurrency(summary.totalIncome) },
-          { label: t("common.expense"), value: formatCurrency(summary.totalExpense) },
-        ]}
-      />
-
       <TransactionsTableSection
         title={t("transactions.title")}
         description={t("transactions.description")}

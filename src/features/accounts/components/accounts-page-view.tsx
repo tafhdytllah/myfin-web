@@ -6,7 +6,6 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { AccountsFiltersCard } from "@/features/accounts/components/accounts-filters-card";
 import { AccountFormDialog } from "@/features/accounts/components/account-form-dialog";
 import { AccountsGridSection } from "@/features/accounts/components/accounts-grid-section";
-import { AccountsSummaryCards } from "@/features/accounts/components/accounts-summary-cards";
 import { AccountStatusDialog } from "@/features/accounts/components/account-status-dialog";
 import { Account } from "@/features/accounts/types/account-types";
 import {
@@ -17,8 +16,6 @@ import {
   buildAccountSearchParams,
   parseAccountFilters,
 } from "@/features/accounts/utils/account-search-params";
-import { PageActionButton } from "@/components/shared/page-action-button";
-import { PageHeader } from "@/components/shared/page-header";
 import { usePageTrail } from "@/components/layout/page-trail-context";
 import { formatCurrency } from "@/lib/formatters/currency";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
@@ -71,15 +68,6 @@ export function AccountsPageView() {
 
   usePageTrail([modalTrail]);
 
-  const summary = useMemo(
-    () => ({
-      total: accounts.length,
-      active: accounts.filter((account) => account.active).length,
-      inactive: accounts.filter((account) => !account.active).length,
-    }),
-    [accounts],
-  );
-
   const updateFilters = useCallback((nextFilters: typeof filters) => {
     const params = buildAccountSearchParams(nextFilters);
     const query = params.toString();
@@ -118,24 +106,6 @@ export function AccountsPageView() {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title={t("accounts.title")}
-        description={t("accounts.description")}
-        action={
-          <PageActionButton onClick={openCreateDialog}>
-            {t("accounts.addAccount")}
-          </PageActionButton>
-        }
-      />
-
-      <AccountsSummaryCards
-        items={[
-          { label: t("accounts.totalAccounts"), value: String(summary.total) },
-          { label: t("common.active"), value: String(summary.active) },
-          { label: t("common.inactive"), value: String(summary.inactive) },
-        ]}
-      />
-
       <AccountsFiltersCard
         title={t("accounts.searchTitle")}
         description={t("accounts.searchDescription")}

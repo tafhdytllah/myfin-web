@@ -1,10 +1,14 @@
+"use client";
+
+import { ColumnDef } from "@tanstack/react-table";
 import { PencilLine, Power, PowerOff } from "lucide-react";
 
-import { DataTableColumn } from "@/components/shared/data-table";
+import { DataTableColumnHeader } from "@/components/shared/data-table-column-header";
 import { RowActionsMenu } from "@/components/shared/row-actions-menu";
 import { StatusBadge } from "@/components/shared/status-badge";
+import { Checkbox } from "@/components/ui/checkbox";
 
-type CategoryItem = {
+export type CategoryTableRow = {
   id: string;
   name: string;
   type: "INCOME" | "EXPENSE";
@@ -25,14 +29,19 @@ type CategoryTableLabels = {
   edit: string;
   deactivate: string;
   activate: string;
+  sortAscending: string;
+  sortDescending: string;
+  hideColumn: string;
+  selectAllRows: string;
+  selectCategoryRow: (name: string) => string;
 };
 
 type BuildCategoriesTableColumnsOptions = {
   labels: CategoryTableLabels;
   activatingPending: boolean;
-  onEdit: (item: CategoryItem) => void;
-  onDeactivate: (item: CategoryItem) => void;
-  onActivate: (item: CategoryItem) => void;
+  onEdit: (item: CategoryTableRow) => void;
+  onDeactivate: (item: CategoryTableRow) => void;
+  onActivate: (item: CategoryTableRow) => void;
 };
 
 export function buildCategoriesTableColumns({
@@ -41,74 +50,129 @@ export function buildCategoriesTableColumns({
   onEdit,
   onDeactivate,
   onActivate,
-}: BuildCategoriesTableColumnsOptions): DataTableColumn<CategoryItem>[] {
+}: BuildCategoriesTableColumnsOptions): ColumnDef<CategoryTableRow>[] {
   return [
     {
-      id: "name",
-      header: labels.category,
-      visibilityLabel: labels.category,
-      cellClassName: "font-medium",
-      cell: (item) => item.name,
+      id: "select",
+      header: ({ table }) => (
+        <Checkbox
+          checked={table.getIsAllPageRowsSelected()}
+          indeterminate={
+            table.getIsSomePageRowsSelected() && !table.getIsAllPageRowsSelected()
+          }
+          aria-label={labels.selectAllRows}
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          aria-label={labels.selectCategoryRow(row.original.name)}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
+      size: 44,
     },
     {
-      id: "type",
-      header: labels.type,
-      visibilityLabel: labels.type,
-      cell: (item) => (
-        <StatusBadge tone={item.type === "INCOME" ? "income" : "expense"}>
-          {item.type === "INCOME" ? labels.income : labels.expense}
+      accessorKey: "name",
+      header: ({ column }) => (
+        <DataTableColumnHeader
+          column={column}
+          title={labels.category}
+          ascLabel={labels.sortAscending}
+          descLabel={labels.sortDescending}
+          hideLabel={labels.hideColumn}
+        />
+      ),
+      cell: ({ row }) => <div className="font-medium">{row.original.name}</div>,
+    },
+    {
+      accessorKey: "type",
+      header: ({ column }) => (
+        <DataTableColumnHeader
+          column={column}
+          title={labels.type}
+          ascLabel={labels.sortAscending}
+          descLabel={labels.sortDescending}
+          hideLabel={labels.hideColumn}
+        />
+      ),
+      cell: ({ row }) => (
+        <StatusBadge tone={row.original.type === "INCOME" ? "income" : "expense"}>
+          {row.original.type === "INCOME" ? labels.income : labels.expense}
         </StatusBadge>
       ),
     },
     {
       id: "status",
-      header: labels.status,
-      visibilityLabel: labels.status,
-      cell: (item) => (
-        <StatusBadge tone={item.active ? "active" : "inactive"}>
-          {item.active ? labels.active : labels.inactive}
+      accessorFn: (row) => (row.active ? "active" : "inactive"),
+      header: ({ column }) => (
+        <DataTableColumnHeader
+          column={column}
+          title={labels.status}
+          ascLabel={labels.sortAscending}
+          descLabel={labels.sortDescending}
+          hideLabel={labels.hideColumn}
+        />
+      ),
+      cell: ({ row }) => (
+        <StatusBadge tone={row.original.active ? "active" : "inactive"}>
+          {row.original.active ? labels.active : labels.inactive}
         </StatusBadge>
       ),
+      filterFn: (row, id, value) => {
+        if (!value || value === "all") {
+          return true;
+        }
+
+        return row.getValue(id) === value;
+      },
     },
     {
-      id: "used",
-      header: labels.used,
-      visibilityLabel: labels.used,
-      cell: (item) => item.usageCount,
+      accessorKey: "usageCount",
+      header: ({ column }) => (
+        <DataTableColumnHeader
+          column={column}
+          title={labels.used}
+          ascLabel={labels.sortAscending}
+          descLabel={labels.sortDescending}
+          hideLabel={labels.hideColumn}
+        />
+      ),
+      cell: ({ row }) => row.original.usageCount,
     },
     {
       id: "actions",
-      header: labels.actions,
-      visibilityLabel: labels.actions,
-      headerClassName: "text-right",
-      cellClassName: "text-right",
-      canHide: false,
-      cell: (item) => (
-        <RowActionsMenu
-          srLabel={labels.actions}
-          items={[
-            {
-              label: labels.edit,
-              icon: <PencilLine className="size-4" />,
-              onSelect: () => onEdit(item),
-            },
-            item.active
-              ? {
-                  label: labels.deactivate,
-                  icon: <PowerOff className="size-4" />,
-                  onSelect: () => onDeactivate(item),
-                }
-              : {
-                  label: labels.activate,
-                  icon: <Power className="size-4" />,
-                  disabled: activatingPending,
-                  onSelect: () => onActivate(item),
-                },
-          ]}
-        />
+      enableHiding: false,
+      enableSorting: false,
+      cell: ({ row }) => (
+        <div className="text-right">
+          <RowActionsMenu
+            srLabel={labels.actions}
+            items={[
+              {
+                label: labels.edit,
+                icon: <PencilLine className="size-4" />,
+                onSelect: () => onEdit(row.original),
+              },
+              row.original.active
+                ? {
+                    label: labels.deactivate,
+                    icon: <PowerOff className="size-4" />,
+                    onSelect: () => onDeactivate(row.original),
+                  }
+                : {
+                    label: labels.activate,
+                    icon: <Power className="size-4" />,
+                    disabled: activatingPending,
+                    onSelect: () => onActivate(row.original),
+                  },
+            ]}
+          />
+        </div>
       ),
     },
   ];
 }
-
-export type { CategoryItem, CategoryTableLabels };
