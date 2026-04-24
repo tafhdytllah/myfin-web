@@ -17,11 +17,12 @@ import {
   buildTransactionSearchParams,
   parseTransactionFilters,
 } from "@/features/transactions/utils/transaction-search-params";
-import { ActionMenuTrigger } from "@/components/shared/action-menu-trigger";
+import { FilterSelect } from "@/components/shared/filter-select";
 import { PageHeader } from "@/components/shared/page-header";
 import { InlineRetryState } from "@/components/shared/inline-retry-state";
 import { PageActionButton } from "@/components/shared/page-action-button";
 import { ResetFiltersButton } from "@/components/shared/reset-filters-button";
+import { RowActionsMenu } from "@/components/shared/row-actions-menu";
 import { SectionCard } from "@/components/shared/section-card";
 import { SectionEmptyState } from "@/components/shared/section-empty-state";
 import { StackSkeleton } from "@/components/shared/stack-skeleton";
@@ -29,11 +30,6 @@ import { StatusBadge } from "@/components/shared/status-badge";
 import { SummaryStatCard } from "@/components/shared/summary-stat-card";
 import { TableHeaderCell } from "@/components/shared/table-header-cell";
 import { usePageTrail } from "@/components/layout/page-trail-context";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import {
   Pagination,
@@ -43,13 +39,6 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -273,8 +262,17 @@ export function TransactionsPageView() {
             placeholder={t("common.search")}
           />
 
-          <Select
+          <FilterSelect
             value={filters.accountId || "all"}
+            placeholder={t("common.account")}
+            displayValue={filters.accountId ? selectedAccountName : undefined}
+            options={[
+              { value: "all", label: t("transactions.allAccounts") },
+              ...accounts.map((account) => ({
+                value: account.id,
+                label: account.name,
+              })),
+            ]}
             onValueChange={(value) =>
               updateFilters({
                 ...filters,
@@ -282,24 +280,17 @@ export function TransactionsPageView() {
                 page: 1,
               })
             }
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder={t("common.account")}>
-                {filters.accountId ? selectedAccountName : undefined}
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">{t("transactions.allAccounts")}</SelectItem>
-              {accounts.map((account) => (
-                <SelectItem key={account.id} value={account.id}>
-                  {account.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          />
 
-          <Select
+          <FilterSelect
             value={filters.type ?? "all"}
+            placeholder={t("common.type")}
+            displayValue={selectedTypeLabel}
+            options={[
+              { value: "all", label: t("transactions.allTypes") },
+              { value: "INCOME", label: t("common.income") },
+              { value: "EXPENSE", label: t("common.expense") },
+            ]}
             onValueChange={(value) =>
               updateFilters({
                 ...filters,
@@ -308,21 +299,19 @@ export function TransactionsPageView() {
                 page: 1,
               })
             }
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder={t("common.type")}>
-                {selectedTypeLabel}
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">{t("transactions.allTypes")}</SelectItem>
-              <SelectItem value="INCOME">{t("common.income")}</SelectItem>
-              <SelectItem value="EXPENSE">{t("common.expense")}</SelectItem>
-            </SelectContent>
-          </Select>
+          />
 
-          <Select
+          <FilterSelect
             value={filters.categoryId || "all"}
+            placeholder={t("common.category")}
+            displayValue={filters.categoryId ? selectedCategoryName : undefined}
+            options={[
+              { value: "all", label: t("transactions.allCategories") },
+              ...getCategoryOptions().map((category) => ({
+                value: category.id,
+                label: category.name,
+              })),
+            ]}
             onValueChange={(value) =>
               updateFilters({
                 ...filters,
@@ -330,21 +319,7 @@ export function TransactionsPageView() {
                 page: 1,
               })
             }
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder={t("common.category")}>
-                {filters.categoryId ? selectedCategoryName : undefined}
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">{t("transactions.allCategories")}</SelectItem>
-              {getCategoryOptions().map((category) => (
-                <SelectItem key={category.id} value={category.id}>
-                  {category.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          />
 
           <div className="grid grid-cols-2 gap-3">
             <Input
@@ -451,22 +426,22 @@ export function TransactionsPageView() {
                         {formatCurrency(row.amount)}
                       </TableCell>
                       <TableCell className="text-right">
-                        <DropdownMenu>
-                          <ActionMenuTrigger srLabel={t("common.actions")} />
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => notifyEditUnavailable(row)}>
-                              <PencilLine className="size-4" />
-                              {t("transactions.edit")}
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              variant="destructive"
-                              onClick={() => setDeletingTransaction(row)}
-                            >
-                              <Trash2 className="size-4" />
-                              {t("transactions.delete")}
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                        <RowActionsMenu
+                          srLabel={t("common.actions")}
+                          items={[
+                            {
+                              label: t("transactions.edit"),
+                              icon: <PencilLine className="size-4" />,
+                              onSelect: () => notifyEditUnavailable(row),
+                            },
+                            {
+                              label: t("transactions.delete"),
+                              icon: <Trash2 className="size-4" />,
+                              destructive: true,
+                              onSelect: () => setDeletingTransaction(row),
+                            },
+                          ]}
+                        />
                       </TableCell>
                     </TableRow>
                   ))}

@@ -15,31 +15,20 @@ import {
   buildAccountSearchParams,
   parseAccountFilters,
 } from "@/features/accounts/utils/account-search-params";
-import { ActionMenuTrigger } from "@/components/shared/action-menu-trigger";
 import { EmptySectionCard } from "@/components/shared/empty-section-card";
+import { FilterSelect } from "@/components/shared/filter-select";
 import { InfoMetricBlock } from "@/components/shared/info-metric-block";
 import { PageActionButton } from "@/components/shared/page-action-button";
 import { PageHeader } from "@/components/shared/page-header";
 import { ResetFiltersButton } from "@/components/shared/reset-filters-button";
 import { RetryCard } from "@/components/shared/retry-card";
+import { RowActionsMenu } from "@/components/shared/row-actions-menu";
 import { SectionCard } from "@/components/shared/section-card";
 import { StackSkeleton } from "@/components/shared/stack-skeleton";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { SummaryStatCard } from "@/components/shared/summary-stat-card";
 import { usePageTrail } from "@/components/layout/page-trail-context";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { formatCurrency } from "@/lib/formatters/currency";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { useTranslations } from "@/lib/i18n/use-translations";
@@ -176,26 +165,22 @@ export function AccountsPageView() {
             onChange={(event) => setKeyword(event.target.value)}
             placeholder={t("accounts.searchPlaceholder")}
           />
-          <Select
+          <FilterSelect
             value={filters.status ?? "all"}
+            placeholder={t("accounts.statusFilter")}
+            displayValue={selectedStatusLabel}
+            options={[
+              { value: "all", label: t("accounts.statusAll") },
+              { value: "active", label: t("common.active") },
+              { value: "inactive", label: t("common.inactive") },
+            ]}
             onValueChange={(value) =>
               updateFilters({
                 ...filters,
                 status: value as "all" | "active" | "inactive",
               })
             }
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder={t("accounts.statusFilter")}>
-                {selectedStatusLabel}
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">{t("accounts.statusAll")}</SelectItem>
-              <SelectItem value="active">{t("common.active")}</SelectItem>
-              <SelectItem value="inactive">{t("common.inactive")}</SelectItem>
-            </SelectContent>
-          </Select>
+          />
         </div>
       </SectionCard>
 
@@ -255,38 +240,34 @@ export function AccountsPageView() {
                   <StatusBadge tone={account.active ? "active" : "inactive"}>
                     {account.active ? t("common.active") : t("common.inactive")}
                   </StatusBadge>
-                  <DropdownMenu>
-                    <ActionMenuTrigger
-                      size="icon"
-                      className="rounded-full"
-                      srLabel={t("common.actions")}
-                    />
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => openEditDialog(account)}>
-                        <PencilLine className="size-4" />
-                        {t("common.edit")}
-                      </DropdownMenuItem>
-                      {account.active ? (
-                        <DropdownMenuItem onClick={() => setStatusDialogAccount(account)}>
-                          <PowerOff className="size-4" />
-                          {t("common.deactivate")}
-                        </DropdownMenuItem>
-                      ) : (
-                        <DropdownMenuItem
-                          disabled={toggleStatusMutation.isPending}
-                          onClick={() =>
-                            toggleStatusMutation.mutate({
-                              account,
-                              active: true,
-                            })
+                  <RowActionsMenu
+                    srLabel={t("common.actions")}
+                    triggerSize="icon"
+                    triggerClassName="rounded-full"
+                    items={[
+                      {
+                        label: t("common.edit"),
+                        icon: <PencilLine className="size-4" />,
+                        onSelect: () => openEditDialog(account),
+                      },
+                      account.active
+                        ? {
+                            label: t("common.deactivate"),
+                            icon: <PowerOff className="size-4" />,
+                            onSelect: () => setStatusDialogAccount(account),
                           }
-                        >
-                          <Power className="size-4" />
-                          {t("common.activate")}
-                        </DropdownMenuItem>
-                      )}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                        : {
+                            label: t("common.activate"),
+                            icon: <Power className="size-4" />,
+                            disabled: toggleStatusMutation.isPending,
+                            onSelect: () =>
+                              toggleStatusMutation.mutate({
+                                account,
+                                active: true,
+                              }),
+                          },
+                    ]}
+                  />
                 </div>
               }
             >

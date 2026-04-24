@@ -15,30 +15,19 @@ import {
   buildCategorySearchParams,
   parseCategoryFilters,
 } from "@/features/categories/utils/category-search-params";
-import { ActionMenuTrigger } from "@/components/shared/action-menu-trigger";
 import { EmptySectionCard } from "@/components/shared/empty-section-card";
+import { FilterSelect } from "@/components/shared/filter-select";
 import { PageActionButton } from "@/components/shared/page-action-button";
 import { PageHeader } from "@/components/shared/page-header";
 import { RetryCard } from "@/components/shared/retry-card";
+import { RowActionsMenu } from "@/components/shared/row-actions-menu";
 import { SectionCard } from "@/components/shared/section-card";
 import { StackSkeleton } from "@/components/shared/stack-skeleton";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { SummaryStatCard } from "@/components/shared/summary-stat-card";
 import { TableHeaderCell } from "@/components/shared/table-header-cell";
 import { usePageTrail } from "@/components/layout/page-trail-context";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -181,46 +170,38 @@ export function CategoriesPageView() {
             onChange={(event) => setKeyword(event.target.value)}
             placeholder={t("categories.searchPlaceholder")}
           />
-          <Select
+          <FilterSelect
             value={filters.type ?? "all"}
+            placeholder={t("common.type")}
+            displayValue={selectedTypeLabel}
+            options={[
+              { value: "all", label: t("categories.typeAll") },
+              { value: "INCOME", label: t("common.income") },
+              { value: "EXPENSE", label: t("common.expense") },
+            ]}
             onValueChange={(value) =>
               updateFilters({
                 ...filters,
                 type: value as "all" | "INCOME" | "EXPENSE",
               })
             }
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder={t("common.type")}>
-                {selectedTypeLabel}
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">{t("categories.typeAll")}</SelectItem>
-              <SelectItem value="INCOME">{t("common.income")}</SelectItem>
-              <SelectItem value="EXPENSE">{t("common.expense")}</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select
+          />
+          <FilterSelect
             value={filters.status ?? "all"}
+            placeholder={t("common.status")}
+            displayValue={selectedStatusLabel}
+            options={[
+              { value: "all", label: t("categories.statusAll") },
+              { value: "active", label: t("common.active") },
+              { value: "inactive", label: t("common.inactive") },
+            ]}
             onValueChange={(value) =>
               updateFilters({
                 ...filters,
                 status: value as "all" | "active" | "inactive",
               })
             }
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder={t("common.status")}>
-                {selectedStatusLabel}
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">{t("categories.statusAll")}</SelectItem>
-              <SelectItem value="active">{t("common.active")}</SelectItem>
-              <SelectItem value="inactive">{t("common.inactive")}</SelectItem>
-            </SelectContent>
-          </Select>
+          />
         </div>
       </SectionCard>
 
@@ -297,36 +278,32 @@ export function CategoriesPageView() {
                     </TableCell>
                     <TableCell>{category.usageCount}</TableCell>
                     <TableCell className="text-right">
-                      <DropdownMenu>
-                        <ActionMenuTrigger srLabel={t("common.actions")} />
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => openEditDialog(category)}>
-                            <PencilLine className="size-4" />
-                            {t("common.edit")}
-                          </DropdownMenuItem>
-                          {category.active ? (
-                            <DropdownMenuItem
-                              onClick={() => setStatusDialogCategory(category)}
-                            >
-                              <PowerOff className="size-4" />
-                              {t("common.deactivate")}
-                            </DropdownMenuItem>
-                          ) : (
-                            <DropdownMenuItem
-                              disabled={toggleStatusMutation.isPending}
-                              onClick={() =>
-                                toggleStatusMutation.mutate({
-                                  category,
-                                  active: true,
-                                })
+                      <RowActionsMenu
+                        srLabel={t("common.actions")}
+                        items={[
+                          {
+                            label: t("common.edit"),
+                            icon: <PencilLine className="size-4" />,
+                            onSelect: () => openEditDialog(category),
+                          },
+                          category.active
+                            ? {
+                                label: t("common.deactivate"),
+                                icon: <PowerOff className="size-4" />,
+                                onSelect: () => setStatusDialogCategory(category),
                               }
-                            >
-                              <Power className="size-4" />
-                              {t("common.activate")}
-                            </DropdownMenuItem>
-                          )}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                            : {
+                                label: t("common.activate"),
+                                icon: <Power className="size-4" />,
+                                disabled: toggleStatusMutation.isPending,
+                                onSelect: () =>
+                                  toggleStatusMutation.mutate({
+                                    category,
+                                    active: true,
+                                  }),
+                              },
+                        ]}
+                      />
                     </TableCell>
                   </TableRow>
                 ))}
