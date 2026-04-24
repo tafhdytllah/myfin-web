@@ -5,11 +5,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 import { AuthFormCard } from "@/components/shared/auth-form-card";
 import { AuthFormFooterLink } from "@/components/shared/auth-form-footer-link";
-import { FormFieldItem } from "@/components/shared/form-field-item";
-import { PasswordInput } from "@/components/shared/password-input";
-import { Button } from "@/components/ui/button";
-import { FieldDescription, FieldError } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
+import { FormError } from "@/components/shared/form-error";
+import { FormSubmitButton } from "@/components/shared/form-submit-button";
+import { PasswordFieldItem } from "@/components/shared/password-field-item";
+import { TextInputField } from "@/components/shared/text-input-field";
+import { FieldDescription } from "@/components/ui/field";
 import { useRegister } from "@/features/auth/hooks/use-auth-actions";
 import {
   createRegisterSchema,
@@ -73,69 +73,51 @@ export function RegisterScreen() {
         />
       }
     >
-        <form className="space-y-5" onSubmit={handleSubmit(onSubmit)}>
-          <FieldError>{formError}</FieldError>
+      <form className="space-y-5" onSubmit={handleSubmit(onSubmit)}>
+        <FormError message={formError} />
 
-          {[
-            {
-              name: "username",
-              label: t("auth.username"),
-              placeholder: t("auth.usernamePlaceholder"),
-            },
-            {
-              name: "email",
-              label: t("auth.email"),
-              placeholder: t("auth.emailPlaceholder"),
-            },
-          ].map((field) => (
-            <FormFieldItem
-              key={field.name}
-              label={field.label}
-              errors={[errors[field.name as "username" | "email"]]}
-            >
-              <Input
-                {...register(field.name as "username" | "email")}
-                className="h-12 rounded-2xl border-[var(--color-border-strong)] bg-white px-4 dark:bg-transparent"
-                placeholder={field.placeholder}
-              />
-            </FormFieldItem>
-          ))}
+        <TextInputField
+          label={t("auth.username")}
+          registration={register("username")}
+          error={errors.username?.message}
+          className="h-12 rounded-2xl border-[var(--color-border-strong)] bg-white px-4 dark:bg-transparent"
+          placeholder={t("auth.usernamePlaceholder")}
+        />
 
-          <FormFieldItem
-            label={t("auth.password")}
-            errors={[errors.password]}
-            description={<FieldDescription>{t("profile.passwordHint")}</FieldDescription>}
-          >
-            <PasswordInput
-              {...register("password")}
-              className="h-12 rounded-2xl border-[var(--color-border-strong)] bg-white px-4 dark:bg-transparent"
-              placeholder={t("auth.passwordPlaceholder")}
-              toggleLabel={t("auth.togglePasswordVisibility")}
-            />
-          </FormFieldItem>
+        <TextInputField
+          label={t("auth.email")}
+          registration={register("email")}
+          error={errors.email?.message}
+          className="h-12 rounded-2xl border-[var(--color-border-strong)] bg-white px-4 dark:bg-transparent"
+          placeholder={t("auth.emailPlaceholder")}
+        />
 
-          <FormFieldItem
-            label={t("auth.confirmPassword")}
-            errors={[errors.confirmPassword]}
-          >
-            <PasswordInput
-              {...register("confirmPassword")}
-              className="h-12 rounded-2xl border-[var(--color-border-strong)] bg-white px-4 dark:bg-transparent"
-              placeholder={t("auth.confirmPasswordPlaceholder")}
-              toggleLabel={t("auth.togglePasswordVisibility")}
-            />
-          </FormFieldItem>
+        <PasswordFieldItem
+          label={t("auth.password")}
+          registration={register("password")}
+          error={errors.password?.message}
+          className="h-12 rounded-2xl border-[var(--color-border-strong)] bg-white px-4 dark:bg-transparent"
+          placeholder={t("auth.passwordPlaceholder")}
+          toggleLabel={t("auth.togglePasswordVisibility")}
+          description={<FieldDescription>{t("profile.passwordHint")}</FieldDescription>}
+        />
 
-          <Button
-            type="submit"
-            disabled={isSubmitting || registerMutation.isPending}
-            className="h-12 w-full rounded-2xl bg-[var(--color-surface-sidebar)] font-medium text-white hover:bg-[var(--color-surface-sidebar)]/95"
-          >
-            {isSubmitting || registerMutation.isPending
-              ? t("auth.creatingAccount")
-              : t("auth.createAccount")}
-          </Button>
-        </form>
+        <PasswordFieldItem
+          label={t("auth.confirmPassword")}
+          registration={register("confirmPassword")}
+          error={errors.confirmPassword?.message}
+          className="h-12 rounded-2xl border-[var(--color-border-strong)] bg-white px-4 dark:bg-transparent"
+          placeholder={t("auth.confirmPasswordPlaceholder")}
+          toggleLabel={t("auth.togglePasswordVisibility")}
+        />
+
+        <FormSubmitButton
+          idleLabel={t("auth.createAccount")}
+          pendingLabel={t("auth.creatingAccount")}
+          pending={isSubmitting || registerMutation.isPending}
+          className="h-12 w-full rounded-2xl bg-[var(--color-surface-sidebar)] font-medium text-white hover:bg-[var(--color-surface-sidebar)]/95"
+        />
+      </form>
     </AuthFormCard>
   );
 }

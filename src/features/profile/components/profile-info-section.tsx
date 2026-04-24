@@ -1,8 +1,7 @@
-import { Button } from "@/components/ui/button";
-import { FieldError } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
-import { FormFieldItem } from "@/components/shared/form-field-item";
+import { FormError } from "@/components/shared/form-error";
+import { FormSubmitButton } from "@/components/shared/form-submit-button";
 import { SectionCard } from "@/components/shared/section-card";
+import { TextInputField } from "@/components/shared/text-input-field";
 import { ProfileInfoSchema } from "@/features/profile/schemas/profile-schema";
 import type { UseFormReturn } from "react-hook-form";
 
@@ -37,40 +36,32 @@ export function ProfileInfoSection({
   return (
     <SectionCard title={title} description={description}>
       <form className="grid gap-4" onSubmit={form.handleSubmit(onSubmit)}>
-        <FieldError>{formError}</FieldError>
+        <FormError message={formError} />
 
-        <FormFieldItem
+        <TextInputField
           label={labels.username}
-          htmlFor="profile-username"
-          errors={[form.formState.errors.username]}
-        >
-          <Input
-            id="profile-username"
-            {...form.register("username")}
-            placeholder={labels.usernamePlaceholder}
-          />
-        </FormFieldItem>
+          id="profile-username"
+          registration={form.register("username")}
+          error={form.formState.errors.username?.message}
+          placeholder={labels.usernamePlaceholder}
+        />
 
-        <FormFieldItem
+        <TextInputField
           label={labels.email}
-          htmlFor="profile-email"
-          errors={[form.formState.errors.email]}
-        >
-          <Input
-            id="profile-email"
-            type="email"
-            {...form.register("email")}
-            placeholder={labels.emailPlaceholder}
-          />
-        </FormFieldItem>
+          id="profile-email"
+          type="email"
+          registration={form.register("email")}
+          error={form.formState.errors.email?.message}
+          placeholder={labels.emailPlaceholder}
+        />
 
-        <Button
-          type="submit"
-          disabled={pending || !form.formState.isDirty}
+        <FormSubmitButton
+          idleLabel={submitLabel}
+          pendingLabel={pendingLabel}
+          pending={pending}
+          disabled={!form.formState.isDirty}
           className="h-11 w-full rounded-2xl px-5 text-sm font-semibold sm:w-fit"
-        >
-          {pending ? pendingLabel : submitLabel}
-        </Button>
+        />
       </form>
     </SectionCard>
   );

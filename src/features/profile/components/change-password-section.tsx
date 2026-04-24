@@ -1,10 +1,10 @@
-import { Button } from "@/components/ui/button";
-import { FieldDescription, FieldError } from "@/components/ui/field";
-import { FormFieldItem } from "@/components/shared/form-field-item";
-import { PasswordInput } from "@/components/shared/password-input";
+import { FormError } from "@/components/shared/form-error";
+import { FormSubmitButton } from "@/components/shared/form-submit-button";
+import { PasswordFieldItem } from "@/components/shared/password-field-item";
 import { SectionCard } from "@/components/shared/section-card";
 import { ChangePasswordSchema } from "@/features/profile/schemas/profile-schema";
 import type { UseFormReturn } from "react-hook-form";
+import { FieldDescription } from "@/components/ui/field";
 
 type ChangePasswordSectionProps = {
   title: string;
@@ -42,55 +42,43 @@ export function ChangePasswordSection({
   return (
     <SectionCard title={title} description={description}>
       <form className="grid gap-4" onSubmit={form.handleSubmit(onSubmit)}>
-        <FieldError>{formError}</FieldError>
+        <FormError message={formError} />
 
-        <FormFieldItem
+        <PasswordFieldItem
           label={labels.currentPassword}
-          htmlFor="current-password"
-          errors={[form.formState.errors.currentPassword]}
-        >
-          <PasswordInput
-            id="current-password"
-            {...form.register("currentPassword")}
-            placeholder={labels.passwordPlaceholder}
-            toggleLabel={toggleLabel}
-          />
-        </FormFieldItem>
+          id="current-password"
+          registration={form.register("currentPassword")}
+          error={form.formState.errors.currentPassword?.message}
+          placeholder={labels.passwordPlaceholder}
+          toggleLabel={toggleLabel}
+        />
 
-        <FormFieldItem
+        <PasswordFieldItem
           label={labels.newPassword}
-          htmlFor="new-password"
-          errors={[form.formState.errors.newPassword]}
+          id="new-password"
+          registration={form.register("newPassword")}
+          error={form.formState.errors.newPassword?.message}
+          placeholder={labels.passwordPlaceholder}
+          toggleLabel={toggleLabel}
           description={<FieldDescription>{passwordHint}</FieldDescription>}
-        >
-          <PasswordInput
-            id="new-password"
-            {...form.register("newPassword")}
-            placeholder={labels.passwordPlaceholder}
-            toggleLabel={toggleLabel}
-          />
-        </FormFieldItem>
+        />
 
-        <FormFieldItem
+        <PasswordFieldItem
           label={labels.confirmNewPassword}
-          htmlFor="confirm-password"
-          errors={[form.formState.errors.confirmNewPassword]}
-        >
-          <PasswordInput
-            id="confirm-password"
-            {...form.register("confirmNewPassword")}
-            placeholder={labels.confirmPasswordPlaceholder}
-            toggleLabel={toggleLabel}
-          />
-        </FormFieldItem>
+          id="confirm-password"
+          registration={form.register("confirmNewPassword")}
+          error={form.formState.errors.confirmNewPassword?.message}
+          placeholder={labels.confirmPasswordPlaceholder}
+          toggleLabel={toggleLabel}
+        />
 
-        <Button
-          type="submit"
-          disabled={pending || !form.formState.isDirty}
+        <FormSubmitButton
+          idleLabel={submitLabel}
+          pendingLabel={pendingLabel}
+          pending={pending}
+          disabled={!form.formState.isDirty}
           className="h-11 w-full rounded-2xl px-5 text-sm font-semibold sm:w-fit"
-        >
-          {pending ? pendingLabel : submitLabel}
-        </Button>
+        />
       </form>
     </SectionCard>
   );

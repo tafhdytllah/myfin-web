@@ -5,11 +5,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 import { AuthFormCard } from "@/components/shared/auth-form-card";
 import { AuthFormFooterLink } from "@/components/shared/auth-form-footer-link";
-import { FormFieldItem } from "@/components/shared/form-field-item";
-import { PasswordInput } from "@/components/shared/password-input";
-import { Button } from "@/components/ui/button";
-import { FieldError } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
+import { FormError } from "@/components/shared/form-error";
+import { FormSubmitButton } from "@/components/shared/form-submit-button";
+import { PasswordFieldItem } from "@/components/shared/password-field-item";
+import { TextInputField } from "@/components/shared/text-input-field";
 import { useLogin } from "@/features/auth/hooks/use-auth-actions";
 import {
   createLoginSchema,
@@ -67,36 +66,33 @@ export function LoginScreen() {
         />
       }
     >
-        <form className="space-y-5" onSubmit={handleSubmit(onSubmit)}>
-          <FieldError>{formError}</FieldError>
+      <form className="space-y-5" onSubmit={handleSubmit(onSubmit)}>
+        <FormError message={formError} />
 
-          <FormFieldItem label={t("auth.username")} errors={[errors.username]}>
-            <Input
-              {...register("username")}
-              className="h-12 rounded-2xl border-[var(--color-border-strong)] bg-white px-4 dark:bg-transparent"
-              placeholder={t("auth.usernamePlaceholder")}
-            />
-          </FormFieldItem>
+        <TextInputField
+          label={t("auth.username")}
+          registration={register("username")}
+          error={errors.username?.message}
+          className="h-12 rounded-2xl border-[var(--color-border-strong)] bg-white px-4 dark:bg-transparent"
+          placeholder={t("auth.usernamePlaceholder")}
+        />
 
-          <FormFieldItem label={t("auth.password")} errors={[errors.password]}>
-            <PasswordInput
-              {...register("password")}
-              className="h-12 rounded-2xl border-[var(--color-border-strong)] bg-white px-4 dark:bg-transparent"
-              placeholder={t("auth.passwordPlaceholder")}
-              toggleLabel={t("auth.togglePasswordVisibility")}
-            />
-          </FormFieldItem>
+        <PasswordFieldItem
+          label={t("auth.password")}
+          registration={register("password")}
+          error={errors.password?.message}
+          className="h-12 rounded-2xl border-[var(--color-border-strong)] bg-white px-4 dark:bg-transparent"
+          placeholder={t("auth.passwordPlaceholder")}
+          toggleLabel={t("auth.togglePasswordVisibility")}
+        />
 
-          <Button
-            type="submit"
-            disabled={isSubmitting || loginMutation.isPending}
-            className="h-12 w-full rounded-2xl bg-[var(--color-surface-sidebar)] font-medium text-white hover:bg-[var(--color-surface-sidebar)]/95"
-          >
-            {isSubmitting || loginMutation.isPending
-              ? t("auth.signingIn")
-              : t("auth.signIn")}
-          </Button>
-        </form>
+        <FormSubmitButton
+          idleLabel={t("auth.signIn")}
+          pendingLabel={t("auth.signingIn")}
+          pending={isSubmitting || loginMutation.isPending}
+          className="h-12 w-full rounded-2xl bg-[var(--color-surface-sidebar)] font-medium text-white hover:bg-[var(--color-surface-sidebar)]/95"
+        />
+      </form>
     </AuthFormCard>
   );
 }
