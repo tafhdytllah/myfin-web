@@ -1,7 +1,6 @@
-import { Input } from "@/components/ui/input";
+import { FilterCardShell } from "@/components/shared/filter-card-shell";
 import { FilterSelect } from "@/components/shared/filter-select";
-import { ResetFiltersButton } from "@/components/shared/reset-filters-button";
-import { SectionCard } from "@/components/shared/section-card";
+import { SearchFilterInput } from "@/components/shared/search-filter-input";
 
 type AccountsFiltersCardProps = {
   title: string;
@@ -35,29 +34,26 @@ export function AccountsFiltersCard({
   onStatusChange,
 }: AccountsFiltersCardProps) {
   return (
-    <SectionCard
+    <FilterCardShell
       title={title}
       description={description}
-      action={
-        hasActiveFilters ? (
-          <ResetFiltersButton label={resetLabel} onClick={onReset} />
-        ) : null
-      }
+      hasActiveFilters={hasActiveFilters}
+      resetLabel={resetLabel}
+      onReset={onReset}
+      className="grid gap-3 md:grid-cols-2"
     >
-      <div className="grid gap-3 md:grid-cols-2">
-        <Input
-          value={keyword}
-          onChange={(event) => onKeywordChange(event.target.value)}
-          placeholder={searchPlaceholder}
-        />
-        <FilterSelect
-          value={statusValue}
-          placeholder={statusPlaceholder}
-          displayValue={statusDisplayValue}
-          options={statusOptions}
-          onValueChange={onStatusChange}
-        />
-      </div>
-    </SectionCard>
+      <SearchFilterInput
+        value={keyword}
+        onValueChange={onKeywordChange}
+        placeholder={searchPlaceholder}
+      />
+      <FilterSelect
+        value={statusValue}
+        placeholder={statusPlaceholder}
+        displayValue={statusDisplayValue}
+        options={statusOptions}
+        onValueChange={onStatusChange}
+      />
+    </FilterCardShell>
   );
 }

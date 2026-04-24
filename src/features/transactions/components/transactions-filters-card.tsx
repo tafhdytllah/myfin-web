@@ -1,7 +1,7 @@
-import { Input } from "@/components/ui/input";
-import { SectionCard } from "@/components/shared/section-card";
+import { DateRangeFields } from "@/components/shared/date-range-fields";
+import { FilterCardShell } from "@/components/shared/filter-card-shell";
 import { FilterSelect } from "@/components/shared/filter-select";
-import { ResetFiltersButton } from "@/components/shared/reset-filters-button";
+import { SearchFilterInput } from "@/components/shared/search-filter-input";
 
 type Option = {
   value: string;
@@ -68,59 +68,50 @@ export function TransactionsFiltersCard({
   onEndDateChange,
 }: TransactionsFiltersCardProps) {
   return (
-    <SectionCard
+    <FilterCardShell
       title={title}
       description={description}
-      action={
-        hasActiveFilters ? (
-          <ResetFiltersButton label={resetLabel} onClick={onReset} />
-        ) : null
-      }
+      hasActiveFilters={hasActiveFilters}
+      resetLabel={resetLabel}
+      onReset={onReset}
+      className="grid gap-3 md:grid-cols-2 xl:grid-cols-5"
     >
-      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
-        <Input
-          value={keyword}
-          onChange={(event) => onKeywordChange(event.target.value)}
-          placeholder={searchPlaceholder}
-        />
+      <SearchFilterInput
+        value={keyword}
+        onValueChange={onKeywordChange}
+        placeholder={searchPlaceholder}
+      />
 
-        <FilterSelect
-          value={accountValue}
-          placeholder={accountPlaceholder}
-          displayValue={accountDisplayValue}
-          options={accountOptions}
-          onValueChange={onAccountChange}
-        />
+      <FilterSelect
+        value={accountValue}
+        placeholder={accountPlaceholder}
+        displayValue={accountDisplayValue}
+        options={accountOptions}
+        onValueChange={onAccountChange}
+      />
 
-        <FilterSelect
-          value={typeValue}
-          placeholder={typePlaceholder}
-          displayValue={typeDisplayValue}
-          options={typeOptions}
-          onValueChange={onTypeChange}
-        />
+      <FilterSelect
+        value={typeValue}
+        placeholder={typePlaceholder}
+        displayValue={typeDisplayValue}
+        options={typeOptions}
+        onValueChange={onTypeChange}
+      />
 
-        <FilterSelect
-          value={categoryValue}
-          placeholder={categoryPlaceholder}
-          displayValue={categoryDisplayValue}
-          options={categoryOptions}
-          onValueChange={onCategoryChange}
-        />
+      <FilterSelect
+        value={categoryValue}
+        placeholder={categoryPlaceholder}
+        displayValue={categoryDisplayValue}
+        options={categoryOptions}
+        onValueChange={onCategoryChange}
+      />
 
-        <div className="grid grid-cols-2 gap-3">
-          <Input
-            type="date"
-            value={startDate}
-            onChange={(event) => onStartDateChange(event.target.value)}
-          />
-          <Input
-            type="date"
-            value={endDate}
-            onChange={(event) => onEndDateChange(event.target.value)}
-          />
-        </div>
-      </div>
-    </SectionCard>
+      <DateRangeFields
+        startDate={startDate}
+        endDate={endDate}
+        onStartDateChange={onStartDateChange}
+        onEndDateChange={onEndDateChange}
+      />
+    </FilterCardShell>
   );
 }

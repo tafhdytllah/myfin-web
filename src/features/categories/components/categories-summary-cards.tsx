@@ -1,4 +1,4 @@
-import { SummaryStatCard } from "@/components/shared/summary-stat-card";
+import { SummaryStatsGrid } from "@/components/shared/summary-stats-grid";
 
 type CategoriesSummaryCardsProps = {
   items: Array<{
@@ -8,11 +8,5 @@ type CategoriesSummaryCardsProps = {
 };
 
 export function CategoriesSummaryCards({ items }: CategoriesSummaryCardsProps) {
-  return (
-    <div className="grid gap-4 md:grid-cols-5">
-      {items.map((item) => (
-        <SummaryStatCard key={item.label} label={item.label} value={item.value} />
-      ))}
-    </div>
-  );
+  return <SummaryStatsGrid items={items} className="md:grid-cols-5" />;
 }

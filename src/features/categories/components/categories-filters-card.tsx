@@ -1,6 +1,6 @@
-import { Input } from "@/components/ui/input";
+import { FilterCardShell } from "@/components/shared/filter-card-shell";
 import { FilterSelect } from "@/components/shared/filter-select";
-import { SectionCard } from "@/components/shared/section-card";
+import { SearchFilterInput } from "@/components/shared/search-filter-input";
 
 type CategoriesFiltersCardProps = {
   title: string;
@@ -38,28 +38,30 @@ export function CategoriesFiltersCard({
   onStatusChange,
 }: CategoriesFiltersCardProps) {
   return (
-    <SectionCard title={title} description={description}>
-      <div className="grid gap-3 md:grid-cols-3">
-        <Input
-          value={keyword}
-          onChange={(event) => onKeywordChange(event.target.value)}
-          placeholder={searchPlaceholder}
-        />
-        <FilterSelect
-          value={typeValue}
-          placeholder={typePlaceholder}
-          displayValue={typeDisplayValue}
-          options={typeOptions}
-          onValueChange={onTypeChange}
-        />
-        <FilterSelect
-          value={statusValue}
-          placeholder={statusPlaceholder}
-          displayValue={statusDisplayValue}
-          options={statusOptions}
-          onValueChange={onStatusChange}
-        />
-      </div>
-    </SectionCard>
+    <FilterCardShell
+      title={title}
+      description={description}
+      className="grid gap-3 md:grid-cols-3"
+    >
+      <SearchFilterInput
+        value={keyword}
+        onValueChange={onKeywordChange}
+        placeholder={searchPlaceholder}
+      />
+      <FilterSelect
+        value={typeValue}
+        placeholder={typePlaceholder}
+        displayValue={typeDisplayValue}
+        options={typeOptions}
+        onValueChange={onTypeChange}
+      />
+      <FilterSelect
+        value={statusValue}
+        placeholder={statusPlaceholder}
+        displayValue={statusDisplayValue}
+        options={statusOptions}
+        onValueChange={onStatusChange}
+      />
+    </FilterCardShell>
   );
 }
