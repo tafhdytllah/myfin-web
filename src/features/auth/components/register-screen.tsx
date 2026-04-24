@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { AuthFormCard } from "@/components/shared/auth-form-card";
 import { AuthFormFooterLink } from "@/components/shared/auth-form-footer-link";
 import { FormError } from "@/components/shared/form-error";
+import { FormLayout } from "@/components/shared/form-layout";
 import { FormSubmitButton } from "@/components/shared/form-submit-button";
 import { PasswordFieldItem } from "@/components/shared/password-field-item";
 import { TextInputField } from "@/components/shared/text-input-field";
@@ -73,7 +74,7 @@ export function RegisterScreen() {
         />
       }
     >
-      <form className="space-y-5" onSubmit={handleSubmit(onSubmit)}>
+      <FormLayout onSubmit={handleSubmit(onSubmit)}>
         <FormError message={formError} />
 
         <TextInputField
@@ -117,7 +118,7 @@ export function RegisterScreen() {
           pending={isSubmitting || registerMutation.isPending}
           className="h-12 w-full rounded-2xl bg-[var(--color-surface-sidebar)] font-medium text-white hover:bg-[var(--color-surface-sidebar)]/95"
         />
-      </form>
+      </FormLayout>
     </AuthFormCard>
   );
 }

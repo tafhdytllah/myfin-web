@@ -1,4 +1,5 @@
 import { FormError } from "@/components/shared/form-error";
+import { FormLayout } from "@/components/shared/form-layout";
 import { FormSubmitButton } from "@/components/shared/form-submit-button";
 import { SectionCard } from "@/components/shared/section-card";
 import { TextInputField } from "@/components/shared/text-input-field";
@@ -31,11 +32,11 @@ export function ProfileInfoSection({
   pending,
   form,
   onSubmit,
-  labels,
+    labels,
 }: ProfileInfoSectionProps) {
   return (
     <SectionCard title={title} description={description}>
-      <form className="grid gap-4" onSubmit={form.handleSubmit(onSubmit)}>
+      <FormLayout layout="grid" onSubmit={form.handleSubmit(onSubmit)}>
         <FormError message={formError} />
 
         <TextInputField
@@ -62,7 +63,7 @@ export function ProfileInfoSection({
           disabled={!form.formState.isDirty}
           className="h-11 w-full rounded-2xl px-5 text-sm font-semibold sm:w-fit"
         />
-      </form>
+      </FormLayout>
     </SectionCard>
   );
 }

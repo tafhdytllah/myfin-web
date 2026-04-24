@@ -1,4 +1,5 @@
 import { FormError } from "@/components/shared/form-error";
+import { FormLayout } from "@/components/shared/form-layout";
 import { FormSubmitButton } from "@/components/shared/form-submit-button";
 import { PasswordFieldItem } from "@/components/shared/password-field-item";
 import { SectionCard } from "@/components/shared/section-card";
@@ -41,7 +42,7 @@ export function ChangePasswordSection({
 }: ChangePasswordSectionProps) {
   return (
     <SectionCard title={title} description={description}>
-      <form className="grid gap-4" onSubmit={form.handleSubmit(onSubmit)}>
+      <FormLayout layout="grid" onSubmit={form.handleSubmit(onSubmit)}>
         <FormError message={formError} />
 
         <PasswordFieldItem
@@ -79,7 +80,7 @@ export function ChangePasswordSection({
           disabled={!form.formState.isDirty}
           className="h-11 w-full rounded-2xl px-5 text-sm font-semibold sm:w-fit"
         />
-      </form>
+      </FormLayout>
     </SectionCard>
   );
 }

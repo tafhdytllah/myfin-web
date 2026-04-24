@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 
 import { DialogFormActions } from "@/components/shared/dialog-form-actions";
 import { DialogFormHeader } from "@/components/shared/dialog-form-header";
+import { FormLayout } from "@/components/shared/form-layout";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { AccountCurrentBalanceNotice } from "@/features/accounts/components/account-current-balance-notice";
 import { AccountNameField } from "@/features/accounts/components/account-name-field";
@@ -140,10 +141,7 @@ export function AccountFormDialog({
         />
 
         {isEditMode ? (
-          <form
-            className="space-y-5"
-            onSubmit={updateForm.handleSubmit(handleUpdateSubmit)}
-          >
+          <FormLayout onSubmit={updateForm.handleSubmit(handleUpdateSubmit)}>
             <AccountNameField
               error={updateForm.formState.errors.name?.message}
               id="account-name"
@@ -160,12 +158,9 @@ export function AccountFormDialog({
               isPending={isSubmitting}
               onCancel={() => onOpenChange(false)}
             />
-          </form>
+          </FormLayout>
         ) : (
-          <form
-            className="space-y-5"
-            onSubmit={createForm.handleSubmit(handleCreateSubmit)}
-          >
+          <FormLayout onSubmit={createForm.handleSubmit(handleCreateSubmit)}>
             <AccountNameField
               error={createForm.formState.errors.name?.message}
               id="new-account-name"
@@ -185,7 +180,7 @@ export function AccountFormDialog({
               isPending={isSubmitting}
               onCancel={() => onOpenChange(false)}
             />
-          </form>
+          </FormLayout>
         )}
       </DialogContent>
     </Dialog>

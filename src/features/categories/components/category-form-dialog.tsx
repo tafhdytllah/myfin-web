@@ -6,6 +6,7 @@ import { useForm, useWatch } from "react-hook-form";
 
 import { DialogFormActions } from "@/components/shared/dialog-form-actions";
 import { DialogFormHeader } from "@/components/shared/dialog-form-header";
+import { FormLayout } from "@/components/shared/form-layout";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { CategoryNameField } from "@/features/categories/components/category-name-field";
 import { CategoryTypeField } from "@/features/categories/components/category-type-field";
@@ -127,7 +128,7 @@ export function CategoryFormDialog({
           }
         />
 
-        <form className="space-y-5" onSubmit={form.handleSubmit(handleSubmit)}>
+        <FormLayout onSubmit={form.handleSubmit(handleSubmit)}>
           <CategoryNameField
             error={form.formState.errors.name?.message}
             registration={form.register("name")}
@@ -151,7 +152,7 @@ export function CategoryFormDialog({
             isPending={isSubmitting}
             onCancel={() => onOpenChange(false)}
           />
-        </form>
+        </FormLayout>
       </DialogContent>
     </Dialog>
   );
