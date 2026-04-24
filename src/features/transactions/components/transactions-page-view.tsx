@@ -1,13 +1,15 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { PencilLine, Trash2 } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { useAccounts } from "@/features/accounts/hooks/use-account-queries";
 import { useCategories } from "@/features/categories/hooks/use-category-queries";
 import { TransactionDeleteDialog } from "@/features/transactions/components/transaction-delete-dialog";
+import { TransactionsFiltersCard } from "@/features/transactions/components/transactions-filters-card";
 import { TransactionFormDialog } from "@/features/transactions/components/transaction-form-dialog";
+import { TransactionsSummaryCards } from "@/features/transactions/components/transactions-summary-cards";
+import { TransactionsTableSection } from "@/features/transactions/components/transactions-table-section";
 import {
   useEditTransactionUnavailable,
   useTransactions,
@@ -17,35 +19,9 @@ import {
   buildTransactionSearchParams,
   parseTransactionFilters,
 } from "@/features/transactions/utils/transaction-search-params";
-import { FilterSelect } from "@/components/shared/filter-select";
 import { PageHeader } from "@/components/shared/page-header";
-import { InlineRetryState } from "@/components/shared/inline-retry-state";
 import { PageActionButton } from "@/components/shared/page-action-button";
-import { ResetFiltersButton } from "@/components/shared/reset-filters-button";
-import { RowActionsMenu } from "@/components/shared/row-actions-menu";
-import { SectionCard } from "@/components/shared/section-card";
-import { SectionEmptyState } from "@/components/shared/section-empty-state";
-import { StackSkeleton } from "@/components/shared/stack-skeleton";
-import { StatusBadge } from "@/components/shared/status-badge";
-import { SummaryStatCard } from "@/components/shared/summary-stat-card";
-import { TableHeaderCell } from "@/components/shared/table-header-cell";
 import { usePageTrail } from "@/components/layout/page-trail-context";
-import { Input } from "@/components/ui/input";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { formatCurrency } from "@/lib/formatters/currency";
 import { formatDate } from "@/lib/formatters/date";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
@@ -230,272 +206,132 @@ export function TransactionsPageView() {
         }
       />
 
-      <div className="grid gap-4 md:grid-cols-3">
-        {[
+      <TransactionsSummaryCards
+        items={[
           {
             label: t("transactions.totalTransactions"),
             value: String(summary.totalTransactions),
           },
           { label: t("common.income"), value: formatCurrency(summary.totalIncome) },
           { label: t("common.expense"), value: formatCurrency(summary.totalExpense) },
-        ].map((item) => (
-          <SummaryStatCard key={item.label} label={item.label} value={item.value} />
-        ))}
-      </div>
+        ]}
+      />
 
-      <SectionCard
+      <TransactionsFiltersCard
         title={t("transactions.filtersTitle")}
         description={t("transactions.filtersDescription")}
-        action={
-          hasActiveFilters ? (
-            <ResetFiltersButton
-              label={t("transactions.resetFilters")}
-              onClick={resetFilters}
-            />
-          ) : null
+        hasActiveFilters={hasActiveFilters}
+        resetLabel={t("transactions.resetFilters")}
+        onReset={resetFilters}
+        keyword={keyword}
+        searchPlaceholder={t("common.search")}
+        onKeywordChange={setKeyword}
+        accountValue={filters.accountId || "all"}
+        accountPlaceholder={t("common.account")}
+        accountDisplayValue={filters.accountId ? selectedAccountName : undefined}
+        accountOptions={[
+          { value: "all", label: t("transactions.allAccounts") },
+          ...accounts.map((account) => ({
+            value: account.id,
+            label: account.name,
+          })),
+        ]}
+        onAccountChange={(value) =>
+          updateFilters({
+            ...filters,
+            accountId: value === "all" || value == null ? "" : value,
+            page: 1,
+          })
         }
-      >
-        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
-          <Input
-            value={keyword}
-            onChange={(event) => setKeyword(event.target.value)}
-            placeholder={t("common.search")}
-          />
+        typeValue={filters.type ?? "all"}
+        typePlaceholder={t("common.type")}
+        typeDisplayValue={selectedTypeLabel}
+        typeOptions={[
+          { value: "all", label: t("transactions.allTypes") },
+          { value: "INCOME", label: t("common.income") },
+          { value: "EXPENSE", label: t("common.expense") },
+        ]}
+        onTypeChange={(value) =>
+          updateFilters({
+            ...filters,
+            type: (value ?? "all") as "all" | "INCOME" | "EXPENSE",
+            categoryId: "",
+            page: 1,
+          })
+        }
+        categoryValue={filters.categoryId || "all"}
+        categoryPlaceholder={t("common.category")}
+        categoryDisplayValue={filters.categoryId ? selectedCategoryName : undefined}
+        categoryOptions={[
+          { value: "all", label: t("transactions.allCategories") },
+          ...getCategoryOptions().map((category) => ({
+            value: category.id,
+            label: category.name,
+          })),
+        ]}
+        onCategoryChange={(value) =>
+          updateFilters({
+            ...filters,
+            categoryId: value === "all" || value == null ? "" : value,
+            page: 1,
+          })
+        }
+        startDate={filters.startDate ?? ""}
+        endDate={filters.endDate ?? ""}
+        onStartDateChange={(value) =>
+          updateFilters({
+            ...filters,
+            startDate: value,
+            page: 1,
+          })
+        }
+        onEndDateChange={(value) =>
+          updateFilters({
+            ...filters,
+            endDate: value,
+            page: 1,
+          })
+        }
+      />
 
-          <FilterSelect
-            value={filters.accountId || "all"}
-            placeholder={t("common.account")}
-            displayValue={filters.accountId ? selectedAccountName : undefined}
-            options={[
-              { value: "all", label: t("transactions.allAccounts") },
-              ...accounts.map((account) => ({
-                value: account.id,
-                label: account.name,
-              })),
-            ]}
-            onValueChange={(value) =>
-              updateFilters({
-                ...filters,
-                accountId: value === "all" || value == null ? "" : value,
-                page: 1,
-              })
-            }
-          />
-
-          <FilterSelect
-            value={filters.type ?? "all"}
-            placeholder={t("common.type")}
-            displayValue={selectedTypeLabel}
-            options={[
-              { value: "all", label: t("transactions.allTypes") },
-              { value: "INCOME", label: t("common.income") },
-              { value: "EXPENSE", label: t("common.expense") },
-            ]}
-            onValueChange={(value) =>
-              updateFilters({
-                ...filters,
-                type: (value ?? "all") as "all" | "INCOME" | "EXPENSE",
-                categoryId: "",
-                page: 1,
-              })
-            }
-          />
-
-          <FilterSelect
-            value={filters.categoryId || "all"}
-            placeholder={t("common.category")}
-            displayValue={filters.categoryId ? selectedCategoryName : undefined}
-            options={[
-              { value: "all", label: t("transactions.allCategories") },
-              ...getCategoryOptions().map((category) => ({
-                value: category.id,
-                label: category.name,
-              })),
-            ]}
-            onValueChange={(value) =>
-              updateFilters({
-                ...filters,
-                categoryId: value === "all" || value == null ? "" : value,
-                page: 1,
-              })
-            }
-          />
-
-          <div className="grid grid-cols-2 gap-3">
-            <Input
-              type="date"
-              value={filters.startDate ?? ""}
-              onChange={(event) =>
-                updateFilters({
-                  ...filters,
-                  startDate: event.target.value,
-                  page: 1,
-                })
-              }
-            />
-            <Input
-              type="date"
-              value={filters.endDate ?? ""}
-              onChange={(event) =>
-                updateFilters({
-                  ...filters,
-                  endDate: event.target.value,
-                  page: 1,
-                })
-              }
-            />
-          </div>
-        </div>
-      </SectionCard>
-
-      <SectionCard
+      <TransactionsTableSection
         title={t("transactions.tableTitle")}
         description={t("transactions.tableDescription")}
-      >
-        {transactionsQuery.isLoading ? (
-          <StackSkeleton count={5} itemClassName="h-14 rounded-xl bg-muted" />
-        ) : null}
-
-        {transactionsQuery.isError ? (
-          <InlineRetryState
-            description={t("transactions.loadErrorDescription")}
-            retryLabel={t("transactions.retry")}
-            onRetry={() => transactionsQuery.refetch()}
-          />
-        ) : null}
-
-        {!transactionsQuery.isLoading &&
-        !transactionsQuery.isError &&
-        rows.length === 0 ? (
-          <SectionEmptyState
-            description={t("transactions.emptyDescription")}
-            actions={[
-              {
-                label: t("transactions.addTransaction"),
-                onClick: () => setFormOpen(true),
-              },
-              ...(hasActiveFilters
-                ? [
-                    {
-                      label: t("transactions.resetFilters"),
-                      onClick: resetFilters,
-                      variant: "outline" as const,
-                    },
-                  ]
-                : []),
-            ]}
-          />
-        ) : null}
-
-        {!transactionsQuery.isLoading &&
-        !transactionsQuery.isError &&
-        rows.length > 0 ? (
-          <>
-            <div className="overflow-x-auto">
-              <Table className="min-w-[860px]">
-                <TableHeader>
-                  <TableRow className="hover:bg-transparent">
-                    <TableHeaderCell>{t("common.date")}</TableHeaderCell>
-                    <TableHeaderCell>{t("common.type")}</TableHeaderCell>
-                    <TableHeaderCell>{t("common.account")}</TableHeaderCell>
-                    <TableHeaderCell>{t("common.category")}</TableHeaderCell>
-                    <TableHeaderCell>{t("common.description")}</TableHeaderCell>
-                    <TableHeaderCell>{t("common.amount")}</TableHeaderCell>
-                    <TableHeaderCell className="text-right">
-                      {t("common.actions")}
-                    </TableHeaderCell>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {rows.map((row) => (
-                    <TableRow key={row.id}>
-                      <TableCell>{formatDate(row.createdAt, dateLocale)}</TableCell>
-                      <TableCell>
-                        <StatusBadge tone={row.type === "INCOME" ? "income" : "expense"}>
-                          {row.type === "INCOME"
-                            ? t("common.income")
-                            : t("common.expense")}
-                        </StatusBadge>
-                      </TableCell>
-                      <TableCell>{row.accountName}</TableCell>
-                      <TableCell>{row.categoryName}</TableCell>
-                      <TableCell className="max-w-xs truncate text-[var(--color-foreground-muted)]">
-                        {row.description || "-"}
-                      </TableCell>
-                      <TableCell className="font-semibold">
-                        {formatCurrency(row.amount)}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <RowActionsMenu
-                          srLabel={t("common.actions")}
-                          items={[
-                            {
-                              label: t("transactions.edit"),
-                              icon: <PencilLine className="size-4" />,
-                              onSelect: () => notifyEditUnavailable(row),
-                            },
-                            {
-                              label: t("transactions.delete"),
-                              icon: <Trash2 className="size-4" />,
-                              destructive: true,
-                              onSelect: () => setDeletingTransaction(row),
-                            },
-                          ]}
-                        />
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-
-            {totalPages > 1 ? (
-              <Pagination className="mt-6 justify-center md:justify-end">
-                <PaginationContent>
-                  <PaginationItem>
-                    <PaginationPrevious
-                      href="#"
-                      text={t("transactions.previous")}
-                      onClick={(event) => {
-                        event.preventDefault();
-                        if (currentPage > 1) changePage(currentPage - 1);
-                      }}
-                    />
-                  </PaginationItem>
-                  {Array.from({ length: totalPages }).map((_, index) => {
-                    const page = index + 1;
-
-                    return (
-                      <PaginationItem key={page}>
-                        <PaginationLink
-                          href="#"
-                          isActive={page === currentPage}
-                          onClick={(event) => {
-                            event.preventDefault();
-                            changePage(page);
-                          }}
-                        >
-                          {page}
-                        </PaginationLink>
-                      </PaginationItem>
-                    );
-                  })}
-                  <PaginationItem>
-                    <PaginationNext
-                      href="#"
-                      text={t("transactions.next")}
-                      onClick={(event) => {
-                        event.preventDefault();
-                        if (currentPage < totalPages) changePage(currentPage + 1);
-                      }}
-                    />
-                  </PaginationItem>
-                </PaginationContent>
-              </Pagination>
-            ) : null}
-          </>
-        ) : null}
-      </SectionCard>
+        loading={transactionsQuery.isLoading}
+        isError={transactionsQuery.isError}
+        rows={rows}
+        retryLabel={t("transactions.retry")}
+        errorDescription={t("transactions.loadErrorDescription")}
+        onRetry={() => transactionsQuery.refetch()}
+        emptyDescription={t("transactions.emptyDescription")}
+        emptyActionLabel={t("transactions.addTransaction")}
+        onEmptyAction={() => setFormOpen(true)}
+        hasActiveFilters={hasActiveFilters}
+        resetFiltersLabel={t("transactions.resetFilters")}
+        onResetFilters={resetFilters}
+        formatDate={(value) => formatDate(value, dateLocale)}
+        formatCurrency={formatCurrency}
+        labels={{
+          date: t("common.date"),
+          type: t("common.type"),
+          account: t("common.account"),
+          category: t("common.category"),
+          description: t("common.description"),
+          amount: t("common.amount"),
+          actions: t("common.actions"),
+          income: t("common.income"),
+          expense: t("common.expense"),
+          edit: t("transactions.edit"),
+          delete: t("transactions.delete"),
+          previous: t("transactions.previous"),
+          next: t("transactions.next"),
+        }}
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={changePage}
+        onEdit={notifyEditUnavailable}
+        onDelete={setDeletingTransaction}
+      />
 
       <TransactionFormDialog open={formOpen} onOpenChange={setFormOpen} />
       <TransactionDeleteDialog
