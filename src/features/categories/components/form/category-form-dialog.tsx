@@ -8,8 +8,8 @@ import { DialogFormActions } from "@/components/shared/dialog-form-actions";
 import { DialogFormHeader } from "@/components/shared/dialog-form-header";
 import { FormLayout } from "@/components/shared/form-layout";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { CategoryNameField } from "@/features/categories/components/category-name-field";
-import { CategoryTypeField } from "@/features/categories/components/category-type-field";
+import { CategoryNameField } from "@/features/categories/components/form/category-name-field";
+import { CategoryTypeField } from "@/features/categories/components/form/category-type-field";
 import {
   CategoryFormValues,
   createCategoryFormSchema,
@@ -118,14 +118,8 @@ export function CategoryFormDialog({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="rounded-3xl sm:max-w-lg">
         <DialogFormHeader
-          title={
-            isEditMode ? t("categories.editCategory") : t("categories.addCategory")
-          }
-          description={
-            isEditMode
-              ? t("categories.editDescription")
-              : t("categories.createDescription")
-          }
+          title={ isEditMode ? t("categories.editCategory") : t("categories.addCategory") }
+          description={ isEditMode ? t("categories.editDescription") : t("categories.createDescription")}
         />
 
         <FormLayout onSubmit={form.handleSubmit(handleSubmit)}>

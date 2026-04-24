@@ -1,11 +1,11 @@
-import { ReactNode, useMemo, useState } from "react";
+import { ReactNode, useMemo } from "react";
 
-import { DataTable } from "@/components/shared/data-table";
-import { DataTablePagination } from "@/components/shared/data-table-pagination";
+import { DataTable } from "@/components/shared/data-table/data-table";
+import { DataTableToolbar } from "@/components/shared/data-table/data-table-toolbar";
 import { InlineRetryState } from "@/components/shared/inline-retry-state";
 import { SectionEmptyState } from "@/components/shared/section-empty-state";
+import { ServerPagination } from "@/components/shared/server-pagination";
 import { StackSkeleton } from "@/components/shared/stack-skeleton";
-import { TableColumnVisibilityMenu } from "@/components/shared/table-column-visibility-menu";
 import { TableWorkspace } from "@/components/shared/table-workspace";
 import {
   buildTransactionsTableColumns,
@@ -31,12 +31,13 @@ type TransactionsTableSectionProps = {
   formatCurrency: (value: number) => string;
   labels: {
     columns: string;
-    columnsMenu: string;
-    selectedRows: (count: number) => string;
     totalRows: (count: number) => string;
     pageSummary: (current: number, total: number) => string;
     selectAllRows: string;
     selectTransactionRow: (date: string) => string;
+    sortAscending: string;
+    sortDescending: string;
+    hideColumn: string;
     date: string;
     type: string;
     account: string;
@@ -93,29 +94,10 @@ export function TransactionsTableSection({
         formatDate,
         labels,
         onEdit,
-        onDelete,
+      onDelete,
       }),
     [formatCurrency, formatDate, labels, onDelete, onEdit],
   );
-  const [selectedRowIds, setSelectedRowIds] = useState<string[]>([]);
-  const [columnPreferences, setColumnPreferences] = useState<string[]>([]);
-  const visibleColumnIds = useMemo(() => {
-    const nextColumnIds = columns.map((column) => column.id);
-
-    if (columnPreferences.length === 0) {
-      return nextColumnIds;
-    }
-
-    const preservedIds = columnPreferences.filter((id) => nextColumnIds.includes(id));
-    const addedIds = nextColumnIds.filter((id) => !preservedIds.includes(id));
-
-    return [...preservedIds, ...addedIds];
-  }, [columnPreferences, columns]);
-  const resolvedSelectedRowIds = useMemo(() => {
-    const rowIds = new Set(rows.map((row) => row.id));
-
-    return selectedRowIds.filter((id) => rowIds.has(id));
-  }, [rows, selectedRowIds]);
 
   return (
     <TableWorkspace
@@ -125,25 +107,14 @@ export function TransactionsTableSection({
       toolbarEnd={
         <>
           {primaryAction}
-          <TableColumnVisibilityMenu
-            columns={columns}
-            visibleColumnIds={visibleColumnIds}
-            onVisibleColumnIdsChange={setColumnPreferences}
-            triggerLabel={labels.columns}
-            menuLabel={labels.columnsMenu}
-          />
         </>
       }
-      footerStart={
-        resolvedSelectedRowIds.length > 0
-          ? labels.selectedRows(resolvedSelectedRowIds.length)
-          : labels.totalRows(rows.length)
-      }
+      footerStart={labels.totalRows(rows.length)}
       footerEnd={
         !loading && !isError && rows.length > 0 ? (
           <div className="flex flex-col items-start gap-3 md:items-end">
             <span>{labels.pageSummary(currentPage, totalPages)}</span>
-            <DataTablePagination
+            <ServerPagination
               currentPage={currentPage}
               totalPages={totalPages}
               previousLabel={labels.previous}
@@ -186,19 +157,21 @@ export function TransactionsTableSection({
       ) : null}
 
       {!loading && !isError && rows.length > 0 ? (
-          <DataTable
-            columns={columns}
-            rows={rows}
-            rowKey={(row) => row.id}
-            minWidthClassName="min-w-[860px]"
-            visibleColumnIds={visibleColumnIds}
-            selectedRowIds={resolvedSelectedRowIds}
-            onSelectedRowIdsChange={setSelectedRowIds}
-            selectAllLabel={labels.selectAllRows}
-            selectRowLabel={(row) =>
-              labels.selectTransactionRow(formatDate(row.createdAt))
-            }
-          />
+        <DataTable
+          columns={columns}
+          data={rows}
+          noResultsLabel={emptyDescription}
+          pageSize={rows.length || 10}
+          tableClassName="min-w-[860px]"
+          toolbar={(table) => (
+            <DataTableToolbar
+              table={table}
+              columnsLabel={labels.columns}
+              resetLabel={resetFiltersLabel}
+            />
+          )}
+          pagination={() => null}
+        />
       ) : null}
     </TableWorkspace>
   );

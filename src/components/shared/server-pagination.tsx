@@ -7,7 +7,7 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 
-type DataTablePaginationProps = {
+type ServerPaginationProps = {
   currentPage: number;
   totalPages: number;
   previousLabel: string;
@@ -15,13 +15,13 @@ type DataTablePaginationProps = {
   onPageChange: (page: number) => void;
 };
 
-export function DataTablePagination({
+export function ServerPagination({
   currentPage,
   totalPages,
   previousLabel,
   nextLabel,
   onPageChange,
-}: DataTablePaginationProps) {
+}: ServerPaginationProps) {
   if (totalPages <= 1) {
     return null;
   }

@@ -38,7 +38,7 @@ export const categoryApiRepository: CategoryRepository = {
         body: JSON.stringify(payload),
       },
     );
-
+    console.log(response);
     return response.data;
   },
 };

@@ -1,8 +1,8 @@
 "use client";
 
 import { ConfirmActionDialog } from "@/components/shared/confirm-action-dialog";
-import { Category } from "@/features/categories/types/category-types";
 import { useToggleCategoryStatus } from "@/features/categories/hooks/use-category-queries";
+import { Category } from "@/features/categories/types/category-types";
 import { useTranslations } from "@/lib/i18n/use-translations";
 
 type CategoryStatusDialogProps = {

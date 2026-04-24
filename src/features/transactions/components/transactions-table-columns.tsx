@@ -1,8 +1,10 @@
 import { PencilLine, Trash2 } from "lucide-react";
+import { ColumnDef } from "@tanstack/react-table";
 
-import { DataTableColumn } from "@/components/shared/data-table";
+import { DataTableColumnHeader } from "@/components/shared/data-table-column-header";
 import { RowActionsMenu } from "@/components/shared/row-actions-menu";
 import { StatusBadge } from "@/components/shared/status-badge";
+import { Checkbox } from "@/components/ui/checkbox";
 
 type TransactionRow = {
   id: string;
@@ -17,6 +19,11 @@ type TransactionRow = {
 };
 
 type TransactionTableLabels = {
+  selectAllRows: string;
+  selectTransactionRow: (date: string) => string;
+  sortAscending: string;
+  sortDescending: string;
+  hideColumn: string;
   date: string;
   type: string;
   account: string;
@@ -44,71 +51,156 @@ export function buildTransactionsTableColumns({
   labels,
   onEdit,
   onDelete,
-}: BuildTransactionsTableColumnsOptions): DataTableColumn<TransactionRow>[] {
+}: BuildTransactionsTableColumnsOptions): ColumnDef<TransactionRow>[] {
   return [
     {
-      id: "date",
-      header: labels.date,
-      visibilityLabel: labels.date,
-      cell: (row) => formatDate(row.createdAt),
+      id: "select",
+      header: ({ table }) => (
+        <Checkbox
+          checked={table.getIsAllPageRowsSelected()}
+          indeterminate={
+            table.getIsSomePageRowsSelected() && !table.getIsAllPageRowsSelected()
+          }
+          aria-label={labels.selectAllRows}
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          aria-label={labels.selectTransactionRow(formatDate(row.original.createdAt))}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
+      size: 44,
     },
     {
-      id: "type",
-      header: labels.type,
-      visibilityLabel: labels.type,
-      cell: (row) => (
-        <StatusBadge tone={row.type === "INCOME" ? "income" : "expense"}>
-          {row.type === "INCOME" ? labels.income : labels.expense}
+      accessorKey: "createdAt",
+      meta: {
+        label: labels.date,
+      },
+      header: ({ column }) => (
+        <DataTableColumnHeader
+          column={column}
+          title={labels.date}
+          ascLabel={labels.sortAscending}
+          descLabel={labels.sortDescending}
+          hideLabel={labels.hideColumn}
+        />
+      ),
+      cell: ({ row }) => formatDate(row.original.createdAt),
+    },
+    {
+      accessorKey: "type",
+      meta: {
+        label: labels.type,
+      },
+      header: ({ column }) => (
+        <DataTableColumnHeader
+          column={column}
+          title={labels.type}
+          ascLabel={labels.sortAscending}
+          descLabel={labels.sortDescending}
+          hideLabel={labels.hideColumn}
+        />
+      ),
+      cell: ({ row }) => (
+        <StatusBadge tone={row.original.type === "INCOME" ? "income" : "expense"}>
+          {row.original.type === "INCOME" ? labels.income : labels.expense}
         </StatusBadge>
       ),
     },
     {
-      id: "account",
-      header: labels.account,
-      visibilityLabel: labels.account,
-      cell: (row) => row.accountName,
+      accessorKey: "accountName",
+      meta: {
+        label: labels.account,
+      },
+      header: ({ column }) => (
+        <DataTableColumnHeader
+          column={column}
+          title={labels.account}
+          ascLabel={labels.sortAscending}
+          descLabel={labels.sortDescending}
+          hideLabel={labels.hideColumn}
+        />
+      ),
+      cell: ({ row }) => row.original.accountName,
     },
     {
-      id: "category",
-      header: labels.category,
-      visibilityLabel: labels.category,
-      cell: (row) => row.categoryName,
+      accessorKey: "categoryName",
+      meta: {
+        label: labels.category,
+      },
+      header: ({ column }) => (
+        <DataTableColumnHeader
+          column={column}
+          title={labels.category}
+          ascLabel={labels.sortAscending}
+          descLabel={labels.sortDescending}
+          hideLabel={labels.hideColumn}
+        />
+      ),
+      cell: ({ row }) => row.original.categoryName,
     },
     {
-      id: "description",
-      header: labels.description,
-      visibilityLabel: labels.description,
-      cellClassName: "max-w-xs truncate text-[var(--color-foreground-muted)]",
-      cell: (row) => row.description || "-",
+      accessorKey: "description",
+      meta: {
+        label: labels.description,
+      },
+      header: ({ column }) => (
+        <DataTableColumnHeader
+          column={column}
+          title={labels.description}
+          ascLabel={labels.sortAscending}
+          descLabel={labels.sortDescending}
+          hideLabel={labels.hideColumn}
+        />
+      ),
+      cell: ({ row }) => (
+        <div className="max-w-xs truncate text-[var(--color-foreground-muted)]">
+          {row.original.description || "-"}
+        </div>
+      ),
     },
     {
-      id: "amount",
-      header: labels.amount,
-      visibilityLabel: labels.amount,
-      cellClassName: "font-semibold",
-      cell: (row) => formatCurrency(row.amount),
+      accessorKey: "amount",
+      meta: {
+        label: labels.amount,
+      },
+      header: ({ column }) => (
+        <DataTableColumnHeader
+          column={column}
+          title={labels.amount}
+          ascLabel={labels.sortAscending}
+          descLabel={labels.sortDescending}
+          hideLabel={labels.hideColumn}
+        />
+      ),
+      cell: ({ row }) => (
+        <span className="font-semibold">{formatCurrency(row.original.amount)}</span>
+      ),
     },
     {
       id: "actions",
-      header: labels.actions,
-      visibilityLabel: labels.actions,
-      headerClassName: "text-right",
-      cellClassName: "text-right",
-      canHide: false,
-      cell: (row) => (
+      enableHiding: false,
+      enableSorting: false,
+      header: () => <div className="text-right">{labels.actions}</div>,
+      cell: ({ row }) => (
         <RowActionsMenu
           srLabel={labels.actions}
           items={[
             {
               label: labels.edit,
               icon: <PencilLine className="size-4" />,
-              onSelect: () => onEdit(row),
+              onSelect: () => onEdit(row.original),
             },
             {
               label: labels.delete,
               icon: <Trash2 className="size-4" />,
               destructive: true,
-              onSelect: () => onDelete(row),
+              onSelect: () => onDelete(row.original),
             },
           ]}
         />

@@ -190,13 +190,14 @@ export function TransactionsPageView() {
         formatCurrency={formatCurrency}
         labels={{
           columns: t("common.columns"),
-          columnsMenu: t("common.columns"),
-          selectedRows: (count) => t("common.selectedRows", { count }),
           totalRows: (count) => t("common.totalRows", { count }),
           pageSummary: (current, total) => t("common.pageSummary", { current, total }),
           selectAllRows: t("common.selectAllRows"),
           selectTransactionRow: (date) =>
             t("common.selectTransactionRow", { date }),
+          sortAscending: t("common.sortAscending"),
+          sortDescending: t("common.sortDescending"),
+          hideColumn: t("common.hideColumn"),
           date: t("common.date"),
           type: t("common.type"),
           account: t("common.account"),
