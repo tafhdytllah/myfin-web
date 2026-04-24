@@ -1,27 +1,12 @@
-import { PencilLine, Power, PowerOff } from "lucide-react";
-
+import { DataTable } from "@/components/shared/data-table";
 import { EmptySectionCard } from "@/components/shared/empty-section-card";
 import { RetryCard } from "@/components/shared/retry-card";
-import { RowActionsMenu } from "@/components/shared/row-actions-menu";
 import { SectionCard } from "@/components/shared/section-card";
 import { StackSkeleton } from "@/components/shared/stack-skeleton";
-import { StatusBadge } from "@/components/shared/status-badge";
-import { TableHeaderCell } from "@/components/shared/table-header-cell";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-
-type CategoryItem = {
-  id: string;
-  name: string;
-  type: "INCOME" | "EXPENSE";
-  active: boolean;
-  usageCount: number;
-};
+  buildCategoriesTableColumns,
+  CategoryItem,
+} from "@/features/categories/components/categories-table-columns";
 
 type CategoriesTableSectionProps = {
   loading: boolean;
@@ -77,6 +62,14 @@ export function CategoriesTableSection({
   onDeactivate,
   onActivate,
 }: CategoriesTableSectionProps) {
+  const columns = buildCategoriesTableColumns({
+    labels,
+    activatingPending,
+    onEdit,
+    onDeactivate,
+    onActivate,
+  });
+
   if (loading) {
     return (
       <SectionCard title={title} description={description}>
@@ -113,63 +106,7 @@ export function CategoriesTableSection({
 
   return (
     <SectionCard title={title} description={description}>
-      <div className="overflow-x-auto">
-        <Table>
-          <TableHeader>
-            <TableRow className="hover:bg-transparent">
-              <TableHeaderCell>{labels.category}</TableHeaderCell>
-              <TableHeaderCell>{labels.type}</TableHeaderCell>
-              <TableHeaderCell>{labels.status}</TableHeaderCell>
-              <TableHeaderCell>{labels.used}</TableHeaderCell>
-              <TableHeaderCell className="text-right">
-                {labels.actions}
-              </TableHeaderCell>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {items.map((item) => (
-              <TableRow key={item.id}>
-                <TableCell className="font-medium">{item.name}</TableCell>
-                <TableCell>
-                  <StatusBadge tone={item.type === "INCOME" ? "income" : "expense"}>
-                    {item.type === "INCOME" ? labels.income : labels.expense}
-                  </StatusBadge>
-                </TableCell>
-                <TableCell>
-                  <StatusBadge tone={item.active ? "active" : "inactive"}>
-                    {item.active ? labels.active : labels.inactive}
-                  </StatusBadge>
-                </TableCell>
-                <TableCell>{item.usageCount}</TableCell>
-                <TableCell className="text-right">
-                  <RowActionsMenu
-                    srLabel={labels.actions}
-                    items={[
-                      {
-                        label: labels.edit,
-                        icon: <PencilLine className="size-4" />,
-                        onSelect: () => onEdit(item),
-                      },
-                      item.active
-                        ? {
-                            label: labels.deactivate,
-                            icon: <PowerOff className="size-4" />,
-                            onSelect: () => onDeactivate(item),
-                          }
-                        : {
-                            label: labels.activate,
-                            icon: <Power className="size-4" />,
-                            disabled: activatingPending,
-                            onSelect: () => onActivate(item),
-                          },
-                    ]}
-                  />
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
+      <DataTable columns={columns} rows={items} rowKey={(item) => item.id} />
     </SectionCard>
   );
 }

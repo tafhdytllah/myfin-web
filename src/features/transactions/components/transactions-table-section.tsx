@@ -1,39 +1,13 @@
-import { PencilLine, Trash2 } from "lucide-react";
-
+import { DataTable } from "@/components/shared/data-table";
+import { DataTablePagination } from "@/components/shared/data-table-pagination";
 import { InlineRetryState } from "@/components/shared/inline-retry-state";
-import { RowActionsMenu } from "@/components/shared/row-actions-menu";
 import { SectionCard } from "@/components/shared/section-card";
 import { SectionEmptyState } from "@/components/shared/section-empty-state";
 import { StackSkeleton } from "@/components/shared/stack-skeleton";
-import { StatusBadge } from "@/components/shared/status-badge";
-import { TableHeaderCell } from "@/components/shared/table-header-cell";
 import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-
-type TransactionRow = {
-  id: string;
-  createdAt: string;
-  type: "INCOME" | "EXPENSE";
-  accountId: string;
-  categoryId: string;
-  accountName: string;
-  categoryName: string;
-  description: string;
-  amount: number;
-};
+  buildTransactionsTableColumns,
+  TransactionRow,
+} from "@/features/transactions/components/transactions-table-columns";
 
 type TransactionsTableSectionProps = {
   title: string;
@@ -98,6 +72,14 @@ export function TransactionsTableSection({
   onEdit,
   onDelete,
 }: TransactionsTableSectionProps) {
+  const columns = buildTransactionsTableColumns({
+    formatCurrency,
+    formatDate,
+    labels,
+    onEdit,
+    onDelete,
+  });
+
   return (
     <SectionCard title={title} description={description}>
       {loading ? <StackSkeleton count={5} itemClassName="h-14 rounded-xl bg-muted" /> : null}
@@ -133,106 +115,20 @@ export function TransactionsTableSection({
 
       {!loading && !isError && rows.length > 0 ? (
         <>
-          <div className="overflow-x-auto">
-            <Table className="min-w-[860px]">
-              <TableHeader>
-                <TableRow className="hover:bg-transparent">
-                  <TableHeaderCell>{labels.date}</TableHeaderCell>
-                  <TableHeaderCell>{labels.type}</TableHeaderCell>
-                  <TableHeaderCell>{labels.account}</TableHeaderCell>
-                  <TableHeaderCell>{labels.category}</TableHeaderCell>
-                  <TableHeaderCell>{labels.description}</TableHeaderCell>
-                  <TableHeaderCell>{labels.amount}</TableHeaderCell>
-                  <TableHeaderCell className="text-right">
-                    {labels.actions}
-                  </TableHeaderCell>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {rows.map((row) => (
-                  <TableRow key={row.id}>
-                    <TableCell>{formatDate(row.createdAt)}</TableCell>
-                    <TableCell>
-                      <StatusBadge tone={row.type === "INCOME" ? "income" : "expense"}>
-                        {row.type === "INCOME" ? labels.income : labels.expense}
-                      </StatusBadge>
-                    </TableCell>
-                    <TableCell>{row.accountName}</TableCell>
-                    <TableCell>{row.categoryName}</TableCell>
-                    <TableCell className="max-w-xs truncate text-[var(--color-foreground-muted)]">
-                      {row.description || "-"}
-                    </TableCell>
-                    <TableCell className="font-semibold">
-                      {formatCurrency(row.amount)}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <RowActionsMenu
-                        srLabel={labels.actions}
-                        items={[
-                          {
-                            label: labels.edit,
-                            icon: <PencilLine className="size-4" />,
-                            onSelect: () => onEdit(row),
-                          },
-                          {
-                            label: labels.delete,
-                            icon: <Trash2 className="size-4" />,
-                            destructive: true,
-                            onSelect: () => onDelete(row),
-                          },
-                        ]}
-                      />
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+          <DataTable
+            columns={columns}
+            rows={rows}
+            rowKey={(row) => row.id}
+            minWidthClassName="min-w-[860px]"
+          />
 
-          {totalPages > 1 ? (
-            <Pagination className="mt-6 justify-center md:justify-end">
-              <PaginationContent>
-                <PaginationItem>
-                  <PaginationPrevious
-                    href="#"
-                    text={labels.previous}
-                    onClick={(event) => {
-                      event.preventDefault();
-                      if (currentPage > 1) onPageChange(currentPage - 1);
-                    }}
-                  />
-                </PaginationItem>
-                {Array.from({ length: totalPages }).map((_, index) => {
-                  const page = index + 1;
-
-                  return (
-                    <PaginationItem key={page}>
-                      <PaginationLink
-                        href="#"
-                        isActive={page === currentPage}
-                        onClick={(event) => {
-                          event.preventDefault();
-                          onPageChange(page);
-                        }}
-                      >
-                        {page}
-                      </PaginationLink>
-                    </PaginationItem>
-                  );
-                })}
-                <PaginationItem>
-                  <PaginationNext
-                    href="#"
-                    text={labels.next}
-                    onClick={(event) => {
-                      event.preventDefault();
-                      if (currentPage < totalPages) onPageChange(currentPage + 1);
-                    }}
-                  />
-                </PaginationItem>
-              </PaginationContent>
-            </Pagination>
-          ) : null}
+          <DataTablePagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            previousLabel={labels.previous}
+            nextLabel={labels.next}
+            onPageChange={onPageChange}
+          />
         </>
       ) : null}
     </SectionCard>
