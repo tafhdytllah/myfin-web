@@ -4,27 +4,24 @@ import { useEffect, useMemo } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
-import { DialogFormHeader } from "@/components/shared/dialog-form-header";
 import { DialogFormActions } from "@/components/shared/dialog-form-actions";
-import { FormFieldItem } from "@/components/shared/form-field-item";
-import { InfoNotice } from "@/components/shared/info-notice";
-import { InfoMetricBlock } from "@/components/shared/info-metric-block";
+import { DialogFormHeader } from "@/components/shared/dialog-form-header";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { FieldDescription } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
+import { AccountCurrentBalanceNotice } from "@/features/accounts/components/account-current-balance-notice";
+import { AccountNameField } from "@/features/accounts/components/account-name-field";
+import { AccountOpeningBalanceField } from "@/features/accounts/components/account-opening-balance-field";
 import {
-  createAccountFormSchema,
-  createUpdateAccountFormSchema,
   CreateAccountFormValues,
   UpdateAccountFormValues,
+  createAccountFormSchema,
+  createUpdateAccountFormSchema,
 } from "@/features/accounts/schemas/account-form.schema";
 import {
   useCreateAccount,
   useUpdateAccount,
 } from "@/features/accounts/hooks/use-account-queries";
 import { Account } from "@/features/accounts/types/account-types";
-import { getApiFieldError } from "@/lib/api/error-fields";
-import { formatCurrency } from "@/lib/formatters/currency";
+import { applyApiFieldErrors } from "@/lib/api/apply-field-errors";
 import { useTranslations } from "@/lib/i18n/use-translations";
 
 type AccountFormDialogProps = {
@@ -89,18 +86,11 @@ export function AccountFormDialog({
       },
       {
         onError: (error) => {
-          const nameError = getApiFieldError(error, "name");
-          const openingBalanceError = getApiFieldError(error, "openingBalance");
-
-          if (nameError) {
-            createForm.setError("name", { message: nameError });
-          }
-
-          if (openingBalanceError) {
-            createForm.setError("openingBalance", {
-              message: openingBalanceError,
-            });
-          }
+          applyApiFieldErrors(
+            error,
+            ["name", "openingBalance"],
+            createForm.setError,
+          );
         },
       },
     );
@@ -122,11 +112,7 @@ export function AccountFormDialog({
       },
       {
         onError: (error) => {
-          const nameError = getApiFieldError(error, "name");
-
-          if (nameError) {
-            updateForm.setError("name", { message: nameError });
-          }
+          applyApiFieldErrors(error, ["name"], updateForm.setError);
         },
       },
     );
@@ -158,27 +144,14 @@ export function AccountFormDialog({
             className="space-y-5"
             onSubmit={updateForm.handleSubmit(handleUpdateSubmit)}
           >
-            <FormFieldItem
-              label={t("accounts.accountName")}
-              htmlFor="account-name"
-              errors={[updateForm.formState.errors.name]}
-            >
-              <Input
-                id="account-name"
-                {...updateForm.register("name")}
-                placeholder={t("accounts.accountNamePlaceholder")}
-              />
-            </FormFieldItem>
+            <AccountNameField
+              error={updateForm.formState.errors.name?.message}
+              id="account-name"
+              placeholder={t("accounts.accountNamePlaceholder")}
+              registration={updateForm.register("name")}
+            />
 
-            <InfoNotice className="text-foreground">
-              <InfoMetricBlock
-                eyebrow={t("accounts.currentBalance")}
-                value={formatCurrency(account?.currentBalance ?? 0)}
-                className="space-y-2"
-                eyebrowClassName="text-muted-foreground"
-                valueClassName="text-lg font-semibold text-foreground"
-              />
-            </InfoNotice>
+            <AccountCurrentBalanceNotice balance={account?.currentBalance ?? 0} />
 
             <DialogFormActions
               cancelLabel={t("accounts.cancel")}
@@ -193,32 +166,17 @@ export function AccountFormDialog({
             className="space-y-5"
             onSubmit={createForm.handleSubmit(handleCreateSubmit)}
           >
-            <FormFieldItem
-              label={t("accounts.accountName")}
-              htmlFor="new-account-name"
-              errors={[createForm.formState.errors.name]}
-            >
-              <Input
-                id="new-account-name"
-                {...createForm.register("name")}
-                placeholder={t("accounts.accountNamePlaceholder")}
-              />
-            </FormFieldItem>
+            <AccountNameField
+              error={createForm.formState.errors.name?.message}
+              id="new-account-name"
+              placeholder={t("accounts.accountNamePlaceholder")}
+              registration={createForm.register("name")}
+            />
 
-            <FormFieldItem
-              label={t("accounts.openingBalance")}
-              htmlFor="opening-balance"
-              errors={[createForm.formState.errors.openingBalance]}
-              description={<FieldDescription>{t("accounts.openingBalanceHint")}</FieldDescription>}
-            >
-              <Input
-                id="opening-balance"
-                min={0}
-                step="1"
-                type="number"
-                {...createForm.register("openingBalance")}
-              />
-            </FormFieldItem>
+            <AccountOpeningBalanceField
+              error={createForm.formState.errors.openingBalance?.message}
+              registration={createForm.register("openingBalance")}
+            />
 
             <DialogFormActions
               cancelLabel={t("accounts.cancel")}

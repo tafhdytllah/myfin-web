@@ -4,18 +4,11 @@ import { useEffect, useMemo } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useWatch } from "react-hook-form";
 
-import { DialogFormHeader } from "@/components/shared/dialog-form-header";
 import { DialogFormActions } from "@/components/shared/dialog-form-actions";
-import { FormFieldItem } from "@/components/shared/form-field-item";
+import { DialogFormHeader } from "@/components/shared/dialog-form-header";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { CategoryNameField } from "@/features/categories/components/category-name-field";
+import { CategoryTypeField } from "@/features/categories/components/category-type-field";
 import {
   CategoryFormValues,
   createCategoryFormSchema,
@@ -25,7 +18,7 @@ import {
   useUpdateCategory,
 } from "@/features/categories/hooks/use-category-queries";
 import { Category } from "@/features/categories/types/category-types";
-import { getApiFieldError } from "@/lib/api/error-fields";
+import { applyApiFieldErrors } from "@/lib/api/apply-field-errors";
 import { useTranslations } from "@/lib/i18n/use-translations";
 
 type CategoryFormDialogProps = {
@@ -56,7 +49,6 @@ export function CategoryFormDialog({
     control: form.control,
     name: "type",
   });
-  const selectedTypeLabel = selectedType === "INCOME" ? t("common.income") : t("common.expense");
 
   useEffect(() => {
     if (!open) {
@@ -91,16 +83,7 @@ export function CategoryFormDialog({
         },
         {
           onError: (error) => {
-            const nameError = getApiFieldError(error, "name");
-            const typeError = getApiFieldError(error, "type");
-
-            if (nameError) {
-              form.setError("name", { message: nameError });
-            }
-
-            if (typeError) {
-              form.setError("type", { message: typeError });
-            }
+            applyApiFieldErrors(error, ["name", "type"], form.setError);
           },
         },
       );
@@ -115,16 +98,7 @@ export function CategoryFormDialog({
       },
       {
         onError: (error) => {
-          const nameError = getApiFieldError(error, "name");
-          const typeError = getApiFieldError(error, "type");
-
-          if (nameError) {
-            form.setError("name", { message: nameError });
-          }
-
-          if (typeError) {
-            form.setError("type", { message: typeError });
-          }
+          applyApiFieldErrors(error, ["name", "type"], form.setError);
         },
       },
     );
@@ -154,39 +128,21 @@ export function CategoryFormDialog({
         />
 
         <form className="space-y-5" onSubmit={form.handleSubmit(handleSubmit)}>
-          <FormFieldItem
-            label={t("categories.categoryName")}
-            htmlFor="category-name"
-            errors={[form.formState.errors.name]}
-          >
-            <Input
-              id="category-name"
-              {...form.register("name")}
-              placeholder={t("categories.categoryNamePlaceholder")}
-            />
-          </FormFieldItem>
+          <CategoryNameField
+            error={form.formState.errors.name?.message}
+            registration={form.register("name")}
+          />
 
-          <FormFieldItem label={t("common.type")} errors={[form.formState.errors.type]}>
-            <Select
-              value={selectedType}
-              onValueChange={(value) =>
-                form.setValue("type", value as CategoryFormValues["type"], {
-                  shouldDirty: true,
-                  shouldValidate: true,
-                })
-              }
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder={t("common.type")}>
-                  {selectedTypeLabel}
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="INCOME">{t("common.income")}</SelectItem>
-                <SelectItem value="EXPENSE">{t("common.expense")}</SelectItem>
-              </SelectContent>
-            </Select>
-          </FormFieldItem>
+          <CategoryTypeField
+            error={form.formState.errors.type?.message}
+            value={selectedType}
+            onValueChange={(value) =>
+              form.setValue("type", (value ?? "EXPENSE") as CategoryFormValues["type"], {
+                shouldDirty: true,
+                shouldValidate: true,
+              })
+            }
+          />
 
           <DialogFormActions
             cancelLabel={t("categories.cancel")}

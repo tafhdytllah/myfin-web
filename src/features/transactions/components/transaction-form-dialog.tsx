@@ -2,34 +2,26 @@
 
 import { useEffect, useMemo } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import Link from "next/link";
 import { useForm, useWatch } from "react-hook-form";
 
 import { DialogFormHeader } from "@/components/shared/dialog-form-header";
 import { DialogFormActions } from "@/components/shared/dialog-form-actions";
-import { FormFieldItem } from "@/components/shared/form-field-item";
 import { InfoNotice } from "@/components/shared/info-notice";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { FieldDescription } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
 import { useAccounts } from "@/features/accounts/hooks/use-account-queries";
 import { useCategories } from "@/features/categories/hooks/use-category-queries";
 import { CategoryType } from "@/features/categories/types/category-types";
+import { TransactionAccountField } from "@/features/transactions/components/transaction-account-field";
+import { TransactionAmountField } from "@/features/transactions/components/transaction-amount-field";
+import { TransactionCategoryField } from "@/features/transactions/components/transaction-category-field";
+import { TransactionDescriptionField } from "@/features/transactions/components/transaction-description-field";
+import { TransactionTypeField } from "@/features/transactions/components/transaction-type-field";
 import { useCreateTransaction } from "@/features/transactions/hooks/use-transaction-queries";
 import {
   createTransactionFormSchema,
   TransactionFormValues,
 } from "@/features/transactions/schemas/transaction-form.schema";
-import { getApiFieldError } from "@/lib/api/error-fields";
-import { routes } from "@/lib/constants/routes";
+import { applyApiFieldErrors } from "@/lib/api/apply-field-errors";
 import { useTranslations } from "@/lib/i18n/use-translations";
 
 type TransactionFormDialogProps = {
@@ -75,20 +67,10 @@ export function TransactionFormDialog({
     () => accountsQuery.data ?? [],
     [accountsQuery.data],
   );
-  const selectedTypeLabel = selectedType === "INCOME" ? t("common.income") : t("common.expense");
-  const selectedAccountName = useMemo(
-    () => activeAccounts.find((account) => account.id === selectedAccountId)?.name,
-    [activeAccounts, selectedAccountId],
-  );
   const activeCategories = useMemo(
     () =>
       (categoriesQuery.data ?? []).filter((category) => category.type === selectedType),
     [categoriesQuery.data, selectedType],
-  );
-  const selectedCategoryName = useMemo(
-    () =>
-      activeCategories.find((category) => category.id === selectedCategoryId)?.name,
-    [activeCategories, selectedCategoryId],
   );
   const hasActiveAccounts = activeAccounts.length > 0;
   const hasMatchingCategories = activeCategories.length > 0;
@@ -128,19 +110,11 @@ export function TransactionFormDialog({
       },
       {
         onError: (error) => {
-          const accountError = getApiFieldError(error, "accountId");
-          const categoryError = getApiFieldError(error, "categoryId");
-          const amountError = getApiFieldError(error, "amount");
-          const typeError = getApiFieldError(error, "type");
-          const descriptionError = getApiFieldError(error, "description");
-
-          if (accountError) form.setError("accountId", { message: accountError });
-          if (categoryError) form.setError("categoryId", { message: categoryError });
-          if (amountError) form.setError("amount", { message: amountError });
-          if (typeError) form.setError("type", { message: typeError });
-          if (descriptionError) {
-            form.setError("description", { message: descriptionError });
-          }
+          applyApiFieldErrors(
+            error,
+            ["accountId", "categoryId", "amount", "type", "description"],
+            form.setError,
+          );
         },
       },
     );
@@ -165,143 +139,55 @@ export function TransactionFormDialog({
 
         <form className="space-y-5" onSubmit={form.handleSubmit(handleSubmit)}>
           <div className="grid gap-4 md:grid-cols-2">
-            <FormFieldItem label={t("common.type")} errors={[form.formState.errors.type]}>
-              <Select
-                value={selectedType}
-                onValueChange={(value) =>
-                  form.setValue("type", value as TransactionFormValues["type"], {
-                    shouldDirty: true,
-                    shouldValidate: true,
-                  })
-                }
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder={t("common.type")}>
-                    {selectedTypeLabel}
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="INCOME">{t("common.income")}</SelectItem>
-                  <SelectItem value="EXPENSE">{t("common.expense")}</SelectItem>
-                </SelectContent>
-              </Select>
-            </FormFieldItem>
-
-            <FormFieldItem
-              label={t("common.account")}
-              errors={[form.formState.errors.accountId]}
-              description={
-                !hasActiveAccounts ? (
-                  <FieldDescription>
-                    {t("transactions.noActiveAccounts")}{" "}
-                    <Link
-                      href={routes.accounts}
-                      className="font-medium text-primary underline-offset-4 hover:underline"
-                      onClick={() => onOpenChange(false)}
-                    >
-                      {t("transactions.goToAccounts")}
-                    </Link>
-                  </FieldDescription>
-                ) : undefined
+            <TransactionTypeField
+              error={form.formState.errors.type?.message}
+              value={selectedType}
+              onValueChange={(value) =>
+                form.setValue("type", value ?? "EXPENSE", {
+                  shouldDirty: true,
+                  shouldValidate: true,
+                })
               }
-            >
-              <Select
-                value={selectedAccountId}
-                disabled={!hasActiveAccounts}
-                onValueChange={(value) =>
-                  form.setValue("accountId", value ?? "", {
-                    shouldDirty: true,
-                    shouldValidate: true,
-                  })
-                }
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder={t("transactions.accountPlaceholder")}>
-                    {selectedAccountName}
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent>
-                  {activeAccounts.map((account) => (
-                    <SelectItem key={account.id} value={account.id}>
-                      {account.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </FormFieldItem>
+            />
+
+            <TransactionAccountField
+              accounts={activeAccounts}
+              error={form.formState.errors.accountId?.message}
+              value={selectedAccountId}
+              onNavigateAway={() => onOpenChange(false)}
+              onValueChange={(value) =>
+                form.setValue("accountId", value ?? "", {
+                  shouldDirty: true,
+                  shouldValidate: true,
+                })
+              }
+            />
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">
-            <FormFieldItem
-              label={t("common.category")}
-              errors={[form.formState.errors.categoryId]}
-              description={
-                !hasMatchingCategories ? (
-                  <FieldDescription>
-                    {t("transactions.noMatchingCategories")}{" "}
-                    <Link
-                      href={routes.categories}
-                      className="font-medium text-primary underline-offset-4 hover:underline"
-                      onClick={() => onOpenChange(false)}
-                    >
-                      {t("transactions.goToCategories")}
-                    </Link>
-                  </FieldDescription>
-                ) : undefined
+            <TransactionCategoryField
+              categories={activeCategories}
+              error={form.formState.errors.categoryId?.message}
+              value={selectedCategoryId}
+              onNavigateAway={() => onOpenChange(false)}
+              onValueChange={(value) =>
+                form.setValue("categoryId", value ?? "", {
+                  shouldDirty: true,
+                  shouldValidate: true,
+                })
               }
-            >
-              <Select
-                value={selectedCategoryId}
-                disabled={!hasMatchingCategories}
-                onValueChange={(value) =>
-                  form.setValue("categoryId", value ?? "", {
-                    shouldDirty: true,
-                    shouldValidate: true,
-                  })
-                }
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder={t("transactions.categoryPlaceholder")}>
-                    {selectedCategoryName}
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent>
-                  {activeCategories.map((category) => (
-                    <SelectItem key={category.id} value={category.id}>
-                      {category.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </FormFieldItem>
+            />
 
-            <FormFieldItem
-              label={t("common.amount")}
-              htmlFor="transaction-amount"
-              errors={[form.formState.errors.amount]}
-            >
-              <Input
-                id="transaction-amount"
-                min={0}
-                step="1"
-                type="number"
-                {...form.register("amount")}
-                placeholder={t("transactions.amountPlaceholder")}
-              />
-            </FormFieldItem>
+            <TransactionAmountField
+              error={form.formState.errors.amount?.message}
+              registration={form.register("amount")}
+            />
           </div>
 
-          <FormFieldItem
-            label={t("common.description")}
-            htmlFor="transaction-description"
-            errors={[form.formState.errors.description]}
-          >
-            <Textarea
-              id="transaction-description"
-              {...form.register("description")}
-              placeholder={t("transactions.descriptionPlaceholder")}
-            />
-          </FormFieldItem>
+          <TransactionDescriptionField
+            error={form.formState.errors.description?.message}
+            registration={form.register("description")}
+          />
 
           <InfoNotice>
             {t("transactions.dateInfo")}
