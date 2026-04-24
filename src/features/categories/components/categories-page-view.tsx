@@ -1,11 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { PencilLine, Power, PowerOff } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
+import { CategoriesFiltersCard } from "@/features/categories/components/categories-filters-card";
 import { CategoryFormDialog } from "@/features/categories/components/category-form-dialog";
+import { CategoriesSummaryCards } from "@/features/categories/components/categories-summary-cards";
 import { CategoryStatusDialog } from "@/features/categories/components/category-status-dialog";
+import { CategoriesTableSection } from "@/features/categories/components/categories-table-section";
 import { Category } from "@/features/categories/types/category-types";
 import {
   useCategories,
@@ -15,26 +17,9 @@ import {
   buildCategorySearchParams,
   parseCategoryFilters,
 } from "@/features/categories/utils/category-search-params";
-import { EmptySectionCard } from "@/components/shared/empty-section-card";
-import { FilterSelect } from "@/components/shared/filter-select";
 import { PageActionButton } from "@/components/shared/page-action-button";
 import { PageHeader } from "@/components/shared/page-header";
-import { RetryCard } from "@/components/shared/retry-card";
-import { RowActionsMenu } from "@/components/shared/row-actions-menu";
-import { SectionCard } from "@/components/shared/section-card";
-import { StackSkeleton } from "@/components/shared/stack-skeleton";
-import { StatusBadge } from "@/components/shared/status-badge";
-import { SummaryStatCard } from "@/components/shared/summary-stat-card";
-import { TableHeaderCell } from "@/components/shared/table-header-cell";
 import { usePageTrail } from "@/components/layout/page-trail-context";
-import { Input } from "@/components/ui/input";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { useTranslations } from "@/lib/i18n/use-translations";
 
@@ -148,170 +133,90 @@ export function CategoriesPageView() {
         }
       />
 
-      <div className="grid gap-4 md:grid-cols-5">
-        {[
+      <CategoriesSummaryCards
+        items={[
           { label: t("categories.total"), value: String(summary.total) },
           { label: t("common.active"), value: String(summary.active) },
           { label: t("common.inactive"), value: String(summary.inactive) },
           { label: t("common.income"), value: String(summary.income) },
           { label: t("common.expense"), value: String(summary.expense) },
-        ].map((item) => (
-          <SummaryStatCard key={item.label} label={item.label} value={item.value} />
-        ))}
-      </div>
+        ]}
+      />
 
-      <SectionCard
+      <CategoriesFiltersCard
         title={t("categories.searchTitle")}
         description={t("categories.searchDescription")}
-      >
-        <div className="grid gap-3 md:grid-cols-3">
-          <Input
-            value={keyword}
-            onChange={(event) => setKeyword(event.target.value)}
-            placeholder={t("categories.searchPlaceholder")}
-          />
-          <FilterSelect
-            value={filters.type ?? "all"}
-            placeholder={t("common.type")}
-            displayValue={selectedTypeLabel}
-            options={[
-              { value: "all", label: t("categories.typeAll") },
-              { value: "INCOME", label: t("common.income") },
-              { value: "EXPENSE", label: t("common.expense") },
-            ]}
-            onValueChange={(value) =>
-              updateFilters({
-                ...filters,
-                type: value as "all" | "INCOME" | "EXPENSE",
-              })
-            }
-          />
-          <FilterSelect
-            value={filters.status ?? "all"}
-            placeholder={t("common.status")}
-            displayValue={selectedStatusLabel}
-            options={[
-              { value: "all", label: t("categories.statusAll") },
-              { value: "active", label: t("common.active") },
-              { value: "inactive", label: t("common.inactive") },
-            ]}
-            onValueChange={(value) =>
-              updateFilters({
-                ...filters,
-                status: value as "all" | "active" | "inactive",
-              })
-            }
-          />
-        </div>
-      </SectionCard>
+        keyword={keyword}
+        searchPlaceholder={t("categories.searchPlaceholder")}
+        onKeywordChange={setKeyword}
+        typeValue={filters.type ?? "all"}
+        typePlaceholder={t("common.type")}
+        typeDisplayValue={selectedTypeLabel}
+        typeOptions={[
+          { value: "all", label: t("categories.typeAll") },
+          { value: "INCOME", label: t("common.income") },
+          { value: "EXPENSE", label: t("common.expense") },
+        ]}
+        onTypeChange={(value) =>
+          updateFilters({
+            ...filters,
+            type: value as "all" | "INCOME" | "EXPENSE",
+          })
+        }
+        statusValue={filters.status ?? "all"}
+        statusPlaceholder={t("common.status")}
+        statusDisplayValue={selectedStatusLabel}
+        statusOptions={[
+          { value: "all", label: t("categories.statusAll") },
+          { value: "active", label: t("common.active") },
+          { value: "inactive", label: t("common.inactive") },
+        ]}
+        onStatusChange={(value) =>
+          updateFilters({
+            ...filters,
+            status: value as "all" | "active" | "inactive",
+          })
+        }
+      />
 
-      {categoriesQuery.isLoading ? (
-        <SectionCard
-          title={t("categories.tableTitle")}
-          description={t("categories.tableDescription")}
-        >
-          <StackSkeleton count={4} itemClassName="h-12 rounded-xl bg-muted" />
-        </SectionCard>
-      ) : null}
-
-      {categoriesQuery.isError ? (
-        <RetryCard
-          title={t("categories.loadErrorTitle")}
-          description={t("categories.loadErrorDescription")}
-          retryLabel={t("categories.retry")}
-          onRetry={() => categoriesQuery.refetch()}
-        />
-      ) : null}
-
-      {!categoriesQuery.isLoading &&
-      !categoriesQuery.isError &&
-      categories.length === 0 ? (
-        <EmptySectionCard
-          title={t("categories.emptyTitle")}
-          description={t("categories.emptyDescription")}
-          actions={[
-            {
-              label: t("categories.addCategory"),
-              onClick: openCreateDialog,
-            },
-          ]}
-        />
-      ) : null}
-
-      {!categoriesQuery.isLoading &&
-      !categoriesQuery.isError &&
-      categories.length > 0 ? (
-        <SectionCard
-          title={t("categories.tableTitle")}
-          description={t("categories.tableDescription")}
-        >
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow className="hover:bg-transparent">
-                  <TableHeaderCell>{t("common.category")}</TableHeaderCell>
-                  <TableHeaderCell>{t("common.type")}</TableHeaderCell>
-                  <TableHeaderCell>{t("common.status")}</TableHeaderCell>
-                  <TableHeaderCell>{t("common.used")}</TableHeaderCell>
-                  <TableHeaderCell className="text-right">
-                    {t("common.actions")}
-                  </TableHeaderCell>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {categories.map((category) => (
-                  <TableRow key={category.id}>
-                    <TableCell className="font-medium">{category.name}</TableCell>
-                    <TableCell>
-                      <StatusBadge
-                        tone={category.type === "INCOME" ? "income" : "expense"}
-                      >
-                        {category.type === "INCOME"
-                          ? t("common.income")
-                          : t("common.expense")}
-                      </StatusBadge>
-                    </TableCell>
-                    <TableCell>
-                      <StatusBadge tone={category.active ? "active" : "inactive"}>
-                        {category.active ? t("common.active") : t("common.inactive")}
-                      </StatusBadge>
-                    </TableCell>
-                    <TableCell>{category.usageCount}</TableCell>
-                    <TableCell className="text-right">
-                      <RowActionsMenu
-                        srLabel={t("common.actions")}
-                        items={[
-                          {
-                            label: t("common.edit"),
-                            icon: <PencilLine className="size-4" />,
-                            onSelect: () => openEditDialog(category),
-                          },
-                          category.active
-                            ? {
-                                label: t("common.deactivate"),
-                                icon: <PowerOff className="size-4" />,
-                                onSelect: () => setStatusDialogCategory(category),
-                              }
-                            : {
-                                label: t("common.activate"),
-                                icon: <Power className="size-4" />,
-                                disabled: toggleStatusMutation.isPending,
-                                onSelect: () =>
-                                  toggleStatusMutation.mutate({
-                                    category,
-                                    active: true,
-                                  }),
-                              },
-                        ]}
-                      />
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        </SectionCard>
-      ) : null}
+      <CategoriesTableSection
+        loading={categoriesQuery.isLoading}
+        isError={categoriesQuery.isError}
+        items={categories}
+        title={t("categories.tableTitle")}
+        description={t("categories.tableDescription")}
+        retryTitle={t("categories.loadErrorTitle")}
+        retryDescription={t("categories.loadErrorDescription")}
+        retryLabel={t("categories.retry")}
+        onRetry={() => categoriesQuery.refetch()}
+        emptyTitle={t("categories.emptyTitle")}
+        emptyDescription={t("categories.emptyDescription")}
+        addLabel={t("categories.addCategory")}
+        onAdd={openCreateDialog}
+        labels={{
+          category: t("common.category"),
+          type: t("common.type"),
+          status: t("common.status"),
+          used: t("common.used"),
+          actions: t("common.actions"),
+          income: t("common.income"),
+          expense: t("common.expense"),
+          active: t("common.active"),
+          inactive: t("common.inactive"),
+          edit: t("common.edit"),
+          deactivate: t("common.deactivate"),
+          activate: t("common.activate"),
+        }}
+        activatingPending={toggleStatusMutation.isPending}
+        onEdit={openEditDialog}
+        onDeactivate={setStatusDialogCategory}
+        onActivate={(category) =>
+          toggleStatusMutation.mutate({
+            category,
+            active: true,
+          })
+        }
+      />
 
       <CategoryFormDialog
         category={editingCategory}
