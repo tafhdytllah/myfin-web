@@ -1,8 +1,8 @@
-import { FormError } from "@/components/shared/form-error";
-import { FormLayout } from "@/components/shared/form-layout";
-import { FormSubmitButton } from "@/components/shared/form-submit-button";
+import { FormError } from "@/components/shared/form/form-error";
+import { FormSection } from "@/components/shared/form/form-section";
+import { FormSubmitButton } from "@/components/shared/form/form-submit-button";
+import { TextField } from "@/components/shared/inputs/text-field";
 import { SectionCard } from "@/components/shared/section-card";
-import { TextInputField } from "@/components/shared/text-input-field";
 import { ProfileInfoSchema } from "@/features/profile/schemas/profile-schema";
 import type { UseFormReturn } from "react-hook-form";
 
@@ -32,28 +32,28 @@ export function ProfileInfoSection({
   pending,
   form,
   onSubmit,
-    labels,
+  labels,
 }: ProfileInfoSectionProps) {
   return (
     <SectionCard title={title} description={description}>
-      <FormLayout layout="grid" onSubmit={form.handleSubmit(onSubmit)}>
+      <FormSection layout="grid" onSubmit={form.handleSubmit(onSubmit)}>
         <FormError message={formError} />
 
-        <TextInputField
+        <TextField
           label={labels.username}
           id="profile-username"
-          registration={form.register("username")}
           error={form.formState.errors.username?.message}
           placeholder={labels.usernamePlaceholder}
+          {...form.register("username")}
         />
 
-        <TextInputField
+        <TextField
           label={labels.email}
           id="profile-email"
           type="email"
-          registration={form.register("email")}
           error={form.formState.errors.email?.message}
           placeholder={labels.emailPlaceholder}
+          {...form.register("email")}
         />
 
         <FormSubmitButton
@@ -63,7 +63,7 @@ export function ProfileInfoSection({
           disabled={!form.formState.isDirty}
           className="h-11 w-full rounded-2xl px-5 text-sm font-semibold sm:w-fit"
         />
-      </FormLayout>
+      </FormSection>
     </SectionCard>
   );
 }

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 
-import { FormFieldItem } from "@/components/shared/form-field-item";
+import { FormFieldItem } from "@/components/shared/form/form-field-item";
 import { FieldDescription } from "@/components/ui/field";
 import {
   Select,

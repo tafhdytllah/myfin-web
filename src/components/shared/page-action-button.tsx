@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 type PageActionButtonProps = React.ComponentProps<typeof Button>;
 
@@ -8,12 +9,7 @@ export function PageActionButton({
 }: PageActionButtonProps) {
   return (
     <Button
-      className={[
-        "h-11 rounded-2xl px-5 text-sm font-semibold max-sm:w-full",
-        className,
-      ]
-        .filter(Boolean)
-        .join(" ")}
+      className={cn("h-11 rounded-2xl px-5 text-sm font-semibold max-sm:w-full", className)}
       {...props}
     />
   );

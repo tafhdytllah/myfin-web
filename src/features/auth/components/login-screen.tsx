@@ -1,15 +1,12 @@
 "use client";
-import { useMemo, useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 
 import { AuthFormCard } from "@/components/shared/auth-form-card";
 import { AuthFormFooterLink } from "@/components/shared/auth-form-footer-link";
-import { FormError } from "@/components/shared/form-error";
-import { FormLayout } from "@/components/shared/form-layout";
-import { FormSubmitButton } from "@/components/shared/form-submit-button";
-import { PasswordFieldItem } from "@/components/shared/password-field-item";
-import { TextInputField } from "@/components/shared/text-input-field";
+import { FormError } from "@/components/shared/form/form-error";
+import { FormSection } from "@/components/shared/form/form-section";
+import { FormSubmitButton } from "@/components/shared/form/form-submit-button";
+import { PasswordField } from "@/components/shared/inputs/password-field";
+import { TextField } from "@/components/shared/inputs/text-field";
 import { useLogin } from "@/features/auth/hooks/use-auth-actions";
 import {
   createLoginSchema,
@@ -17,8 +14,11 @@ import {
 } from "@/features/auth/schemas/login-schema";
 import { applyApiFieldErrors } from "@/lib/api/apply-field-errors";
 import { ApiError } from "@/lib/api/types";
-import { useTranslations } from "@/lib/i18n/use-translations";
 import { routes } from "@/lib/constants/routes";
+import { useTranslations } from "@/lib/i18n/use-translations";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMemo, useState } from "react";
+import { useForm } from "react-hook-form";
 
 export function LoginScreen() {
   const [formError, setFormError] = useState<string | undefined>();
@@ -67,33 +67,38 @@ export function LoginScreen() {
         />
       }
     >
-      <FormLayout onSubmit={handleSubmit(onSubmit)}>
+      <FormSection onSubmit={handleSubmit(onSubmit)}>
         <FormError message={formError} />
 
-        <TextInputField
+        <TextField
+          id="username"
+          type="text"
+          autoComplete="username"
           label={t("auth.username")}
-          registration={register("username")}
-          error={errors.username?.message}
-          className="h-12 rounded-2xl border-(--color-border-strong) bg-white px-4 dark:bg-transparent"
           placeholder={t("auth.usernamePlaceholder")}
+          error={errors.username?.message}
+          {...register("username")}
+          className="h-12 rounded-2xl border-(--color-border-strong) bg-white px-4 dark:bg-transparent"
         />
 
-        <PasswordFieldItem
+        <PasswordField
+          id="password"
+          autoComplete="current-password"
           label={t("auth.password")}
-          registration={register("password")}
-          error={errors.password?.message}
-          className="h-12 rounded-2xl border-(--color-border-strong) bg-white px-4 dark:bg-transparent"
           placeholder={t("auth.passwordPlaceholder")}
           toggleLabel={t("auth.togglePasswordVisibility")}
+          error={errors.password?.message}
+          {...register("password")}
+          className="h-12 rounded-2xl border-(--color-border-strong) bg-white px-4 dark:bg-transparent"
         />
 
         <FormSubmitButton
           idleLabel={t("auth.signIn")}
           pendingLabel={t("auth.signingIn")}
           pending={isSubmitting || loginMutation.isPending}
-          className="h-12 w-full rounded-2xl bg-(--color-surface-sidebar) font-medium text-white hover:bg-surface-sidebar/95"
+          className="h-12 w-full bg-primary text-primary-foreground hover:bg-primary/90"
         />
-      </FormLayout>
+      </FormSection>
     </AuthFormCard>
   );
 }

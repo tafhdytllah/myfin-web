@@ -1,7 +1,7 @@
-import { PencilLine, Trash2 } from "lucide-react";
 import { ColumnDef } from "@tanstack/react-table";
+import { PencilLine, Trash2 } from "lucide-react";
 
-import { DataTableColumnHeader } from "@/components/shared/data-table-column-header";
+import { DataTableColumnHeader } from "@/components/shared/data-table/column-header";
 import { RowActionsMenu } from "@/components/shared/row-actions-menu";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -45,6 +45,18 @@ type BuildTransactionsTableColumnsOptions = {
   onDelete: (row: TransactionRow) => void;
 };
 
+function includesFilterValue(rowValue: unknown, filterValue: unknown) {
+  if (!filterValue || filterValue === "all") {
+    return true;
+  }
+
+  if (Array.isArray(filterValue)) {
+    return filterValue.length === 0 || filterValue.includes(rowValue);
+  }
+
+  return rowValue === filterValue;
+}
+
 export function buildTransactionsTableColumns({
   formatCurrency,
   formatDate,
@@ -53,6 +65,32 @@ export function buildTransactionsTableColumns({
   onDelete,
 }: BuildTransactionsTableColumnsOptions): ColumnDef<TransactionRow>[] {
   return [
+    {
+      id: "search",
+      accessorFn: (row) =>
+        [
+          row.description,
+          row.accountName,
+          row.categoryName,
+          row.type === "INCOME" ? labels.income : labels.expense,
+          formatDate(row.createdAt),
+          formatCurrency(row.amount),
+        ].join(" "),
+      enableHiding: false,
+      enableSorting: false,
+      filterFn: (row, id, value) => {
+        const searchValue = String(value ?? "").trim().toLowerCase();
+
+        if (!searchValue) {
+          return true;
+        }
+
+        return String(row.getValue(id)).toLowerCase().includes(searchValue);
+      },
+      meta: {
+        label: labels.description,
+      },
+    },
     {
       id: "select",
       header: ({ table }) => (
@@ -111,9 +149,10 @@ export function buildTransactionsTableColumns({
           {row.original.type === "INCOME" ? labels.income : labels.expense}
         </StatusBadge>
       ),
+      filterFn: (row, id, value) => includesFilterValue(row.getValue(id), value),
     },
     {
-      accessorKey: "accountName",
+      accessorKey: "accountId",
       meta: {
         label: labels.account,
       },
@@ -127,9 +166,10 @@ export function buildTransactionsTableColumns({
         />
       ),
       cell: ({ row }) => row.original.accountName,
+      filterFn: (row, id, value) => includesFilterValue(row.getValue(id), value),
     },
     {
-      accessorKey: "categoryName",
+      accessorKey: "categoryId",
       meta: {
         label: labels.category,
       },
@@ -143,6 +183,7 @@ export function buildTransactionsTableColumns({
         />
       ),
       cell: ({ row }) => row.original.categoryName,
+      filterFn: (row, id, value) => includesFilterValue(row.getValue(id), value),
     },
     {
       accessorKey: "description",
@@ -210,3 +251,4 @@ export function buildTransactionsTableColumns({
 }
 
 export type { TransactionRow, TransactionTableLabels };
+

@@ -1,29 +1,29 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect, useMemo } from "react";
 import { useForm } from "react-hook-form";
 
 import { DialogFormActions } from "@/components/shared/dialog-form-actions";
 import { DialogFormHeader } from "@/components/shared/dialog-form-header";
-import { FormLayout } from "@/components/shared/form-layout";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { AccountCurrentBalanceNotice } from "@/features/accounts/components/account-current-balance-notice";
 import { AccountNameField } from "@/features/accounts/components/account-name-field";
 import { AccountOpeningBalanceField } from "@/features/accounts/components/account-opening-balance-field";
+import {
+  useCreateAccount,
+  useUpdateAccount,
+} from "@/features/accounts/hooks/use-account-queries";
 import {
   CreateAccountFormValues,
   UpdateAccountFormValues,
   createAccountFormSchema,
   createUpdateAccountFormSchema,
 } from "@/features/accounts/schemas/account-form.schema";
-import {
-  useCreateAccount,
-  useUpdateAccount,
-} from "@/features/accounts/hooks/use-account-queries";
 import { Account } from "@/features/accounts/types/account-types";
 import { applyApiFieldErrors } from "@/lib/api/apply-field-errors";
 import { useTranslations } from "@/lib/i18n/use-translations";
+import { FormSection } from "@/components/shared/form/form-section";
 
 type AccountFormDialogProps = {
   account?: Account | null;
@@ -141,7 +141,7 @@ export function AccountFormDialog({
         />
 
         {isEditMode ? (
-          <FormLayout onSubmit={updateForm.handleSubmit(handleUpdateSubmit)}>
+          <FormSection onSubmit={updateForm.handleSubmit(handleUpdateSubmit)}>
             <AccountNameField
               error={updateForm.formState.errors.name?.message}
               id="account-name"
@@ -158,9 +158,9 @@ export function AccountFormDialog({
               isPending={isSubmitting}
               onCancel={() => onOpenChange(false)}
             />
-          </FormLayout>
+          </FormSection>
         ) : (
-          <FormLayout onSubmit={createForm.handleSubmit(handleCreateSubmit)}>
+          <FormSection onSubmit={createForm.handleSubmit(handleCreateSubmit)}>
             <AccountNameField
               error={createForm.formState.errors.name?.message}
               id="new-account-name"
@@ -180,7 +180,7 @@ export function AccountFormDialog({
               isPending={isSubmitting}
               onCancel={() => onOpenChange(false)}
             />
-          </FormLayout>
+          </FormSection>
         )}
       </DialogContent>
     </Dialog>

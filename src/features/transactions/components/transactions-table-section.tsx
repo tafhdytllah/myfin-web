@@ -1,16 +1,25 @@
-import { ReactNode, useMemo } from "react";
+import {
+  ColumnFiltersState,
+  PaginationState,
+  VisibilityState,
+} from "@tanstack/react-table";
+import { Dispatch, ReactNode, SetStateAction, useMemo } from "react";
 
-import { DataTable } from "@/components/shared/data-table/data-table";
-import { DataTableToolbar } from "@/components/shared/data-table/data-table-toolbar";
-import { InlineRetryState } from "@/components/shared/inline-retry-state";
+import { DataTable } from "@/components/shared/data-table/table";
+import { RetryCard } from "@/components/shared/retry-card";
+import { SectionCard } from "@/components/shared/section-card";
 import { SectionEmptyState } from "@/components/shared/section-empty-state";
-import { ServerPagination } from "@/components/shared/server-pagination";
 import { StackSkeleton } from "@/components/shared/stack-skeleton";
-import { TableWorkspace } from "@/components/shared/table-workspace";
 import {
   buildTransactionsTableColumns,
   TransactionRow,
 } from "@/features/transactions/components/transactions-table-columns";
+import { TransactionsTableToolbar } from "@/features/transactions/components/transactions-table-toolbar";
+
+type Option = {
+  value: string;
+  label: string;
+};
 
 type TransactionsTableSectionProps = {
   title: string;
@@ -30,9 +39,6 @@ type TransactionsTableSectionProps = {
   formatDate: (value: string) => string;
   formatCurrency: (value: number) => string;
   labels: {
-    columns: string;
-    totalRows: (count: number) => string;
-    pageSummary: (current: number, total: number) => string;
     selectAllRows: string;
     selectTransactionRow: (date: string) => string;
     sortAscending: string;
@@ -49,15 +55,16 @@ type TransactionsTableSectionProps = {
     expense: string;
     edit: string;
     delete: string;
-    previous: string;
-    next: string;
   };
-  currentPage: number;
-  totalPages: number;
-  onPageChange: (page: number) => void;
+  totalRows: number;
+  paginationState: PaginationState;
+  onPaginationChange: Dispatch<SetStateAction<PaginationState>>;
+  columnFilters: ColumnFiltersState;
+  onColumnFiltersChange: Dispatch<SetStateAction<ColumnFiltersState>>;
   onEdit: (row: TransactionRow) => void;
   onDelete: (row: TransactionRow) => void;
-  filters: ReactNode;
+  accountOptions: Option[];
+  categoryOptions: Option[];
   primaryAction?: ReactNode;
 };
 
@@ -79,12 +86,15 @@ export function TransactionsTableSection({
   formatDate,
   formatCurrency,
   labels,
-  currentPage,
-  totalPages,
-  onPageChange,
+  totalRows,
+  paginationState,
+  onPaginationChange,
+  columnFilters,
+  onColumnFiltersChange,
   onEdit,
   onDelete,
-  filters,
+  accountOptions,
+  categoryOptions,
   primaryAction,
 }: TransactionsTableSectionProps) {
   const columns = useMemo(
@@ -94,48 +104,39 @@ export function TransactionsTableSection({
         formatDate,
         labels,
         onEdit,
-      onDelete,
+        onDelete,
       }),
     [formatCurrency, formatDate, labels, onDelete, onEdit],
   );
+  const initialColumnVisibility = useMemo<VisibilityState>(
+    () => ({
+      search: false,
+    }),
+    [],
+  );
+
+  if (loading) {
+    return (
+      <SectionCard title={title} description={description} action={primaryAction}>
+        <StackSkeleton count={5} itemClassName="h-14 rounded-xl bg-muted" />
+      </SectionCard>
+    );
+  }
+
+  if (isError) {
+    return (
+      <RetryCard
+        title={title}
+        description={errorDescription}
+        retryLabel={retryLabel}
+        onRetry={onRetry}
+      />
+    );
+  }
 
   return (
-    <TableWorkspace
-      title={title}
-      description={description}
-      toolbarStart={filters}
-      toolbarEnd={
-        <>
-          {primaryAction}
-        </>
-      }
-      footerStart={labels.totalRows(rows.length)}
-      footerEnd={
-        !loading && !isError && rows.length > 0 ? (
-          <div className="flex flex-col items-start gap-3 md:items-end">
-            <span>{labels.pageSummary(currentPage, totalPages)}</span>
-            <ServerPagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              previousLabel={labels.previous}
-              nextLabel={labels.next}
-              onPageChange={onPageChange}
-            />
-          </div>
-        ) : null
-      }
-    >
-      {loading ? <StackSkeleton count={5} itemClassName="h-14 rounded-xl bg-muted" /> : null}
-
-      {isError ? (
-        <InlineRetryState
-          description={errorDescription}
-          retryLabel={retryLabel}
-          onRetry={onRetry}
-        />
-      ) : null}
-
-      {!loading && !isError && rows.length === 0 ? (
+    <SectionCard title={title} description={description} action={primaryAction}>
+      {rows.length === 0 ? (
         <SectionEmptyState
           description={emptyDescription}
           actions={[
@@ -145,34 +146,40 @@ export function TransactionsTableSection({
             },
             ...(hasActiveFilters
               ? [
-                  {
-                    label: resetFiltersLabel,
-                    onClick: onResetFilters,
-                    variant: "outline" as const,
-                  },
-                ]
+                {
+                  label: resetFiltersLabel,
+                  onClick: onResetFilters,
+                  variant: "outline" as const,
+                },
+              ]
               : []),
           ]}
         />
       ) : null}
 
-      {!loading && !isError && rows.length > 0 ? (
+      {rows.length > 0 ? (
         <DataTable
           columns={columns}
           data={rows}
-          noResultsLabel={emptyDescription}
-          pageSize={rows.length || 10}
-          tableClassName="min-w-[860px]"
+          pageSize={paginationState.pageSize}
+          bordered
+          manualFiltering
+          manualPagination
+          total={totalRows}
+          paginationState={paginationState}
+          setPaginationState={onPaginationChange}
+          columnFilters={columnFilters}
+          setColumnFilters={onColumnFiltersChange}
+          initialColumnVisibility={initialColumnVisibility}
           toolbar={(table) => (
-            <DataTableToolbar
+            <TransactionsTableToolbar
               table={table}
-              columnsLabel={labels.columns}
-              resetLabel={resetFiltersLabel}
+              accountOptions={accountOptions}
+              categoryOptions={categoryOptions}
             />
           )}
-          pagination={() => null}
         />
       ) : null}
-    </TableWorkspace>
+    </SectionCard>
   );
 }

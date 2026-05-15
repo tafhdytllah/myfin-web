@@ -1,12 +1,15 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  ColumnFiltersState,
+  PaginationState,
+} from "@tanstack/react-table";
+import { SetStateAction, useCallback, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { useAccounts } from "@/features/accounts/hooks/use-account-queries";
 import { useCategories } from "@/features/categories/hooks/use-category-queries";
 import { TransactionDeleteDialog } from "@/features/transactions/components/transaction-delete-dialog";
-import { TransactionsFiltersCard } from "@/features/transactions/components/transactions-filters-card";
 import { TransactionFormDialog } from "@/features/transactions/components/transaction-form-dialog";
 import { TransactionsTableSection } from "@/features/transactions/components/transactions-table-section";
 import {
@@ -19,11 +22,9 @@ import {
   parseTransactionFilters,
 } from "@/features/transactions/utils/transaction-search-params";
 import { PageActionButton } from "@/components/shared/page-action-button";
-import { ResetFiltersButton } from "@/components/shared/reset-filters-button";
 import { usePageTrail } from "@/components/layout/page-trail-context";
 import { formatCurrency } from "@/lib/formatters/currency";
 import { formatDate } from "@/lib/formatters/date";
-import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { useTranslations } from "@/lib/i18n/use-translations";
 import { useLocaleStore } from "@/stores/locale-store";
 
@@ -40,8 +41,6 @@ export function TransactionsPageView() {
   );
   const [formOpen, setFormOpen] = useState(false);
   const [deletingTransaction, setDeletingTransaction] = useState<Transaction | null>(null);
-  const [keyword, setKeyword] = useState(filters.keyword ?? "");
-  const debouncedKeyword = useDebouncedValue(keyword);
 
   const accountsQuery = useAccounts({ status: "all" });
   const categoriesQuery = useCategories({ status: "all", type: "all" });
@@ -75,29 +74,7 @@ export function TransactionsPageView() {
       })),
     [accountsMap, categoriesMap, t, transactions],
   );
-  const selectedAccountName = useMemo(
-    () => accounts.find((account) => account.id === filters.accountId)?.name,
-    [accounts, filters.accountId],
-  );
-  const selectedTypeLabel = useMemo(() => {
-    switch (filters.type) {
-      case "INCOME":
-        return t("common.income");
-      case "EXPENSE":
-        return t("common.expense");
-      default:
-        return t("transactions.allTypes");
-    }
-  }, [filters.type, t]);
-  const selectedCategoryName = useMemo(
-    () => categories.find((category) => category.id === filters.categoryId)?.name,
-    [categories, filters.categoryId],
-  );
-
-  const totalPages = transactionsEnvelope?.meta?.totalPages ?? 1;
-  const currentPage = transactionsEnvelope?.meta?.page
-    ? transactionsEnvelope.meta.page + 1
-    : filters.page;
+  const totalRows = transactionsEnvelope?.meta?.totalElements ?? rows.length;
   const dateLocale = locale === "id" ? "id-ID" : "en-US";
   const hasActiveFilters = Boolean(
     filters.keyword ||
@@ -128,27 +105,7 @@ export function TransactionsPageView() {
     router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
   }, [pathname, router]);
 
-  useEffect(() => {
-    if (debouncedKeyword === (filters.keyword ?? "")) {
-      return;
-    }
-
-    updateFilters({
-      ...filters,
-      keyword: debouncedKeyword,
-      page: 1,
-    });
-  }, [debouncedKeyword, filters, updateFilters]);
-
-  function changePage(page: number) {
-    updateFilters({
-      ...filters,
-      page,
-    });
-  }
-
   function resetFilters() {
-    setKeyword("");
     updateFilters({
       keyword: "",
       accountId: "",
@@ -161,13 +118,90 @@ export function TransactionsPageView() {
     });
   }
 
-  function getCategoryOptions() {
-    return categories.filter((category) => {
-      const typeMatches =
-        filters.type === "all" || !filters.type || category.type === filters.type;
-      return typeMatches;
-    });
-  }
+  const columnFilters = useMemo<ColumnFiltersState>(() => {
+    const nextFilters: ColumnFiltersState = [];
+
+    if (filters.keyword) {
+      nextFilters.push({ id: "search", value: filters.keyword });
+    }
+
+    if (filters.accountId) {
+      nextFilters.push({ id: "accountId", value: [filters.accountId] });
+    }
+
+    if (filters.type && filters.type !== "all") {
+      nextFilters.push({ id: "type", value: [filters.type] });
+    }
+
+    if (filters.categoryId) {
+      nextFilters.push({ id: "categoryId", value: [filters.categoryId] });
+    }
+
+    return nextFilters;
+  }, [filters.accountId, filters.categoryId, filters.keyword, filters.type]);
+
+  const paginationState = useMemo<PaginationState>(
+    () => ({
+      pageIndex: Math.max(filters.page - 1, 0),
+      pageSize: filters.size,
+    }),
+    [filters.page, filters.size],
+  );
+
+  const handleColumnFiltersChange = useCallback(
+    (updater: SetStateAction<ColumnFiltersState>) => {
+      const nextColumnFilters =
+        typeof updater === "function" ? updater(columnFilters) : updater;
+      const getFilterValue = (id: string) =>
+        nextColumnFilters.find((filter) => filter.id === id)?.value;
+      const firstValue = (value: unknown) => {
+        if (Array.isArray(value)) {
+          return value[0] ? String(value[0]) : "";
+        }
+
+        return value ? String(value) : "";
+      };
+      const nextType = firstValue(getFilterValue("type"));
+
+      updateFilters({
+        ...filters,
+        keyword: firstValue(getFilterValue("search")),
+        accountId: firstValue(getFilterValue("accountId")),
+        type: nextType === "INCOME" || nextType === "EXPENSE" ? nextType : "all",
+        categoryId: firstValue(getFilterValue("categoryId")),
+        page: 1,
+      });
+    },
+    [columnFilters, filters, updateFilters],
+  );
+
+  const handlePaginationChange = useCallback(
+    (updater: SetStateAction<PaginationState>) => {
+      const nextPagination =
+        typeof updater === "function" ? updater(paginationState) : updater;
+
+      updateFilters({
+        ...filters,
+        page: nextPagination.pageIndex + 1,
+        size: nextPagination.pageSize,
+      });
+    },
+    [filters, paginationState, updateFilters],
+  );
+
+  const categoryOptions = useMemo(
+    () =>
+      categories
+        .filter(
+          (category) =>
+            filters.type === "all" || !filters.type || category.type === filters.type,
+        )
+        .map((category) => ({
+          value: category.id,
+          label: category.name,
+        })),
+    [categories, filters.type],
+  );
 
   return (
     <div className="space-y-6">
@@ -189,9 +223,6 @@ export function TransactionsPageView() {
         formatDate={(value) => formatDate(value, dateLocale)}
         formatCurrency={formatCurrency}
         labels={{
-          columns: t("common.columns"),
-          totalRows: (count) => t("common.totalRows", { count }),
-          pageSummary: (current, total) => t("common.pageSummary", { current, total }),
           selectAllRows: t("common.selectAllRows"),
           selectTransactionRow: (date) =>
             t("common.selectTransactionRow", { date }),
@@ -209,99 +240,23 @@ export function TransactionsPageView() {
           expense: t("common.expense"),
           edit: t("transactions.edit"),
           delete: t("transactions.delete"),
-          previous: t("transactions.previous"),
-          next: t("transactions.next"),
         }}
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={changePage}
+        totalRows={totalRows}
+        paginationState={paginationState}
+        onPaginationChange={handlePaginationChange}
+        columnFilters={columnFilters}
+        onColumnFiltersChange={handleColumnFiltersChange}
         onEdit={notifyEditUnavailable}
         onDelete={setDeletingTransaction}
-        filters={
-          <TransactionsFiltersCard
-            keyword={keyword}
-            searchPlaceholder={t("common.search")}
-            onKeywordChange={setKeyword}
-            accountValue={filters.accountId || "all"}
-            accountPlaceholder={t("common.account")}
-            accountDisplayValue={filters.accountId ? selectedAccountName : undefined}
-            accountOptions={[
-              { value: "all", label: t("transactions.allAccounts") },
-              ...accounts.map((account) => ({
-                value: account.id,
-                label: account.name,
-              })),
-            ]}
-            onAccountChange={(value) =>
-              updateFilters({
-                ...filters,
-                accountId: value === "all" || value == null ? "" : value,
-                page: 1,
-              })
-            }
-            typeValue={filters.type ?? "all"}
-            typePlaceholder={t("common.type")}
-            typeDisplayValue={selectedTypeLabel}
-            typeOptions={[
-              { value: "all", label: t("transactions.allTypes") },
-              { value: "INCOME", label: t("common.income") },
-              { value: "EXPENSE", label: t("common.expense") },
-            ]}
-            onTypeChange={(value) =>
-              updateFilters({
-                ...filters,
-                type: (value ?? "all") as "all" | "INCOME" | "EXPENSE",
-                categoryId: "",
-                page: 1,
-              })
-            }
-            categoryValue={filters.categoryId || "all"}
-            categoryPlaceholder={t("common.category")}
-            categoryDisplayValue={filters.categoryId ? selectedCategoryName : undefined}
-            categoryOptions={[
-              { value: "all", label: t("transactions.allCategories") },
-              ...getCategoryOptions().map((category) => ({
-                value: category.id,
-                label: category.name,
-              })),
-            ]}
-            onCategoryChange={(value) =>
-              updateFilters({
-                ...filters,
-                categoryId: value === "all" || value == null ? "" : value,
-                page: 1,
-              })
-            }
-            startDate={filters.startDate ?? ""}
-            endDate={filters.endDate ?? ""}
-            onStartDateChange={(value) =>
-              updateFilters({
-                ...filters,
-                startDate: value,
-                page: 1,
-              })
-            }
-            onEndDateChange={(value) =>
-              updateFilters({
-                ...filters,
-                endDate: value,
-                page: 1,
-              })
-            }
-          />
-        }
+        accountOptions={accounts.map((account) => ({
+          value: account.id,
+          label: account.name,
+        }))}
+        categoryOptions={categoryOptions}
         primaryAction={
-          <>
-            {hasActiveFilters ? (
-              <ResetFiltersButton
-                label={t("transactions.resetFilters")}
-                onClick={resetFilters}
-              />
-            ) : null}
-            <PageActionButton onClick={() => setFormOpen(true)}>
-              {t("transactions.addTransaction")}
-            </PageActionButton>
-          </>
+          <PageActionButton onClick={() => setFormOpen(true)}>
+            {t("transactions.addTransaction")}
+          </PageActionButton>
         }
       />
 

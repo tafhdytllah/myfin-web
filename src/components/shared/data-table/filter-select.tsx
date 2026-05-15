@@ -13,6 +13,7 @@ import {
 export type DataTableFilterOption = {
   label: string;
   value: string;
+  icon?: React.ComponentType<{ className?: string }>;
 };
 
 type DataTableFilterSelectProps<TData> = {

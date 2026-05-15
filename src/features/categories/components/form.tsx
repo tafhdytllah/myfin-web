@@ -1,26 +1,26 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect, useMemo } from "react";
 import { useForm, useWatch } from "react-hook-form";
 
 import { DialogFormActions } from "@/components/shared/dialog-form-actions";
 import { DialogFormHeader } from "@/components/shared/dialog-form-header";
-import { FormLayout } from "@/components/shared/form-layout";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { CategoryNameField } from "@/features/categories/components/form/category-name-field";
-import { CategoryTypeField } from "@/features/categories/components/form/category-type-field";
-import {
-  CategoryFormValues,
-  createCategoryFormSchema,
-} from "@/features/categories/schemas/category-form.schema";
+import { CategoryNameField } from "@/features/categories/components/category-name-field";
+import { CategoryTypeField } from "@/features/categories/components/category-type-field";
 import {
   useCreateCategory,
   useUpdateCategory,
 } from "@/features/categories/hooks/use-category-queries";
+import {
+  CategoryFormValues,
+  createCategoryFormSchema,
+} from "@/features/categories/schemas/category-form.schema";
 import { Category } from "@/features/categories/types/category-types";
 import { applyApiFieldErrors } from "@/lib/api/apply-field-errors";
 import { useTranslations } from "@/lib/i18n/use-translations";
+import { FormSection } from "@/components/shared/form/form-section";
 
 type CategoryFormDialogProps = {
   category?: Category | null;
@@ -118,11 +118,11 @@ export function CategoryFormDialog({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="rounded-3xl sm:max-w-lg">
         <DialogFormHeader
-          title={ isEditMode ? t("categories.editCategory") : t("categories.addCategory") }
-          description={ isEditMode ? t("categories.editDescription") : t("categories.createDescription")}
+          title={isEditMode ? t("categories.editCategory") : t("categories.addCategory")}
+          description={isEditMode ? t("categories.editDescription") : t("categories.createDescription")}
         />
 
-        <FormLayout onSubmit={form.handleSubmit(handleSubmit)}>
+        <FormSection onSubmit={form.handleSubmit(handleSubmit)}>
           <CategoryNameField
             error={form.formState.errors.name?.message}
             registration={form.register("name")}
@@ -146,7 +146,7 @@ export function CategoryFormDialog({
             isPending={isSubmitting}
             onCancel={() => onOpenChange(false)}
           />
-        </FormLayout>
+        </FormSection>
       </DialogContent>
     </Dialog>
   );

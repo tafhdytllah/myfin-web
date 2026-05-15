@@ -43,18 +43,18 @@ export function SidebarUserMenu() {
         render={
           <SidebarMenuButton
             size="lg"
-            className="h-auto overflow-visible rounded-2xl bg-white/8 px-3 py-3 hover:bg-white/12 data-[active=true]:bg-sidebar-accent group-data-[collapsible=icon]:size-10! group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:rounded-2xl group-data-[collapsible=icon]:px-0"
+            className="h-auto overflow-visible rounded-xl px-3 py-3 data-[active=true]:bg-sidebar-accent group-data-[collapsible=icon]:size-10! group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:rounded-xl group-data-[collapsible=icon]:px-0"
           />
         }
       >
-        <div className="flex size-9 items-center justify-center rounded-full bg-sidebar-primary font-semibold text-sidebar-primary-foreground shadow-lg shadow-black/10 transition-transform group-data-[collapsible=icon]:-translate-x-2 group-data-[collapsible=icon]:-translate-y-2">
+        <div className="flex size-9 items-center justify-center rounded-full bg-sidebar-accent font-semibold text-sidebar-accent-foreground ring-1 ring-sidebar-border transition-transform group-data-[collapsible=icon]:-translate-x-2 group-data-[collapsible=icon]:-translate-y-2">
           {(user?.username?.[0] ?? "G").toUpperCase()}
         </div>
         <div className="grid flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden">
           <span className="truncate font-medium">
             {user?.username ?? t("common.guest")}
           </span>
-          <span className="truncate text-xs text-sky-100 dark:text-slate-300">
+          <span className="truncate text-xs text-sidebar-foreground/70">
             {user?.email ?? t("common.noActiveSession")}
           </span>
         </div>

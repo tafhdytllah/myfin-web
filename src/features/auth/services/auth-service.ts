@@ -5,11 +5,17 @@ import {
 } from "@/features/auth/types/auth-types";
 
 export const authService = {
-  login(payload: LoginPayload) {
-    return authApiRepository.login(payload);
+  async login(payload: LoginPayload) {
+    const tokenData = await authApiRepository.login(payload);
+    const user = await authApiRepository.getCurrentUser(tokenData.accessToken);
+
+    return {
+      accessToken: tokenData.accessToken,
+      user,
+    }
   },
 
-  register(payload: RegisterPayload) {
+  async register(payload: RegisterPayload) {
     return authApiRepository.register(payload);
   },
 

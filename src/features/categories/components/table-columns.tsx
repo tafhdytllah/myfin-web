@@ -1,12 +1,24 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { PencilLine, Power, PowerOff } from "lucide-react";
 
-import { DataTableColumnHeader } from "@/components/shared/data-table-column-header";
+import { sortableHeader } from "@/components/shared/data-table/sortable-header";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useTranslations } from "@/lib/i18n/use-translations";
 import { useMemo } from "react";
+
+function includesFilterValue(rowValue: unknown, filterValue: unknown) {
+  if (!filterValue || filterValue === "all") {
+    return true;
+  }
+
+  if (Array.isArray(filterValue)) {
+    return filterValue.length === 0 || filterValue.includes(rowValue);
+  }
+
+  return rowValue === filterValue;
+}
 
 export type CategoryTableRow = {
   id: string;
@@ -31,8 +43,14 @@ export function useCategoryTableColumns({
 }: BuildCategoryTableColumnsOptions): ColumnDef<CategoryTableRow>[] {
   const { t } = useTranslations();
 
-  return useMemo(
-    () => [
+  return useMemo(() => {
+    const commonHeaderLabels = {
+      ascLabel: t("common.sortAscending"),
+      descLabel: t("common.sortDescending"),
+      hideLabel: t("common.hideColumn"),
+    };
+
+    return [
       {
         id: "select",
         header: ({ table }) => (
@@ -61,15 +79,10 @@ export function useCategoryTableColumns({
         meta: {
           label: t("common.category"),
         },
-        header: ({ column }) => (
-          <DataTableColumnHeader
-            column={column}
-            title={t("common.category")}
-            ascLabel={t("common.sortAscending")}
-            descLabel={t("common.sortDescending")}
-            hideLabel={t("common.hideColumn")}
-          />
-        ),
+        header: sortableHeader({
+          title: t("common.category"),
+          ...commonHeaderLabels,
+        }),
         cell: ({ row }) => <div className="font-medium">{row.original.name}</div>,
       },
       {
@@ -77,26 +90,17 @@ export function useCategoryTableColumns({
         meta: {
           label: t("common.type"),
         },
-        header: ({ column }) => (
-          <DataTableColumnHeader
-            column={column}
-            title={t("common.type")}
-            ascLabel={t("common.sortAscending")}
-            descLabel={t("common.sortDescending")}
-            hideLabel={t("common.hideColumn")}
-          />
-        ),
+        header: sortableHeader({
+          title: t("common.type"),
+          ...commonHeaderLabels,
+        }),
         cell: ({ row }) => (
           <StatusBadge tone={row.original.type === "INCOME" ? "income" : "expense"}>
             {row.original.type === "INCOME" ? t("common.income") : t("common.expense")}
           </StatusBadge>
         ),
         filterFn: (row, id, value) => {
-          if (!value || value === "all") {
-            return true;
-          }
-
-          return row.getValue(id) === value;
+          return includesFilterValue(row.getValue(id), value);
         },
       },
       {
@@ -105,26 +109,17 @@ export function useCategoryTableColumns({
         meta: {
           label: t("common.status"),
         },
-        header: ({ column }) => (
-          <DataTableColumnHeader
-            column={column}
-            title={t("common.status")}
-            ascLabel={t("common.sortAscending")}
-            descLabel={t("common.sortDescending")}
-            hideLabel={t("common.hideColumn")}
-          />
-        ),
+        header: sortableHeader({
+          title: t("common.status"),
+          ...commonHeaderLabels,
+        }),
         cell: ({ row }) => (
           <StatusBadge tone={row.original.active ? "active" : "inactive"}>
             {row.original.active ? t("common.active") : t("common.inactive")}
           </StatusBadge>
         ),
         filterFn: (row, id, value) => {
-          if (!value || value === "all") {
-            return true;
-          }
-
-          return row.getValue(id) === value;
+          return includesFilterValue(row.getValue(id), value);
         },
       },
       {
@@ -132,15 +127,10 @@ export function useCategoryTableColumns({
         meta: {
           label: t("common.used"),
         },
-        header: ({ column }) => (
-          <DataTableColumnHeader
-            column={column}
-            title={t("common.used")}
-            ascLabel={t("common.sortAscending")}
-            descLabel={t("common.sortDescending")}
-            hideLabel={t("common.hideColumn")}
-          />
-        ),
+        header: sortableHeader({
+          title: t("common.used"),
+          ...commonHeaderLabels,
+        }),
         cell: ({ row }) => row.original.usageCount,
       },
       {
@@ -184,7 +174,6 @@ export function useCategoryTableColumns({
           </div>
         ),
       },
-    ],
-    [activatingPending, onEdit, onDeactivate, onActivate, t],
-  );
+    ];
+  }, [activatingPending, onEdit, onDeactivate, onActivate, t]);
 }

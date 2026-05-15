@@ -17,7 +17,14 @@ export function FormSubmitButton({
   className,
 }: FormSubmitButtonProps) {
   return (
-    <Button type="submit" disabled={disabled || pending} className={cn(className)}>
+    <Button
+      type="submit"
+      disabled={disabled || pending}
+      className={cn(
+        "h-11 rounded-2xl px-5 text-sm font-semibold max-sm:w-full",
+        className,
+      )}
+    >
       {pending ? pendingLabel : idleLabel}
     </Button>
   );

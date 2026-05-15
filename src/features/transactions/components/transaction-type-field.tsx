@@ -1,6 +1,6 @@
 "use client";
 
-import { FormFieldItem } from "@/components/shared/form-field-item";
+import { FormFieldItem } from "@/components/shared/form/form-field-item";
 import {
   Select,
   SelectContent,
@@ -28,7 +28,12 @@ export function TransactionTypeField({
 
   return (
     <FormFieldItem label={t("common.type")} errors={error ? [{ message: error }] : []}>
-      <Select value={value} onValueChange={onValueChange}>
+      <Select
+        value={value}
+        onValueChange={(nextValue) =>
+          onValueChange(nextValue as TransactionFormValues["type"])
+        }
+      >
         <SelectTrigger className="w-full">
           <SelectValue placeholder={t("common.type")}>
             {selectedTypeLabel}

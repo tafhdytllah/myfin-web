@@ -1,21 +1,19 @@
-import { apiRequest } from "@/lib/api/client";
+import { AuthRepository } from "@/features/auth/repositories/auth-repository";
 import {
   ApiEnvelope,
   AuthTokenData,
   ProfileResponse,
 } from "@/features/auth/types/auth-types";
-import { AuthRepository } from "@/features/auth/repositories/auth-repository";
+import { apiRequest } from "@/lib/api/client";
 
 export const authApiRepository: AuthRepository = {
   async login(payload) {
-    const response = await apiRequest<ApiEnvelope<AuthTokenData>>(
-      "/api/v1/auth/login",
-      {
-        method: "POST",
-        credentials: "include",
-        body: JSON.stringify(payload),
-      },
-    );
+
+    const response = await apiRequest<ApiEnvelope<AuthTokenData>>("/api/v1/auth/login", {
+      method: "POST",
+      credentials: "include",
+      body: JSON.stringify(payload),
+    });
 
     return response.data;
   },

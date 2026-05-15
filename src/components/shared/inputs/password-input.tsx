@@ -5,6 +5,7 @@ import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 
 type PasswordInputProps = React.ComponentProps<typeof Input> & {
   toggleLabel: string;
@@ -22,7 +23,7 @@ export function PasswordInput({
       <Input
         {...props}
         type={visible ? "text" : "password"}
-        className={["pr-12", className].filter(Boolean).join(" ")}
+        className={cn("pr-12", className)}
       />
       <Button
         type="button"

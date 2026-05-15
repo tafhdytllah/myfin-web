@@ -1,12 +1,11 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect, useMemo } from "react";
 import { useForm, useWatch } from "react-hook-form";
 
-import { DialogFormHeader } from "@/components/shared/dialog-form-header";
 import { DialogFormActions } from "@/components/shared/dialog-form-actions";
-import { FormLayout } from "@/components/shared/form-layout";
+import { DialogFormHeader } from "@/components/shared/dialog-form-header";
 import { InfoNotice } from "@/components/shared/info-notice";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useAccounts } from "@/features/accounts/hooks/use-account-queries";
@@ -24,6 +23,7 @@ import {
 } from "@/features/transactions/schemas/transaction-form.schema";
 import { applyApiFieldErrors } from "@/lib/api/apply-field-errors";
 import { useTranslations } from "@/lib/i18n/use-translations";
+import { FormSection } from "@/components/shared/form/form-section";
 
 type TransactionFormDialogProps = {
   open: boolean;
@@ -138,7 +138,7 @@ export function TransactionFormDialog({
           description={t("transactions.createDescription")}
         />
 
-        <FormLayout onSubmit={form.handleSubmit(handleSubmit)}>
+        <FormSection onSubmit={form.handleSubmit(handleSubmit)}>
           <div className="grid gap-4 md:grid-cols-2">
             <TransactionTypeField
               error={form.formState.errors.type?.message}
@@ -204,7 +204,7 @@ export function TransactionFormDialog({
               isSubmitting || !hasActiveAccounts || !hasMatchingCategories
             }
           />
-        </FormLayout>
+        </FormSection>
       </DialogContent>
     </Dialog>
   );

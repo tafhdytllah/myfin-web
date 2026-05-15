@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo } from "react";
+import { Fragment, useMemo } from "react";
 import { usePathname } from "next/navigation";
 
 import { useCurrentPageTrail } from "@/components/layout/page-trail-context";
@@ -43,23 +43,25 @@ export function AppBreadcrumb() {
           const shouldLinkToBase = index === 0 && routeItems.length > 1;
 
           return (
-            <BreadcrumbItem key={`${item}-${index}`} className="min-w-0 shrink-0">
-              {shouldLinkToBase ? (
-                <BreadcrumbLink
-                  render={<Link href={pathname} />}
-                  className="truncate"
-                >
-                  {item}
-                </BreadcrumbLink>
-              ) : isLast ? (
-                <BreadcrumbPage className="truncate text-sm font-medium">
-                  {item}
-                </BreadcrumbPage>
-              ) : (
-                <span className="truncate text-sm text-muted-foreground">{item}</span>
-              )}
+            <Fragment key={`${item}-${index}`}>
+              <BreadcrumbItem className="min-w-0 shrink-0">
+                {shouldLinkToBase ? (
+                  <BreadcrumbLink
+                    render={<Link href={pathname} />}
+                    className="truncate"
+                  >
+                    {item}
+                  </BreadcrumbLink>
+                ) : isLast ? (
+                  <BreadcrumbPage className="truncate text-sm font-medium">
+                    {item}
+                  </BreadcrumbPage>
+                ) : (
+                  <span className="truncate text-sm text-muted-foreground">{item}</span>
+                )}
+              </BreadcrumbItem>
               {!isLast ? <BreadcrumbSeparator /> : null}
-            </BreadcrumbItem>
+            </Fragment>
           );
         })}
       </BreadcrumbList>

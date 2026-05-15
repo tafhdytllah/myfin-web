@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect } from "react";
-
 import { authService } from "@/features/auth/services/auth-service";
 import { useAuthStore } from "@/stores/auth-store";
 

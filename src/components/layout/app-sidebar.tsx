@@ -33,7 +33,7 @@ export function AppSidebar() {
 
   return (
     <Sidebar collapsible="icon" className="border-r-0" variant="sidebar">
-      <SidebarHeader className="bg-(--color-surface-sidebar) p-4 text-sidebar-foreground">
+      <SidebarHeader className="bg-sidebar p-4 text-sidebar-foreground">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarBrand
@@ -44,7 +44,7 @@ export function AppSidebar() {
         </SidebarMenu>
       </SidebarHeader>
 
-      <SidebarContent className="bg-(--color-surface-sidebar) px-2 text-sidebar-foreground">
+      <SidebarContent className="bg-sidebar px-2 text-sidebar-foreground">
         <SidebarMenu>
           {sidebarNavigation.map((item) => {
             const Icon = item.icon;
@@ -55,7 +55,7 @@ export function AppSidebar() {
                   render={<Link href={item.href} />}
                   isActive={pathname === item.href}
                   tooltip={t(item.labelKey)}
-                  className="h-11 rounded-2xl px-3 text-sm data-[active=true]:bg-sidebar-primary data-[active=true]:text-sidebar-primary-foreground"
+                  className="relative h-11 rounded-xl px-3 text-sm data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground data-[active=true]:before:absolute data-[active=true]:before:left-1 data-[active=true]:before:top-1/2 data-[active=true]:before:h-5 data-[active=true]:before:w-1 data-[active=true]:before:-translate-y-1/2 data-[active=true]:before:rounded-full data-[active=true]:before:bg-sidebar-foreground/70"
                 >
                   <Icon className="size-4" />
                   <span>{t(item.labelKey)}</span>
@@ -66,8 +66,8 @@ export function AppSidebar() {
         </SidebarMenu>
       </SidebarContent>
 
-      <SidebarFooter className="gap-4 bg-(--color-surface-sidebar) p-4 text-sidebar-foreground">
-        <SidebarSeparator className="bg-white/10" />
+      <SidebarFooter className="gap-4 bg-sidebar p-4 text-sidebar-foreground">
+        <SidebarSeparator />
 
         <SidebarMenu>
           <SidebarMenuItem>

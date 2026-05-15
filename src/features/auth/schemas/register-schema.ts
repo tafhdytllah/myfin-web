@@ -10,7 +10,7 @@ export function createRegisterSchema(t: TranslateFn) {
         .string()
         .trim()
         .min(3, validation.minCharacters(t("auth.username"), 3)),
-      email: z.string().trim().email(validation.validEmail()),
+      email: z.email(validation.validEmail()).trim(),
       password: z
         .string()
         .trim()

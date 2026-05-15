@@ -2,15 +2,15 @@
 
 import { ReactNode } from "react";
 
-import { DataTable } from "@/components/shared/data-table/data-table";
+import { DataTable } from "@/components/shared/data-table/table";
 import { RetryCard } from "@/components/shared/retry-card";
 import { SectionCard } from "@/components/shared/section-card";
 import { StackSkeleton } from "@/components/shared/stack-skeleton";
-import { CategoryTableToolbar } from "@/features/categories/components/table/category-table-toolbar";
 import {
   CategoryTableRow,
   useCategoryTableColumns,
-} from "@/features/categories/components/table/table-columns";
+} from "@/features/categories/components/table-columns";
+import { CategoryTableToolbar } from "@/features/categories/components/table-toolbar";
 import { useTranslations } from "@/lib/i18n/use-translations";
 
 type CategoryTableSectionProps = {
@@ -45,18 +45,6 @@ export function CategoryTableSection({
     onActivate,
   });
 
-  if (loading) {
-    return (
-      <SectionCard
-        title={t("categories.title")}
-        description={t("categories.description")}
-        action={action}
-      >
-        <StackSkeleton count={6} itemClassName="h-12 rounded-xl bg-muted" />
-      </SectionCard>
-    );
-  }
-
   if (isError) {
     return (
       <RetryCard
@@ -74,12 +62,15 @@ export function CategoryTableSection({
       description={t("categories.description")}
       action={action}
     >
-      <DataTable
-        columns={columns}
-        data={items}
-        noResultsLabel={t("common.noResults")}
-        toolbar={(table) => <CategoryTableToolbar table={table} />}
-      />
+      {loading ? (
+        <StackSkeleton count={6} itemClassName="h-12 rounded-xl bg-muted" />
+      ) : (
+        <DataTable
+          columns={columns}
+          data={items}
+          toolbar={(table) => <CategoryTableToolbar table={table} />}
+        />
+      )}
     </SectionCard>
   );
 }

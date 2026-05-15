@@ -12,6 +12,7 @@ type FormFieldItemProps = PropsWithChildren<{
   htmlFor?: string;
   errors?: Array<{ message?: string } | undefined>;
   description?: ReactNode;
+  className?: string;
 }>;
 
 export function FormFieldItem({
@@ -19,12 +20,13 @@ export function FormFieldItem({
   htmlFor,
   errors,
   description,
+  className,
   children,
 }: FormFieldItemProps) {
   const hasErrors = Boolean(errors?.some((error) => error?.message));
 
   return (
-    <Field>
+    <Field className={className}>
       {label ? <FieldLabel htmlFor={htmlFor}>{label}</FieldLabel> : null}
       <FieldContent>
         {children}

@@ -9,7 +9,7 @@ const toneClasses: Record<StatusBadgeProps["tone"], string> = {
   active:
     "bg-emerald-100 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-500/18 dark:text-emerald-200 dark:hover:bg-emerald-500/18",
   inactive:
-    "bg-slate-200 text-slate-700 hover:bg-slate-200 dark:bg-slate-500/20 dark:text-slate-200 dark:hover:bg-slate-500/20",
+    "bg-muted text-muted-foreground hover:bg-muted dark:bg-muted dark:text-muted-foreground dark:hover:bg-muted",
   income:
     "bg-sky-100 text-sky-700 hover:bg-sky-100 dark:bg-sky-500/18 dark:text-sky-200 dark:hover:bg-sky-500/18",
   expense:

@@ -1,6 +1,6 @@
 "use client";
 
-import { FormFieldItem } from "@/components/shared/form-field-item";
+import { FormFieldItem } from "@/components/shared/form/form-field-item";
 import { Input } from "@/components/ui/input";
 import { UseFormRegisterReturn } from "react-hook-form";
 

@@ -1,6 +1,6 @@
 import { FilterCardShell } from "@/components/shared/filter-card-shell";
 import { FilterSelect } from "@/components/shared/filter-select";
-import { SearchFilterInput } from "@/components/shared/search-filter-input";
+import { SearchFilterInput } from "@/components/shared/inputs/search-filter-input";
 
 type AccountsFiltersCardProps = {
   title: string;

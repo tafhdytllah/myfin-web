@@ -37,10 +37,10 @@ export function ThemeModeToggle() {
 
   return (
     <ContentCard
-      className="border-white/10 bg-white/8 text-white ring-0"
+      className="bg-card text-card-foreground ring-0"
       contentClassName="p-4"
     >
-        <p className="text-sm text-sky-100 dark:text-slate-300">{t("theme.title")}</p>
+        <p className="text-sm text-muted-foreground">{t("theme.title")}</p>
         <div className="mt-3 grid grid-cols-3 gap-2">
           {themeOptions.map((option) => {
             const Icon = option.icon;
@@ -51,11 +51,7 @@ export function ThemeModeToggle() {
                 key={option.value}
                 onClick={() => setTheme(option.value)}
                 variant={isActive ? "secondary" : "ghost"}
-                className={`h-auto rounded-2xl px-3 py-3 ${
-                  isActive
-                    ? "bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary/90"
-                    : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                }`}
+                className="h-auto rounded-2xl px-3 py-3"
               >
                 <span className="flex flex-col items-center gap-2">
                   <Icon className="size-4" />

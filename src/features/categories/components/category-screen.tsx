@@ -2,12 +2,11 @@
 
 import { Plus } from "lucide-react";
 import { useMemo, useState } from "react";
-
 import { usePageTrail } from "@/components/layout/page-trail-context";
 import { PageActionButton } from "@/components/shared/page-action-button";
-import { CategoryFormDialog } from "@/features/categories/components/form/category-form-dialog";
-import { CategoryStatusDialog } from "@/features/categories/components/table/category-status-dialog";
-import { CategoryTableSection } from "@/features/categories/components/table/category-table-section";
+import { CategoryFormDialog } from "@/features/categories/components/form";
+import { CategoryStatusDialog } from "@/features/categories/components/status-dialog";
+import { CategoryTableSection } from "@/features/categories/components/table-section";
 import {
   useCategories,
   useToggleCategoryStatus,
@@ -15,7 +14,7 @@ import {
 import { Category } from "@/features/categories/types/category-types";
 import { useTranslations } from "@/lib/i18n/use-translations";
 
-export function CategoryPageView() {
+export function CategoryScreen() {
   const { t } = useTranslations();
   const categoriesQuery = useCategories({
     keyword: "",
