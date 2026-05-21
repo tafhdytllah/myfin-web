@@ -3,7 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 
 import { dashboardKeys } from "@/features/dashboard/hooks/dashboard-query-keys";
-import { dashboardService } from "@/features/dashboard/services/dashboard-service";
+import { dashboardService } from "@/features/dashboard/services/dashboard.service";
 import { useAuthStore } from "@/stores/auth-store";
 
 export function useDashboardSummary(accountId?: string) {

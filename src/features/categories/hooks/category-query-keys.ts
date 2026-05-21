@@ -1,6 +1,16 @@
-import { CategoryListFilters } from "@/features/categories/types/category-types";
+import { CategoryListFilters } from "@/features/categories/types/category.types";
 
 export const categoriesKeys = {
   all: ["categories"] as const,
-  list: (filters: CategoryListFilters) => ["categories", "list", filters] as const,
+
+  lists: () => [...categoriesKeys.all, "list"] as const,
+
+  list: (filters: CategoryListFilters) =>
+    [...categoriesKeys.lists(), filters] as const,
+
+  details: () =>
+    [...categoriesKeys.all, "detail"] as const,
+
+  detail: (id: string) =>
+    [...categoriesKeys.details(), id] as const,
 };

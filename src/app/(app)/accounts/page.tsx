@@ -1,5 +1,5 @@
-import { AccountsPageView } from "@/features/accounts/components/accounts-page-view";
+import { AccountScreen } from "@/features/accounts/components/account.screen";
 
 export default function AccountsPage() {
-  return <AccountsPageView />;
+  return <AccountScreen />;
 }

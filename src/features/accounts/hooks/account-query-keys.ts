@@ -1,4 +1,4 @@
-import { AccountListFilters } from "@/features/accounts/types/account-types";
+import { AccountListFilters } from "@/features/accounts/types/account.types";
 
 export const accountsKeys = {
   all: ["accounts"] as const,

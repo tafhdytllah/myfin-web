@@ -4,12 +4,12 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import { profileKeys } from "@/features/profile/hooks/profile-query-keys";
-import { profileService } from "@/features/profile/services/profile-service";
+import { profileService } from "@/features/profile/services/profile.service";
 import {
   ChangePasswordPayload,
   UpdateProfilePayload,
-} from "@/features/profile/types/profile-types";
-import { getApiErrorMessage } from "@/lib/api/error-message";
+} from "@/features/profile/types/profile.types";
+import { getApiErrorMessage } from "@/lib/errors/get-api-error-message";
 import { useTranslations } from "@/lib/i18n/use-translations";
 import { useAuthStore } from "@/stores/auth-store";
 

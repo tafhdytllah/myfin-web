@@ -1,4 +1,4 @@
-import { TransactionFilters } from "@/features/transactions/types/transaction-types";
+import { TransactionFilters } from "@/features/transactions/types/transaction.types";
 
 const transactionTypeOptions = ["all", "INCOME", "EXPENSE"] as const;
 

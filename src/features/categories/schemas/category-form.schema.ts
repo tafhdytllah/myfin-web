@@ -16,6 +16,4 @@ export function createCategoryFormSchema(t: TranslateFn) {
   });
 }
 
-export type CategoryFormValues = z.infer<
-  ReturnType<typeof createCategoryFormSchema>
->;
+export type CategoryFormSchema = z.infer<ReturnType<typeof createCategoryFormSchema>>;

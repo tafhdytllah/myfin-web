@@ -1,4 +1,4 @@
-import { CategoryListFilters } from "@/features/categories/types/category-types";
+import { CategoryListFilters } from "@/features/categories/types/category.types";
 
 export const categoryStatusOptions = ["all", "active", "inactive"] as const;
 export const categoryTypeOptions = ["all", "INCOME", "EXPENSE"] as const;

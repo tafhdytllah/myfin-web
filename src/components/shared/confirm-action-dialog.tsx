@@ -21,7 +21,7 @@ type ConfirmActionDialogProps = {
   cancelLabel: string;
   confirmLabel: string;
   pendingLabel: string;
-  onConfirm: () => void;
+  onConfirm: () => void | Promise<void>;
   hint?: React.ReactNode;
   details?: React.ReactNode;
 };
@@ -60,9 +60,9 @@ export function ConfirmActionDialog({
           <AlertDialogCancel disabled={pending}>{cancelLabel}</AlertDialogCancel>
           <AlertDialogAction
             disabled={pending}
-            onClick={(event) => {
+            onClick={async (event) => {
               event.preventDefault();
-              onConfirm();
+              await onConfirm();
             }}
           >
             {pending ? pendingLabel : confirmLabel}

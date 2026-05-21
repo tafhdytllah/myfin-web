@@ -1,8 +1,8 @@
 "use client";
 
 import { ChevronsUpDown, LogOut, Monitor, MoonStar, SunMedium, UserRound } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
+import { useRouter } from "next/navigation";
 
 import {
   DropdownMenu,
@@ -16,8 +16,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { SidebarMenuButton } from "@/components/ui/sidebar";
+import { useLogout } from "@/features/auth/hooks/use-auth-mutations";
 import { routes } from "@/lib/constants/routes";
-import { useLogout } from "@/features/auth/hooks/use-auth-actions";
 import { useTranslations } from "@/lib/i18n/use-translations";
 import { useAuthStore } from "@/stores/auth-store";
 import { useLocaleStore } from "@/stores/locale-store";
