@@ -1,7 +1,4 @@
-export type TranslateFn = (
-  key: string,
-  values?: Record<string, string | number>,
-) => string;
+import { TranslateFn } from "@/lib/i18n/types";
 
 export function createValidationMessages(t: TranslateFn) {
   return {

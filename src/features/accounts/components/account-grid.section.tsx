@@ -2,36 +2,16 @@ import { EmptySectionCard } from "@/components/shared/empty-section-card";
 import { RetryCard } from "@/components/shared/retry-card";
 import { SectionCardSkeletonGrid } from "@/components/shared/section-card-skeleton-grid";
 import {
+  AccountGridItem,
   AccountItem,
-  AccountOverviewCard,
-} from "@/features/accounts/components/account-overview.card";
+} from "@/features/accounts/components/account-grid.item";
+import { useTranslations } from "@/lib/i18n/use-translations";
 
 type AccountGridSectionProps = {
   loading: boolean;
   isError: boolean;
   items: AccountItem[];
-  hasActiveFilters: boolean;
-  retryTitle: string;
-  retryDescription: string;
-  retryLabel: string;
   onRetry: () => void;
-  emptyTitle: string;
-  emptyDescription: string;
-  addLabel: string;
-  resetFiltersLabel: string;
-  onAdd: () => void;
-  onResetFilters: () => void;
-  labels: {
-    active: string;
-    inactive: string;
-    edit: string;
-    activate: string;
-    deactivate: string;
-    actions: string;
-    currentBalance: string;
-    usedTransactions: (count: number) => string;
-    openingBalance: (amount: string) => string;
-  };
   formatCurrency: (value: number) => string;
   activatingPending: boolean;
   onEdit: (item: AccountItem) => void;
@@ -43,24 +23,15 @@ export function AccountGridSection({
   loading,
   isError,
   items,
-  hasActiveFilters,
-  retryTitle,
-  retryDescription,
-  retryLabel,
   onRetry,
-  emptyTitle,
-  emptyDescription,
-  addLabel,
-  resetFiltersLabel,
-  onAdd,
-  onResetFilters,
-  labels,
   formatCurrency,
   activatingPending,
   onEdit,
   onDeactivate,
   onActivate,
 }: AccountGridSectionProps) {
+  const { t } = useTranslations();
+
   if (loading) {
     return (
       <SectionCardSkeletonGrid
@@ -76,9 +47,9 @@ export function AccountGridSection({
   if (isError) {
     return (
       <RetryCard
-        title={retryTitle}
-        description={retryDescription}
-        retryLabel={retryLabel}
+        title={t("accounts.loadErrorTitle")}
+        description={t("accounts.loadErrorDescription")}
+        retryLabel={t("accounts.retry")}
         onRetry={onRetry}
       />
     );
@@ -87,23 +58,8 @@ export function AccountGridSection({
   if (items.length === 0) {
     return (
       <EmptySectionCard
-        title={emptyTitle}
-        description={emptyDescription}
-        actions={[
-          {
-            label: addLabel,
-            onClick: onAdd,
-          },
-          ...(hasActiveFilters
-            ? [
-                {
-                  label: resetFiltersLabel,
-                  onClick: onResetFilters,
-                  variant: "outline" as const,
-                },
-              ]
-            : []),
-        ]}
+        title={t("accounts.emptyTitle")}
+        description={t("accounts.emptyDescription")}
       />
     );
   }
@@ -111,10 +67,9 @@ export function AccountGridSection({
   return (
     <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
       {items.map((item) => (
-        <AccountOverviewCard
+        <AccountGridItem
           key={item.id}
           item={item}
-          labels={labels}
           formatCurrency={formatCurrency}
           activatingPending={activatingPending}
           onEdit={onEdit}

@@ -31,10 +31,11 @@ export function CategoryFormDialog({
   onOpenChange,
 }: CategoryFormDialogProps) {
   const { t } = useTranslations();
-  const createMutation = useCreateCategory();
-  const updateMutation = useUpdateCategory();
   const isEditMode = Boolean(category);
   const schema = useMemo(() => createCategoryFormSchema(t), [t]);
+  const createMutation = useCreateCategory();
+  const updateMutation = useUpdateCategory();
+
 
   const form = useForm<CategoryFormSchema>({
     resolver: zodResolver(schema),

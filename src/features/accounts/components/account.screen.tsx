@@ -1,13 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-
 import { usePageTrail } from "@/components/layout/page-trail-context";
-import { AccountFiltersCard } from "@/features/accounts/components/account-filters.card";
+import { ConfirmActionDialog } from "@/components/shared/confirm-action-dialog";
+import { PageActionButton } from "@/components/shared/page-action-button";
 import { AccountFormDialog } from "@/features/accounts/components/account-form.dialog";
 import { AccountGridSection } from "@/features/accounts/components/account-grid.section";
-import { AccountStatusDialog } from "@/features/accounts/components/account-status.dialog";
+import { AccountMainSection } from "@/features/accounts/components/account-main.section";
 import { useToggleAccountStatus } from "@/features/accounts/hooks/use-account-mutations";
 import { useAccounts } from "@/features/accounts/hooks/use-account-queries";
 import { Account } from "@/features/accounts/types/account.types";
@@ -18,6 +16,9 @@ import {
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { formatCurrency } from "@/lib/formatters/currency";
 import { useTranslations } from "@/lib/i18n/use-translations";
+import { Plus } from "lucide-react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 export function AccountScreen() {
   const router = useRouter();
@@ -104,28 +105,24 @@ export function AccountScreen() {
 
   return (
     <div className="space-y-6">
-      <AccountFiltersCard
-        title={t("accounts.searchTitle")}
-        description={t("accounts.searchDescription")}
+      <AccountMainSection
         hasActiveFilters={hasActiveFilters}
-        resetLabel={t("accounts.resetFilters")}
-        onReset={resetFilters}
+        onResetFilters={resetFilters}
         keyword={keyword}
-        searchPlaceholder={t("accounts.searchPlaceholder")}
         onKeywordChange={setKeyword}
         statusValue={filters.status ?? "all"}
-        statusPlaceholder={t("accounts.statusFilter")}
         statusDisplayValue={selectedStatusLabel}
-        statusOptions={[
-          { value: "all", label: t("accounts.statusAll") },
-          { value: "active", label: t("common.active") },
-          { value: "inactive", label: t("common.inactive") },
-        ]}
         onStatusChange={(value) =>
           updateFilters({
             ...filters,
             status: value as "all" | "active" | "inactive",
           })
+        }
+        action={
+          <PageActionButton onClick={openCreateDialog}>
+            <Plus className="size-4" />
+            {t("accounts.addAccount")}
+          </PageActionButton>
         }
       />
 
@@ -133,39 +130,17 @@ export function AccountScreen() {
         loading={accountsQuery.isLoading}
         isError={accountsQuery.isError}
         items={accounts}
-        hasActiveFilters={hasActiveFilters}
-        retryTitle={t("accounts.loadErrorTitle")}
-        retryDescription={t("accounts.loadErrorDescription")}
-        retryLabel={t("accounts.retry")}
         onRetry={() => accountsQuery.refetch()}
-        emptyTitle={t("accounts.emptyTitle")}
-        emptyDescription={t("accounts.emptyDescription")}
-        addLabel={t("accounts.addAccount")}
-        resetFiltersLabel={t("accounts.resetFilters")}
-        onAdd={openCreateDialog}
-        onResetFilters={resetFilters}
-        labels={{
-          active: t("common.active"),
-          inactive: t("common.inactive"),
-          edit: t("common.edit"),
-          activate: t("common.activate"),
-          deactivate: t("common.deactivate"),
-          actions: t("common.actions"),
-          currentBalance: t("accounts.currentBalance"),
-          usedTransactions: (count) => t("accounts.usedTransactions", { count }),
-          openingBalance: (amount) =>
-            t("accounts.openingBalanceValue", {
-              amount,
-            }),
-        }}
         formatCurrency={formatCurrency}
         activatingPending={toggleStatusMutation.isPending}
         onEdit={openEditDialog}
         onDeactivate={setStatusDialogAccount}
         onActivate={(account) =>
           toggleStatusMutation.mutate({
-            account,
-            active: true,
+            id: account.id,
+            payload: {
+              active: true,
+            },
           })
         }
       />
@@ -175,11 +150,41 @@ export function AccountScreen() {
         open={formOpen}
         onOpenChange={setFormOpen}
       />
-      <AccountStatusDialog
-        account={statusDialogAccount}
+
+      <ConfirmActionDialog
         open={Boolean(statusDialogAccount)}
         onOpenChange={(open) => {
           if (!open) {
+            setStatusDialogAccount(null);
+          }
+        }}
+        pending={toggleStatusMutation.isPending}
+        title={t("accounts.deactivateTitle")}
+        description={
+          statusDialogAccount
+            ? t("accounts.deactivateDescription", { name: statusDialogAccount?.name, })
+            : ""
+        }
+        hint={t("accounts.deactivateHistoryHint")}
+        cancelLabel={t("accounts.cancel")}
+        confirmLabel={t("common.deactivate")}
+        pendingLabel={t("accounts.saving")}
+        onConfirm={async () => {
+          if (!statusDialogAccount) {
+            return;
+          }
+
+          try {
+            await toggleStatusMutation.mutateAsync({
+              id: statusDialogAccount.id,
+              payload: {
+                active: false,
+              }
+            });
+
+            setStatusDialogAccount(null);
+
+          } catch {
             setStatusDialogAccount(null);
           }
         }}

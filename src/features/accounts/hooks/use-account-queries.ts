@@ -1,6 +1,6 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 
 import { accountsKeys } from "@/features/accounts/hooks/account-query-keys";
 import { accountService } from "@/features/accounts/services/account.service";
@@ -14,5 +14,6 @@ export function useAccounts(filters: AccountListFilters) {
     queryKey: accountsKeys.list(filters),
     queryFn: () => accountService.getAccounts(accessToken as string, filters),
     enabled: Boolean(accessToken),
+    placeholderData: keepPreviousData,
   });
 }

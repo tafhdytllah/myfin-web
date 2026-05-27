@@ -5,19 +5,21 @@ import { InfoNotice } from "@/components/shared/info-notice";
 import { formatCurrency } from "@/lib/formatters/currency";
 import { useTranslations } from "@/lib/i18n/use-translations";
 
-type AccountCurrentBalanceNoticeProps = {
+type FormCurrentBalanceNoticeProps = {
+  label: string;
   balance: number;
 };
 
-export function AccountCurrentBalanceNotice({
+export function FormCurrentBalanceNotice({
+  label,
   balance,
-}: AccountCurrentBalanceNoticeProps) {
+}: FormCurrentBalanceNoticeProps) {
   const { t } = useTranslations();
 
   return (
     <InfoNotice className="text-foreground">
       <InfoMetricBlock
-        eyebrow={t("accounts.currentBalance")}
+        eyebrow={t(label)}
         value={formatCurrency(balance)}
         className="space-y-2"
         eyebrowClassName="text-muted-foreground"

@@ -18,7 +18,7 @@ export function EmptySectionCard({
 }: EmptySectionCardProps) {
   return (
     <SectionCard title={title} description={description}>
-      <SectionEmptyState description={description} actions={actions} />
+      {actions && <SectionEmptyState description={description} actions={actions} />}
     </SectionCard>
   );
 }

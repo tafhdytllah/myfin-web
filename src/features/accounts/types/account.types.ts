@@ -24,5 +24,8 @@ export type CreateAccountPayload = {
 
 export type UpdateAccountPayload = {
   name: string;
-  active?: boolean;
+};
+
+export type UpdateStatusAccountPayload = {
+  active: boolean;
 };

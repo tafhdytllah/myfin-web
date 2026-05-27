@@ -1,6 +1,6 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { categoriesKeys } from "@/features/categories/hooks/category-query-keys";
 import { categoryService } from "@/features/categories/services/category.service";
 import {
@@ -15,5 +15,6 @@ export function useCategories(filters: CategoryListFilters) {
     queryKey: categoriesKeys.list(filters),
     queryFn: () => categoryService.getCategories(accessToken as string, filters),
     enabled: Boolean(accessToken),
+    placeholderData: keepPreviousData,
   });
 }

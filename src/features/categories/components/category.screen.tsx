@@ -4,21 +4,34 @@ import { usePageTrail } from "@/components/layout/page-trail-context";
 import { ConfirmActionDialog } from "@/components/shared/confirm-action-dialog";
 import { PageActionButton } from "@/components/shared/page-action-button";
 import { CategoryFormDialog } from "@/features/categories/components/category-form.dialog";
-import { CategoryTableSection } from "@/features/categories/components/category-table.section";
+import { CategoryMainSection } from "@/features/categories/components/category-main.section";
 import { useToggleCategoryStatus } from "@/features/categories/hooks/use-category-mutations";
 import { useCategories } from "@/features/categories/hooks/use-category-queries";
-import { Category } from "@/features/categories/types/category.types";
+import {
+  Category,
+  CategoryListFilters,
+} from "@/features/categories/types/category.types";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { useTranslations } from "@/lib/i18n/use-translations";
 import { Plus } from "lucide-react";
 import { useMemo, useState } from "react";
 
 export function CategoryScreen() {
   const { t } = useTranslations();
-  const categoriesQuery = useCategories({
+  const [filters, setFilters] = useState<CategoryListFilters>({
     keyword: "",
     type: "all",
     status: "all",
   });
+  const debouncedKeyword = useDebouncedValue(filters.keyword ?? "");
+  const queryFilters = useMemo(
+    () => ({
+      ...filters,
+      keyword: debouncedKeyword,
+    }),
+    [debouncedKeyword, filters],
+  );
+  const categoriesQuery = useCategories(queryFilters);
   const toggleStatusMutation = useToggleCategoryStatus();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
@@ -58,11 +71,13 @@ export function CategoryScreen() {
 
   return (
     <div className="space-y-6">
-      <CategoryTableSection
+      <CategoryMainSection
         loading={categoriesQuery.isLoading}
         isError={categoriesQuery.isError}
         items={categories}
         onRetry={() => categoriesQuery.refetch()}
+        filters={filters}
+        onFiltersChange={setFilters}
         action={
           <PageActionButton onClick={openCreateDialog}>
             <Plus className="size-4" />

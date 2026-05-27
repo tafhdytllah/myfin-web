@@ -1,5 +1,6 @@
 import { z } from "zod";
-import { createValidationMessages, type TranslateFn } from "@/lib/validation/messages";
+import { createValidationMessages } from "@/lib/validation/messages";
+import { TranslateFn } from "@/lib/i18n/types";
 
 export function createLoginFormSchema(t: TranslateFn) {
   const validation = createValidationMessages(t);

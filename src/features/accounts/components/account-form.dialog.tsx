@@ -1,16 +1,11 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useMemo } from "react";
-import { useForm } from "react-hook-form";
-
 import { DialogFormActions } from "@/components/shared/dialog-form-actions";
 import { DialogFormHeader } from "@/components/shared/dialog-form-header";
+import { FormCurrentBalanceNotice } from "@/components/shared/form/form-current-balance-notice";
 import { FormSection } from "@/components/shared/form/form-section";
+import { TextField } from "@/components/shared/inputs/text-field";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { AccountCurrentBalanceNotice } from "@/features/accounts/components/account-current-balance.notice";
-import { AccountNameField } from "@/features/accounts/components/account-name.field";
-import { AccountOpeningBalanceField } from "@/features/accounts/components/account-opening-balance.field";
 import {
   useCreateAccount,
   useUpdateAccount,
@@ -19,11 +14,15 @@ import {
   CreateAccountFormValues,
   UpdateAccountFormValues,
   createAccountFormSchema,
-  createUpdateAccountFormSchema,
+  updateAccountFormSchema,
 } from "@/features/accounts/schemas/account-form.schema";
 import { Account } from "@/features/accounts/types/account.types";
+import { ApiError } from "@/lib/api/api-error";
 import { applyApiFieldErrors } from "@/lib/errors/apply-field-errors";
 import { useTranslations } from "@/lib/i18n/use-translations";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect, useMemo } from "react";
+import { useForm } from "react-hook-form";
 
 type AccountFormDialogProps = {
   account?: Account | null;
@@ -39,7 +38,7 @@ export function AccountFormDialog({
   const { t } = useTranslations();
   const isEditMode = Boolean(account);
   const createSchema = useMemo(() => createAccountFormSchema(t), [t]);
-  const updateSchema = useMemo(() => createUpdateAccountFormSchema(t), [t]);
+  const updateSchema = useMemo(() => updateAccountFormSchema(t), [t]);
   const createMutation = useCreateAccount();
   const updateMutation = useUpdateAccount();
 
@@ -58,12 +57,14 @@ export function AccountFormDialog({
     },
   });
 
+  const form = isEditMode ? updateForm : createForm;
+
   useEffect(() => {
     if (!open) {
       return;
     }
 
-    if (account) {
+    if (isEditMode && account) {
       updateForm.reset({
         name: account.name,
       });
@@ -74,49 +75,54 @@ export function AccountFormDialog({
       name: "",
       openingBalance: "0",
     });
-  }, [account, createForm, open, updateForm]);
+  }, [account, createForm, updateForm, isEditMode, open]);
 
-  function handleCreateSubmit(values: CreateAccountFormValues) {
-    createMutation.mutate(
-      {
-        payload: {
-          name: values.name,
-          openingBalance: Number(values.openingBalance),
-        },
-        onSuccess: () => onOpenChange(false),
-      },
-      {
-        onError: (error) => {
-          applyApiFieldErrors(
-            error,
-            ["name", "openingBalance"],
-            createForm.setError,
-          );
-        },
-      },
-    );
+  const onCreateSubmit = async (values: CreateAccountFormValues) => {
+    try {
+      await createMutation.mutateAsync({
+        name: values.name,
+        openingBalance: Number(values.openingBalance),
+      });
+
+      onOpenChange(false);
+    } catch (error) {
+      if (!ApiError.isApiError(error)) {
+        return;
+      }
+
+      applyApiFieldErrors(
+        error,
+        ["name", "openingBalance"],
+        form.setError
+      );
+    }
   }
 
-  function handleUpdateSubmit(values: UpdateAccountFormValues) {
+  const onUpdateSubmit = async (values: UpdateAccountFormValues) => {
     if (!account) {
       return;
     }
 
-    updateMutation.mutate(
-      {
+    try {
+      await updateMutation.mutateAsync({
         id: account.id,
         payload: {
           name: values.name,
-          active: account.active,
-        },
-        onSuccess: () => onOpenChange(false),
-      },
-      {
-        onError: (error) => {
-          applyApiFieldErrors(error, ["name"], updateForm.setError);
-        },
-      },
-    );
+        }
+      });
+
+      onOpenChange(false);
+    } catch (error) {
+      if (!ApiError.isApiError(error)) {
+        return;
+      }
+
+      applyApiFieldErrors(
+        error,
+        ["name"],
+        form.setError
+      );
+    }
   }
 
   const isSubmitting = createMutation.isPending || updateMutation.isPending;
@@ -133,55 +139,65 @@ export function AccountFormDialog({
       <DialogContent className="rounded-3xl sm:max-w-lg">
         <DialogFormHeader
           title={isEditMode ? t("accounts.editAccount") : t("accounts.addAccount")}
-          description={
-            isEditMode
-              ? t("accounts.editDescription")
-              : t("accounts.createDescription")
-          }
+          description={isEditMode ? t("accounts.editDescription") : t("accounts.createDescription")}
         />
 
-        {isEditMode ? (
-          <FormSection onSubmit={updateForm.handleSubmit(handleUpdateSubmit)}>
-            <AccountNameField
-              error={updateForm.formState.errors.name?.message}
-              id="account-name"
-              placeholder={t("accounts.accountNamePlaceholder")}
-              registration={updateForm.register("name")}
-            />
+        <FormSection
+          onSubmit={
+            isEditMode
+              ? updateForm.handleSubmit(onUpdateSubmit)
+              : createForm.handleSubmit(onCreateSubmit)
+          }
+        >
+          <TextField
+            id="account-name"
+            type="text"
+            autoComplete="account-name"
+            label={t("accounts.accountName")}
+            placeholder={t("accounts.accountNamePlaceholder")}
+            error={isEditMode
+              ? updateForm.formState.errors.name?.message
+              : createForm.formState.errors.name?.message
+            }
+            {...(isEditMode
+              ? updateForm.register("name")
+              : createForm.register("name"))
+            }
+            className="h-12 rounded-2xl border-(--color-border-strong) bg-white px-4 dark:bg-transparent"
+          />
 
-            <AccountCurrentBalanceNotice balance={account?.currentBalance ?? 0} />
-
-            <DialogFormActions
-              cancelLabel={t("accounts.cancel")}
-              submitLabel={t("common.update")}
-              pendingLabel={t("accounts.saving")}
-              isPending={isSubmitting}
-              onCancel={() => onOpenChange(false)}
-            />
-          </FormSection>
-        ) : (
-          <FormSection onSubmit={createForm.handleSubmit(handleCreateSubmit)}>
-            <AccountNameField
-              error={createForm.formState.errors.name?.message}
-              id="new-account-name"
-              placeholder={t("accounts.accountNamePlaceholder")}
-              registration={createForm.register("name")}
-            />
-
-            <AccountOpeningBalanceField
+          {!isEditMode && (
+            <TextField
+              id="account-opening-balance"
+              type="number"
+              autoComplete="account-opening-balance"
+              label={t("accounts.openingBalance")}
               error={createForm.formState.errors.openingBalance?.message}
-              registration={createForm.register("openingBalance")}
+              {...createForm.register("openingBalance")}
+              className="h-12 rounded-2xl border-(--color-border-strong) bg-white px-4 dark:bg-transparent"
             />
+          )}
 
-            <DialogFormActions
-              cancelLabel={t("accounts.cancel")}
-              submitLabel={t("common.save")}
-              pendingLabel={t("accounts.saving")}
-              isPending={isSubmitting}
-              onCancel={() => onOpenChange(false)}
+          {isEditMode && (
+            <FormCurrentBalanceNotice
+              label={t("accounts.currentBalance")}
+              balance={account?.currentBalance ?? 0}
             />
-          </FormSection>
-        )}
+          )}
+
+          <DialogFormActions
+            cancelLabel={t("accounts.cancel")}
+            submitLabel={
+              isEditMode
+                ? t("common.update")
+                : t("common.create")
+            }
+            pendingLabel={t("accounts.saving")}
+            isPending={isSubmitting}
+            submitDisabled={!form.formState.isDirty}
+            onCancel={() => onOpenChange(false)}
+          />
+        </FormSection>
       </DialogContent>
     </Dialog>
   );
