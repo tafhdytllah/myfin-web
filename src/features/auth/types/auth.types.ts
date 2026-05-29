@@ -1,28 +1,23 @@
-import { User } from "@/stores/auth-store";
+import { User } from "@/features/auth/types/user.types";
 
-export type ApiEnvelope<T> = {
-  data: T;
-  message?: string;
-};
-
-export type LoginPayload = {
+export type LoginRequest = {
   username: string;
   password: string;
 };
 
-export type RegisterPayload = {
+export type RegisterRequest = {
   username: string;
   email: string;
   password: string;
 };
 
-export type AuthTokenData = {
+export type AuthTokenResponse = {
   accessToken: string;
   expiresIn: number;
 };
 
-export type ProfileResponse = User & {
-  id?: string;
-  role?: string;
-  active?: boolean;
+export type AuthSession = {
+  accessToken: string;
+  expiresIn: number;
+  user: User;
 };

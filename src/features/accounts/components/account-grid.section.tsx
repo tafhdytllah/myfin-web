@@ -1,6 +1,6 @@
-import { EmptySectionCard } from "@/components/shared/empty-section-card";
-import { RetryCard } from "@/components/shared/retry-card";
-import { SectionCardSkeletonGrid } from "@/components/shared/section-card-skeleton-grid";
+import { EmptySectionCard } from "@/components/empty-section-card";
+import { RetryCard } from "@/components/retry-card";
+import { SectionCardSkeletonGrid } from "@/components/section-card-skeleton-grid";
 import {
   AccountGridItem,
   AccountItem,

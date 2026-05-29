@@ -5,10 +5,10 @@ import {
   ColumnFiltersState,
   ExpandedState,
   PaginationState,
+  Table as ReactTable,
   Row,
   RowSelectionState,
   SortingState,
-  Table as ReactTable,
   VisibilityState,
   flexRender,
   getCoreRowModel,
@@ -22,7 +22,7 @@ import {
 } from "@tanstack/react-table";
 import { Fragment, ReactNode, useState } from "react";
 
-import { DataTablePagination } from "@/components/shared/data-table/pagination";
+import { DataTablePagination } from "@/components/data-table/pagination";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
@@ -32,8 +32,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { cn } from "@/lib/utils";
 import { useTranslations } from "@/lib/i18n/use-translations";
+import { cn } from "@/lib/utils";
 
 type DataTableProps<TData, TValue> = {
   columns: ColumnDef<TData, TValue>[];
@@ -88,7 +88,7 @@ export function DataTable<TData, TValue>({
   manualFiltering = false,
   manualPagination,
 }: DataTableProps<TData, TValue>) {
-    const { t } = useTranslations();
+  const { t } = useTranslations();
 
   const [localSorting, setLocalSorting] = useState<SortingState>([]);
   const [localColumnFilters, setLocalColumnFilters] = useState<ColumnFiltersState>([]);
@@ -173,9 +173,9 @@ export function DataTable<TData, TValue>({
                       {header.isPlaceholder
                         ? null
                         : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext(),
-                          )}
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        )}
                     </TableHead>
                   ))}
                 </TableRow>

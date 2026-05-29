@@ -2,10 +2,10 @@
 
 import { ReactNode } from "react";
 
-import { FilterSelect } from "@/components/shared/filter-select";
-import { SearchFilterInput } from "@/components/shared/inputs/search-filter-input";
-import { ResetFiltersButton } from "@/components/shared/reset-filters-button";
-import { SectionCard } from "@/components/shared/section-card";
+import { FilterSelect } from "@/components/filter-select";
+import { SearchFilterInput } from "@/components/inputs/search-filter-input";
+import { ResetFiltersButton } from "@/components/reset-filters-button";
+import { SectionCard } from "@/components/section-card";
 import { useTranslations } from "@/lib/i18n/use-translations";
 
 type AccountMainSectionProps = {

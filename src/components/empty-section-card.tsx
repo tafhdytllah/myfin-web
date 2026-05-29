@@ -1,5 +1,5 @@
-import { SectionCard } from "@/components/shared/section-card";
-import { SectionEmptyState } from "@/components/shared/section-empty-state";
+import { SectionCard } from "@/components/section-card";
+import { SectionEmptyState } from "@/components/section-empty-state";
 
 type EmptySectionCardProps = {
   title: string;

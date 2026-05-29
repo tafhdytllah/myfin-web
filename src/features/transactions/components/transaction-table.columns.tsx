@@ -1,9 +1,9 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { PencilLine, Trash2 } from "lucide-react";
 
-import { DataTableColumnHeader } from "@/components/shared/data-table/column-header";
-import { RowActionsMenu } from "@/components/shared/row-actions-menu";
-import { StatusBadge } from "@/components/shared/status-badge";
+import { DataTableColumnHeader } from "@/components/data-table/column-header";
+import { RowActionsMenu } from "@/components/row-actions-menu";
+import { StatusBadge } from "@/components/status-badge";
 import { Checkbox } from "@/components/ui/checkbox";
 
 type TransactionRow = {

@@ -5,12 +5,12 @@ import { X } from "lucide-react";
 
 import {
   DataTableFacetedFilter,
-} from "@/components/shared/data-table/faceted-filter";
+} from "@/components/data-table/faceted-filter";
 import {
   DataTableFilterOption,
   DataTableFilterSelect,
-} from "@/components/shared/data-table/filter-select";
-import { DataTableViewOptions } from "@/components/shared/data-table/view-options";
+} from "@/components/data-table/filter-select";
+import { DataTableViewOptions } from "@/components/data-table/view-options";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";

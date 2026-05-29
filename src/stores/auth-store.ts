@@ -1,9 +1,6 @@
+import { AuthSession } from "@/features/auth/types/auth.types";
+import { User } from "@/features/auth/types/user.types";
 import { create } from "zustand";
-
-export type User = {
-  username: string;
-  email: string;
-};
 
 type AuthStatus = "idle" | "bootstrapping" | "authenticated" | "unauthenticated";
 
@@ -15,7 +12,7 @@ type AuthState = {
   hasInitialized: boolean;
   startBootstrap: () => void;
   finishBootstrap: () => void;
-  setSession: (payload: { accessToken: string; user?: User | null }) => void;
+  setSession: (session: AuthSession) => void;
   setAccessToken: (accessToken: string) => void;
   setUser: (user: User | null) => void;
   clearSession: () => void;
@@ -36,10 +33,9 @@ export const useAuthStore = create<AuthState>((set) => ({
       status: state.isAuthenticated ? "authenticated" : "unauthenticated",
       hasInitialized: true,
     })),
-  setSession: ({ accessToken, user }) =>
+  setSession: (session) =>
     set({
-      accessToken,
-      user: user ?? null,
+      ...session,
       isAuthenticated: true,
       status: "authenticated",
       hasInitialized: true,

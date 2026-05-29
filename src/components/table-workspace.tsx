@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 
-import { SectionCard } from "@/components/shared/section-card";
+import { SectionCard } from "@/components/section-card";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 
@@ -36,11 +36,11 @@ export function TableWorkspace({
             <div className="rounded-2xl border border-border/60 bg-muted/20 p-4">
               <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
                 <div className="min-w-0 flex-1">{toolbarStart}</div>
-              {toolbarEnd ? (
+                {toolbarEnd ? (
                   <div className="flex shrink-0 flex-wrap items-center justify-end gap-3">
                     {toolbarEnd}
                   </div>
-              ) : null}
+                ) : null}
               </div>
             </div>
             <Separator />

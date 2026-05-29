@@ -1,4 +1,4 @@
-import { SummaryStatCard } from "@/components/shared/summary-stat-card";
+import { SummaryStatCard } from "@/components/summary-stat-card";
 import { cn } from "@/lib/utils";
 
 type SummaryStatsGridProps = {

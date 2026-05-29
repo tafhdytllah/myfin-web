@@ -1,8 +1,8 @@
-import { FormError } from "@/components/shared/form/form-error";
-import { FormSection } from "@/components/shared/form/form-section";
-import { FormSubmitButton } from "@/components/shared/form/form-submit-button";
-import { PasswordField } from "@/components/shared/inputs/password-field";
-import { SectionCard } from "@/components/shared/section-card";
+import { FormError } from "@/components/form/form-error";
+import { FormSection } from "@/components/form/form-section";
+import { FormSubmitButton } from "@/components/form/form-submit-button";
+import { PasswordField } from "@/components/inputs/password-field";
+import { SectionCard } from "@/components/section-card";
 import { FieldDescription } from "@/components/ui/field";
 import { ChangePasswordSchema } from "@/features/profile/schemas/profile.schema";
 import type { UseFormReturn } from "react-hook-form";

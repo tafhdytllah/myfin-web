@@ -1,7 +1,7 @@
 "use client";
 
-import { InfoMetricBlock } from "@/components/shared/info-metric-block";
-import { InfoNotice } from "@/components/shared/info-notice";
+import { InfoMetricBlock } from "@/components/info-metric-block";
+import { InfoNotice } from "@/components/info-notice";
 import { formatCurrency } from "@/lib/formatters/currency";
 import { useTranslations } from "@/lib/i18n/use-translations";
 

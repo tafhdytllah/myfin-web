@@ -1,6 +1,6 @@
-import { TransactionFilters } from "@/features/transactions/types/transaction.types";
+import { TransactionListFilters } from "@/features/transactions/types/transaction.types";
 
-export function buildTransactionQuery(filters: TransactionFilters) {
+export function buildTransactionQuery(filters: TransactionListFilters) {
   const params = new URLSearchParams({
     page: String(filters.page),
     size: String(filters.size),

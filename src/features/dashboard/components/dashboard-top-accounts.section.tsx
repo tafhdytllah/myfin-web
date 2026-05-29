@@ -1,11 +1,11 @@
-import { ContentCard } from "@/components/shared/content-card";
-import { InlineRetryState } from "@/components/shared/inline-retry-state";
-import { ItemMeta } from "@/components/shared/item-meta";
-import { SectionCard } from "@/components/shared/section-card";
-import { SectionEmptyState } from "@/components/shared/section-empty-state";
-import { SectionLinkAction } from "@/components/shared/section-link-action";
-import { StackSkeleton } from "@/components/shared/stack-skeleton";
-import { StatusBadge } from "@/components/shared/status-badge";
+import { ContentCard } from "@/components/content-card";
+import { InlineRetryState } from "@/components/inline-retry-state";
+import { ItemMeta } from "@/components/item-meta";
+import { SectionCard } from "@/components/section-card";
+import { SectionEmptyState } from "@/components/section-empty-state";
+import { SectionLinkAction } from "@/components/section-link-action";
+import { StackSkeleton } from "@/components/stack-skeleton";
+import { StatusBadge } from "@/components/status-badge";
 
 type TopAccount = {
   id: string;

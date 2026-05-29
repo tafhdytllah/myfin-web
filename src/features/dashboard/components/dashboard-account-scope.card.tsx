@@ -1,5 +1,5 @@
-import { SectionCard } from "@/components/shared/section-card";
-import { FilterSelect } from "@/components/shared/filter-select";
+import { FilterSelect } from "@/components/filter-select";
+import { SectionCard } from "@/components/section-card";
 
 type DashboardAccountScopeCardProps = {
   title: string;

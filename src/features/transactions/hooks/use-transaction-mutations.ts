@@ -11,29 +11,31 @@ import { useTranslations } from "@/lib/i18n/use-translations";
 import { useAuthStore } from "@/stores/auth-store";
 
 export function useCreateTransaction() {
-  const accessToken = useAuthStore((state) => state.accessToken);
+  const accessToken = useAuthStore(
+    (state) => state.accessToken
+  );
   const queryClient = useQueryClient();
   const { t } = useTranslations();
 
   return useMutation({
-    mutationFn: ({
-      payload,
-    }: {
-      payload: CreateTransactionPayload;
-      onSuccess?: () => void;
-    }) => transactionService.createTransaction(accessToken as string, payload),
-    onSuccess: async (_, variables) => {
-      await queryClient.invalidateQueries({ queryKey: transactionsKeys.all });
-      await queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+    mutationFn: (payload: CreateTransactionPayload) =>
+      transactionService.createTransaction(
+        accessToken as string,
+        payload
+      ),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ 
+        queryKey: transactionsKeys.lists() 
+      });
+      await queryClient.invalidateQueries({ 
+        queryKey: ["dashboard"] 
+      });
       toast.success(t("transactions.createSuccess"));
-      variables.onSuccess?.();
-    },
-    onError: (error) => {
-      toast.error(getApiErrorMessage(error, t("transactions.createError")));
     },
   });
 }
 
+// TODO: perlu di cek kembali
 export function useDeleteTransaction() {
   const accessToken = useAuthStore((state) => state.accessToken);
   const queryClient = useQueryClient();

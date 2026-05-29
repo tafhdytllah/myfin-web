@@ -1,6 +1,6 @@
 "use client";
 
-import { ConfirmActionDialog } from "@/components/shared/confirm-action-dialog";
+import { ConfirmActionDialog } from "@/components/confirm-action-dialog";
 import { useDeleteTransaction } from "@/features/transactions/hooks/use-transaction-mutations";
 import { Transaction } from "@/features/transactions/types/transaction.types";
 import { formatCurrency } from "@/lib/formatters/currency";

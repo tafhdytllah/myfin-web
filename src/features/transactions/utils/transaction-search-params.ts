@@ -1,10 +1,10 @@
-import { TransactionFilters } from "@/features/transactions/types/transaction.types";
+import { TransactionListFilters } from "@/features/transactions/types/transaction.types";
 
 const transactionTypeOptions = ["all", "INCOME", "EXPENSE"] as const;
 
 export function parseTransactionFilters(
   searchParams: URLSearchParams,
-): TransactionFilters {
+): TransactionListFilters {
   const pageValue = Number(searchParams.get("page") ?? "1");
   const sizeValue = Number(searchParams.get("size") ?? "10");
   const typeValue = searchParams.get("type");
@@ -12,7 +12,7 @@ export function parseTransactionFilters(
   const type = transactionTypeOptions.includes(
     typeValue as (typeof transactionTypeOptions)[number],
   )
-    ? (typeValue as TransactionFilters["type"])
+    ? (typeValue as TransactionListFilters["type"])
     : "all";
 
   return {
@@ -27,7 +27,7 @@ export function parseTransactionFilters(
   };
 }
 
-export function buildTransactionSearchParams(filters: TransactionFilters) {
+export function buildTransactionSearchParams(filters: TransactionListFilters) {
   const params = new URLSearchParams({
     page: String(filters.page),
     size: String(filters.size),

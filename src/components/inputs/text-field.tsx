@@ -1,6 +1,6 @@
-import { ReactNode } from "react";
-import { FormFieldItem } from "@/components/shared/form/form-field-item";
+import { FormFieldItem } from "@/components/form/form-field-item";
 import { Input } from "@/components/ui/input";
+import { ReactNode } from "react";
 
 type TextFieldProps = {
   label?: string;

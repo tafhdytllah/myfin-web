@@ -4,14 +4,16 @@ import {
   ColumnFiltersState,
   PaginationState,
 } from "@tanstack/react-table";
-import { SetStateAction, useCallback, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { SetStateAction, useCallback, useMemo, useState } from "react";
 
+import { usePageTrail } from "@/components/layout/page-trail-context";
+import { PageActionButton } from "@/components/page-action-button";
 import { useAccounts } from "@/features/accounts/hooks/use-account-queries";
 import { useCategories } from "@/features/categories/hooks/use-category-queries";
 import { TransactionDeleteDialog } from "@/features/transactions/components/transaction-delete.dialog";
 import { TransactionFormDialog } from "@/features/transactions/components/transaction-form.dialog";
-import { TransactionTableSection } from "@/features/transactions/components/transaction-table.section";
+import { TransactionMainSection } from "@/features/transactions/components/transaction-main.section";
 import {
   useEditTransactionUnavailable,
   useTransactions,
@@ -21,19 +23,17 @@ import {
   buildTransactionSearchParams,
   parseTransactionFilters,
 } from "@/features/transactions/utils/transaction-search-params";
-import { PageActionButton } from "@/components/shared/page-action-button";
-import { usePageTrail } from "@/components/layout/page-trail-context";
 import { formatCurrency } from "@/lib/formatters/currency";
 import { formatDate } from "@/lib/formatters/date";
 import { useTranslations } from "@/lib/i18n/use-translations";
 import { useLocaleStore } from "@/stores/locale-store";
 
 export function TransactionScreen() {
+  const { t } = useTranslations();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const locale = useLocaleStore((state) => state.locale);
-  const { t } = useTranslations();
   const notifyEditUnavailable = useEditTransactionUnavailable();
   const filters = useMemo(
     () => parseTransactionFilters(new URLSearchParams(searchParams.toString())),
@@ -78,11 +78,11 @@ export function TransactionScreen() {
   const dateLocale = locale === "id" ? "id-ID" : "en-US";
   const hasActiveFilters = Boolean(
     filters.keyword ||
-      filters.accountId ||
-      filters.type !== "all" ||
-      filters.categoryId ||
-      filters.startDate ||
-      filters.endDate,
+    filters.accountId ||
+    filters.type !== "all" ||
+    filters.categoryId ||
+    filters.startDate ||
+    filters.endDate,
   );
   const modalTrail = useMemo(() => {
     if (deletingTransaction) {
@@ -205,20 +205,14 @@ export function TransactionScreen() {
 
   return (
     <div className="space-y-6">
-      <TransactionTableSection
-        title={t("transactions.title")}
-        description={t("transactions.description")}
+      <TransactionMainSection
         loading={transactionsQuery.isLoading}
         isError={transactionsQuery.isError}
         rows={rows}
-        retryLabel={t("transactions.retry")}
-        errorDescription={t("transactions.loadErrorDescription")}
         onRetry={() => transactionsQuery.refetch()}
-        emptyDescription={t("transactions.emptyDescription")}
         emptyActionLabel={t("transactions.addTransaction")}
         onEmptyAction={() => setFormOpen(true)}
         hasActiveFilters={hasActiveFilters}
-        resetFiltersLabel={t("transactions.resetFilters")}
         onResetFilters={resetFilters}
         formatDate={(value) => formatDate(value, dateLocale)}
         formatCurrency={formatCurrency}
@@ -253,7 +247,7 @@ export function TransactionScreen() {
           label: account.name,
         }))}
         categoryOptions={categoryOptions}
-        primaryAction={
+        action={
           <PageActionButton onClick={() => setFormOpen(true)}>
             {t("transactions.addTransaction")}
           </PageActionButton>
@@ -265,7 +259,10 @@ export function TransactionScreen() {
         <p>{t("transactions.description")}</p>
       </div>
 
-      <TransactionFormDialog open={formOpen} onOpenChange={setFormOpen} />
+      <TransactionFormDialog
+        open={formOpen}
+        onOpenChange={setFormOpen}
+      />
       <TransactionDeleteDialog
         transaction={deletingTransaction}
         categoryName={

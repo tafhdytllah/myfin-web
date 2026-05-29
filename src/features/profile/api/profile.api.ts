@@ -6,17 +6,6 @@ import {
 import { apiRequest } from "@/lib/api/client";
 
 export const profileApi = {
-  async getCurrentProfile(accessToken: string): Promise<ProfileResponse> {
-    const response = await apiRequest<ApiEnvelope<ProfileResponse>>(
-      "/api/v1/users/me",
-      {
-        method: "GET",
-        accessToken,
-      },
-    );
-
-    return response.data;
-  },
 
   async updateProfile(
     accessToken: string,

@@ -1,6 +1,7 @@
 "use client";
 
 import { authService } from "@/features/auth/services/auth.service";
+import { AuthSession, RegisterResponse } from "@/features/auth/types/auth.types";
 import { routes } from "@/lib/constants/routes";
 import { useAuthStore } from "@/stores/auth-store";
 import { useMutation } from "@tanstack/react-query";
@@ -12,8 +13,8 @@ export function useLogin() {
 
   return useMutation({
     mutationFn: authService.login,
-    onSuccess: ({ accessToken, user }) => {
-      setSession({ accessToken, user });
+    onSuccess: (session: AuthSession) => {
+      setSession(session);
       router.replace(routes.dashboard);
     },
   });

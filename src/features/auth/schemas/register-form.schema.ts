@@ -8,18 +8,13 @@ export function createRegisterFormSchema(t: TranslateFn) {
   return z
     .object({
       username: z
-        .string()
-        .trim()
-        .min(3, validation.minCharacters(t("auth.username"), 3)),
-      email: z.email(validation.validEmail()).trim(),
+        .string().trim().min(3, validation.minCharacters(t("auth.username"), 3)),
+      email: z
+        .email(validation.validEmail()).trim(),
       password: z
-        .string()
-        .trim()
-        .min(8, validation.minCharacters(t("auth.password"), 8)),
+        .string().trim().min(8, validation.minCharacters(t("auth.password"), 8)),
       confirmPassword: z
-        .string()
-        .trim()
-        .min(1, validation.required(t("auth.confirmPassword"))),
+        .string().trim().min(1, validation.required(t("auth.confirmPassword"))),
     })
     .refine((value) => value.password === value.confirmPassword, {
       message: validation.mustMatch(t("auth.confirmPassword")),

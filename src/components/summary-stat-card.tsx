@@ -1,4 +1,4 @@
-import { SectionCard } from "@/components/shared/section-card";
+import { SectionCard } from "@/components/section-card";
 
 type SummaryStatCardProps = {
   label: string;

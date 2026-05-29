@@ -1,8 +1,8 @@
 import { PencilLine, Power, PowerOff } from "lucide-react";
 
-import { FeatureOverviewItem } from "@/components/shared/feature-overview.item";
-import { RowActionsMenu } from "@/components/shared/row-actions-menu";
-import { StatusBadge } from "@/components/shared/status-badge";
+import { FeatureOverviewItem } from "@/components/feature-overview.item";
+import { RowActionsMenu } from "@/components/row-actions-menu";
+import { StatusBadge } from "@/components/status-badge";
 import { useTranslations } from "@/lib/i18n/use-translations";
 
 type AccountItem = {
@@ -71,8 +71,8 @@ export function AccountGridItem({
       value={formatCurrency(item.currentBalance)}
       description={
         <>
-          <p>{t("accounts.usedTransactions", { count: item.usageCount})}</p>
-          <p className="mt-3">{t("accounts.openingBalanceValue", { amount: item.openingBalance})}</p>
+          <p>{t("accounts.usedTransactions", { count: item.usageCount })}</p>
+          <p className="mt-3">{t("accounts.openingBalanceValue", { amount: item.openingBalance })}</p>
         </>
       }
     />

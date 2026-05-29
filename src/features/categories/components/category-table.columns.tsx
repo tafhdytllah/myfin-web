@@ -1,8 +1,8 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { PencilLine, Power, PowerOff } from "lucide-react";
 
-import { sortableHeader } from "@/components/shared/data-table/sortable-header";
-import { StatusBadge } from "@/components/shared/status-badge";
+import { sortableHeader } from "@/components/data-table/sortable-header";
+import { StatusBadge } from "@/components/status-badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useTranslations } from "@/lib/i18n/use-translations";

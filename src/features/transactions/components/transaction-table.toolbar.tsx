@@ -2,7 +2,7 @@
 
 import { Table } from "@tanstack/react-table";
 
-import { DataTableToolbar } from "@/components/shared/data-table/toolbar";
+import { DataTableToolbar } from "@/components/data-table/toolbar";
 import { useTranslations } from "@/lib/i18n/use-translations";
 
 type Option = {

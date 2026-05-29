@@ -1,8 +1,8 @@
 "use client";
 
+import { ConfirmActionDialog } from "@/components/confirm-action-dialog";
 import { usePageTrail } from "@/components/layout/page-trail-context";
-import { ConfirmActionDialog } from "@/components/shared/confirm-action-dialog";
-import { PageActionButton } from "@/components/shared/page-action-button";
+import { PageActionButton } from "@/components/page-action-button";
 import { AccountFormDialog } from "@/features/accounts/components/account-form.dialog";
 import { AccountGridSection } from "@/features/accounts/components/account-grid.section";
 import { AccountMainSection } from "@/features/accounts/components/account-main.section";

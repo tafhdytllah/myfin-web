@@ -1,6 +1,6 @@
 "use client";
 
-import { InfoNotice } from "@/components/shared/info-notice";
+import { InfoNotice } from "@/components/info-notice";
 import {
   AlertDialog,
   AlertDialogAction,

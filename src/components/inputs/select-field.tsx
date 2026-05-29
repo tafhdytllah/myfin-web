@@ -2,7 +2,7 @@
 
 import { ReactNode } from "react";
 
-import { FormFieldItem } from "@/components/shared/form/form-field-item";
+import { FormFieldItem } from "@/components/form/form-field-item";
 
 import {
   Select,

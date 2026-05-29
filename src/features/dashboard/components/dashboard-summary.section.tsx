@@ -1,7 +1,7 @@
-import { SectionCard } from "@/components/shared/section-card";
-import { RetryCard } from "@/components/shared/retry-card";
-import { SectionCardSkeletonGrid } from "@/components/shared/section-card-skeleton-grid";
-import { StatusBadge } from "@/components/shared/status-badge";
+import { RetryCard } from "@/components/retry-card";
+import { SectionCard } from "@/components/section-card";
+import { SectionCardSkeletonGrid } from "@/components/section-card-skeleton-grid";
+import { StatusBadge } from "@/components/status-badge";
 
 type SummaryCard = {
   key: string;

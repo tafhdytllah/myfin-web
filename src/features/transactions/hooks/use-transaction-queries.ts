@@ -1,24 +1,24 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
-
 import { transactionsKeys } from "@/features/transactions/hooks/transaction-query-keys";
 import { transactionService } from "@/features/transactions/services/transaction.service";
 import {
   Transaction,
-  TransactionFilters,
+  TransactionListFilters,
 } from "@/features/transactions/types/transaction.types";
 import { useTranslations } from "@/lib/i18n/use-translations";
 import { useAuthStore } from "@/stores/auth-store";
 
-export function useTransactions(filters: TransactionFilters) {
+export function useTransactions(filters: TransactionListFilters) {
   const accessToken = useAuthStore((state) => state.accessToken);
 
   return useQuery({
     queryKey: transactionsKeys.list(filters),
     queryFn: () => transactionService.getTransactions(accessToken as string, filters),
     enabled: Boolean(accessToken),
+    placeholderData: keepPreviousData,
   });
 }
 

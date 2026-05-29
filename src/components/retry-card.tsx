@@ -2,7 +2,7 @@
 
 import { RefreshCw } from "lucide-react";
 
-import { SectionCard } from "@/components/shared/section-card";
+import { SectionCard } from "@/components/section-card";
 import { Button } from "@/components/ui/button";
 
 type RetryCardProps = {

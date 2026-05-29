@@ -1,5 +1,5 @@
-import { SectionCard } from "@/components/shared/section-card";
-import { StackSkeleton } from "@/components/shared/stack-skeleton";
+import { SectionCard } from "@/components/section-card";
+import { StackSkeleton } from "@/components/stack-skeleton";
 import { cn } from "@/lib/utils";
 
 type SectionCardSkeletonGridProps = {

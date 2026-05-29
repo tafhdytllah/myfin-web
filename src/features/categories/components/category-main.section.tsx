@@ -1,11 +1,9 @@
 "use client";
 
-import { ColumnFiltersState } from "@tanstack/react-table";
-import { Dispatch, ReactNode, SetStateAction, useMemo } from "react";
-import { DataTable } from "@/components/shared/data-table/table";
-import { RetryCard } from "@/components/shared/retry-card";
-import { SectionCard } from "@/components/shared/section-card";
-import { StackSkeleton } from "@/components/shared/stack-skeleton";
+import { DataTable } from "@/components/data-table/table";
+import { RetryCard } from "@/components/retry-card";
+import { SectionCard } from "@/components/section-card";
+import { StackSkeleton } from "@/components/stack-skeleton";
 import {
   CategoryTableRow,
   useCategoryTableColumns,
@@ -13,6 +11,8 @@ import {
 import { CategoryTableToolbar } from "@/features/categories/components/category-table.toolbar";
 import { CategoryListFilters } from "@/features/categories/types/category.types";
 import { useTranslations } from "@/lib/i18n/use-translations";
+import { ColumnFiltersState } from "@tanstack/react-table";
+import { Dispatch, ReactNode, SetStateAction, useMemo } from "react";
 
 type CategoryMainSectionProps = {
   loading: boolean;

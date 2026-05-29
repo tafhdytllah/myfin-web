@@ -5,9 +5,9 @@ import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 
 import { usePageTrail } from "@/components/layout/page-trail-context";
-import { PageHeader } from "@/components/shared/page-header";
-import { RetryCard } from "@/components/shared/retry-card";
-import { SectionCardSkeletonGrid } from "@/components/shared/section-card-skeleton-grid";
+import { PageHeader } from "@/components/page-header";
+import { RetryCard } from "@/components/retry-card";
+import { SectionCardSkeletonGrid } from "@/components/section-card-skeleton-grid";
 import { ChangePasswordSection } from "@/features/profile/components/change-password.section";
 import { ProfileInfoSection } from "@/features/profile/components/profile-info.section";
 import {

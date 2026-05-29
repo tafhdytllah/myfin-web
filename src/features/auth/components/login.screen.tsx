@@ -1,12 +1,12 @@
 "use client";
 
-import { AuthFormCard } from "@/components/shared/auth-form-card";
-import { AuthFormFooterLink } from "@/components/shared/auth-form-footer-link";
-import { FormError } from "@/components/shared/form/form-error";
-import { FormSection } from "@/components/shared/form/form-section";
-import { FormSubmitButton } from "@/components/shared/form/form-submit-button";
-import { PasswordField } from "@/components/shared/inputs/password-field";
-import { TextField } from "@/components/shared/inputs/text-field";
+import { AuthFormCard } from "@/components/auth-form-card";
+import { AuthFormFooterLink } from "@/components/auth-form-footer-link";
+import { FormError } from "@/components/form/form-error";
+import { FormSection } from "@/components/form/form-section";
+import { FormSubmitButton } from "@/components/form/form-submit-button";
+import { PasswordField } from "@/components/inputs/password-field";
+import { TextField } from "@/components/inputs/text-field";
 import { useLogin } from "@/features/auth/hooks/use-auth-mutations";
 import { createLoginFormSchema, LoginFormSchema } from "@/features/auth/schemas/login-form.schema";
 import { ApiError } from "@/lib/api/api-error";
@@ -16,6 +16,7 @@ import { useTranslations } from "@/lib/i18n/use-translations";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 
 export function LoginScreen() {
   const [formError, setFormError] = useState<string | undefined>();
@@ -40,6 +41,7 @@ export function LoginScreen() {
 
     try {
       await loginMutation.mutateAsync(values);
+      toast.success(t("auth.loginSuccess"));
     } catch (error) {
       if (ApiError.isApiError(error)) {
         applyApiFieldErrors(error, ["username", "password"], setError);

@@ -5,36 +5,32 @@ import {
 } from "@tanstack/react-table";
 import { Dispatch, ReactNode, SetStateAction, useMemo } from "react";
 
-import { DataTable } from "@/components/shared/data-table/table";
-import { RetryCard } from "@/components/shared/retry-card";
-import { SectionCard } from "@/components/shared/section-card";
-import { SectionEmptyState } from "@/components/shared/section-empty-state";
-import { StackSkeleton } from "@/components/shared/stack-skeleton";
+import { DataTable } from "@/components/data-table/table";
+import { RetryCard } from "@/components/retry-card";
+import { SectionCard } from "@/components/section-card";
+import { SectionEmptyState } from "@/components/section-empty-state";
+import { StackSkeleton } from "@/components/stack-skeleton";
 import {
   buildTransactionTableColumns,
   TransactionRow,
 } from "@/features/transactions/components/transaction-table.columns";
 import { TransactionTableToolbar } from "@/features/transactions/components/transaction-table.toolbar";
+import { useTranslations } from "@/lib/i18n/use-translations";
 
 type Option = {
   value: string;
   label: string;
 };
 
-type TransactionTableSectionProps = {
-  title: string;
-  description: string;
+type TransactionMainSectionProps = {
   loading: boolean;
   isError: boolean;
   rows: TransactionRow[];
-  retryLabel: string;
-  errorDescription: string;
   onRetry: () => void;
-  emptyDescription: string;
+  action?: ReactNode;
   emptyActionLabel: string;
   onEmptyAction: () => void;
   hasActiveFilters: boolean;
-  resetFiltersLabel: string;
   onResetFilters: () => void;
   formatDate: (value: string) => string;
   formatCurrency: (value: number) => string;
@@ -65,23 +61,17 @@ type TransactionTableSectionProps = {
   onDelete: (row: TransactionRow) => void;
   accountOptions: Option[];
   categoryOptions: Option[];
-  primaryAction?: ReactNode;
 };
 
-export function TransactionTableSection({
-  title,
-  description,
+export function TransactionMainSection({
   loading,
   isError,
   rows,
-  retryLabel,
-  errorDescription,
   onRetry,
-  emptyDescription,
+  action,
   emptyActionLabel,
   onEmptyAction,
   hasActiveFilters,
-  resetFiltersLabel,
   onResetFilters,
   formatDate,
   formatCurrency,
@@ -95,8 +85,8 @@ export function TransactionTableSection({
   onDelete,
   accountOptions,
   categoryOptions,
-  primaryAction,
-}: TransactionTableSectionProps) {
+}: TransactionMainSectionProps) {
+  const { t } = useTranslations();
   const columns = useMemo(
     () =>
       buildTransactionTableColumns({
@@ -115,30 +105,30 @@ export function TransactionTableSection({
     [],
   );
 
-  if (loading) {
-    return (
-      <SectionCard title={title} description={description} action={primaryAction}>
-        <StackSkeleton count={5} itemClassName="h-14 rounded-xl bg-muted" />
-      </SectionCard>
-    );
-  }
-
   if (isError) {
     return (
       <RetryCard
-        title={title}
-        description={errorDescription}
-        retryLabel={retryLabel}
+        title={t("transactions.title")}
+        description={t("transactions.loadErrorDescription")}
+        retryLabel={t("transactions.retry")}
         onRetry={onRetry}
       />
     );
   }
 
   return (
-    <SectionCard title={title} description={description} action={primaryAction}>
-      {rows.length === 0 ? (
+    <SectionCard
+      title={t("transactions.title")}
+      description={t("transactions.description")}
+      action={action}
+    >
+      {loading ? (
+        <StackSkeleton count={5} itemClassName="h-14 rounded-xl bg-muted" />
+      ) : null}
+
+      {!loading && rows.length === 0 ? (
         <SectionEmptyState
-          description={emptyDescription}
+          description={t("transactions.emptyDescription")}
           actions={[
             {
               label: emptyActionLabel,
@@ -147,7 +137,7 @@ export function TransactionTableSection({
             ...(hasActiveFilters
               ? [
                 {
-                  label: resetFiltersLabel,
+                  label: t("transactions.resetFilters"),
                   onClick: onResetFilters,
                   variant: "outline" as const,
                 },
@@ -157,7 +147,7 @@ export function TransactionTableSection({
         />
       ) : null}
 
-      {rows.length > 0 ? (
+      {!loading && rows.length > 0 ? (
         <DataTable
           columns={columns}
           data={rows}

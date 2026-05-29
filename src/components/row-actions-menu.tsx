@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 
-import { ActionMenuTrigger } from "@/components/shared/action-menu-trigger";
+import { ActionMenuTrigger } from "@/components/action-menu-trigger";
 import {
   DropdownMenu,
   DropdownMenuContent,

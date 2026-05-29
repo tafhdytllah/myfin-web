@@ -31,7 +31,7 @@ export type TransactionSummary = {
   balance: number;
 };
 
-export type TransactionFilters = {
+export type TransactionListFilters = {
   keyword?: string;
   accountId?: string;
   type?: "all" | CategoryType;

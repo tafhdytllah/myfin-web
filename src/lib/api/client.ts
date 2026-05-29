@@ -1,10 +1,10 @@
 import { ApiError } from "@/lib/api/api-error";
-import { BackendErrorPayload } from "@/lib/api/error-response.types";
 import { buildHeaders } from "@/lib/api/headers";
 import { handleExpiredSession, shouldAttemptRefresh, tryRefreshSession } from "@/lib/api/refresh-session";
 import { parseResponsePayload } from "@/lib/api/parse-response";
 import { RequestConfig } from "@/lib/api/types";
 import { env } from "@/lib/config/env";
+import { ApiResponse } from "@/types/api.types";
 
 export async function apiRequest<T>(
   path: string,
@@ -17,7 +17,7 @@ export async function apiRequest<T>(
     });
 
   let response = await makeRequest(accessToken);
-  let payload = await parseResponsePayload<T | BackendErrorPayload>(response);
+  let payload = await parseResponsePayload<ApiResponse<T>>(response);
 
   if (
     response.status === 401 &&
@@ -28,23 +28,23 @@ export async function apiRequest<T>(
 
     if (refreshedToken) {
       response = await makeRequest(refreshedToken);
-      payload = await parseResponsePayload<T>(response);
+      payload = await parseResponsePayload<ApiResponse<T>>(response);
     } else {
       handleExpiredSession();
     }
   }
 
   if (!response.ok) {
-    const errorPayload = payload as BackendErrorPayload | null;
+    const errorBody = payload.errors;
 
     throw new ApiError({
       status: response.status,
-      code: errorPayload?.errors?.code,
+      code: errorBody?.code,
       message:
-        errorPayload?.errors?.message ??
+        errorBody?.message ??
         response.statusText ??
         "Something went wrong.",
-      details: errorPayload?.errors?.details,
+      details: errorBody?.details,
     });
   }
 

@@ -1,8 +1,8 @@
 "use client";
 
+import { ConfirmActionDialog } from "@/components/confirm-action-dialog";
 import { usePageTrail } from "@/components/layout/page-trail-context";
-import { ConfirmActionDialog } from "@/components/shared/confirm-action-dialog";
-import { PageActionButton } from "@/components/shared/page-action-button";
+import { PageActionButton } from "@/components/page-action-button";
 import { CategoryFormDialog } from "@/features/categories/components/category-form.dialog";
 import { CategoryMainSection } from "@/features/categories/components/category-main.section";
 import { useToggleCategoryStatus } from "@/features/categories/hooks/use-category-mutations";
@@ -18,12 +18,21 @@ import { useMemo, useState } from "react";
 
 export function CategoryScreen() {
   const { t } = useTranslations();
+
   const [filters, setFilters] = useState<CategoryListFilters>({
     keyword: "",
     type: "all",
     status: "all",
   });
+
+  const [formOpen, setFormOpen] = useState(false);
+
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+
+  const [statusDialogCategory, setStatusDialogCategory] = useState<Category | null>(null);
+
   const debouncedKeyword = useDebouncedValue(filters.keyword ?? "");
+
   const queryFilters = useMemo(
     () => ({
       ...filters,
@@ -31,22 +40,22 @@ export function CategoryScreen() {
     }),
     [debouncedKeyword, filters],
   );
+
   const categoriesQuery = useCategories(queryFilters);
+
   const toggleStatusMutation = useToggleCategoryStatus();
-  const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
-  const [statusDialogCategory, setStatusDialogCategory] = useState<Category | null>(null);
 
   const categories = useMemo(
     () => categoriesQuery.data ?? [],
     [categoriesQuery.data],
   );
+
   const modalTrail = useMemo(() => {
     if (statusDialogCategory) {
       return t("common.deactivate");
     }
 
-    if (isCreateOpen) {
+    if (formOpen) {
       return t("common.create");
     }
 
@@ -55,22 +64,23 @@ export function CategoryScreen() {
     }
 
     return null;
-  }, [editingCategory, isCreateOpen, statusDialogCategory, t]);
+  }, [editingCategory, formOpen, statusDialogCategory, t]);
 
   usePageTrail([modalTrail]);
 
   function openCreateDialog() {
     setEditingCategory(null);
-    setIsCreateOpen(true);
+    setFormOpen(true);
   }
 
   function openEditDialog(category: Category) {
-    setIsCreateOpen(false);
+    setFormOpen(false);
     setEditingCategory(category);
   }
 
   return (
     <div className="space-y-6">
+
       <CategoryMainSection
         loading={categoriesQuery.isLoading}
         isError={categoriesQuery.isError}
@@ -99,10 +109,10 @@ export function CategoryScreen() {
 
       <CategoryFormDialog
         category={editingCategory}
-        open={isCreateOpen || Boolean(editingCategory)}
+        open={formOpen || Boolean(editingCategory)}
         onOpenChange={(open) => {
           if (!open) {
-            setIsCreateOpen(false);
+            setFormOpen(false);
             setEditingCategory(null);
           }
         }}

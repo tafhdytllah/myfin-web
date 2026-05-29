@@ -1,8 +1,8 @@
-import { FormError } from "@/components/shared/form/form-error";
-import { FormSection } from "@/components/shared/form/form-section";
-import { FormSubmitButton } from "@/components/shared/form/form-submit-button";
-import { TextField } from "@/components/shared/inputs/text-field";
-import { SectionCard } from "@/components/shared/section-card";
+import { FormError } from "@/components/form/form-error";
+import { FormSection } from "@/components/form/form-section";
+import { FormSubmitButton } from "@/components/form/form-submit-button";
+import { TextField } from "@/components/inputs/text-field";
+import { SectionCard } from "@/components/section-card";
 import { ProfileInfoSchema } from "@/features/profile/schemas/profile.schema";
 import type { UseFormReturn } from "react-hook-form";
 

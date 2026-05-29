@@ -1,7 +1,16 @@
-import { TransactionFilters } from "@/features/transactions/types/transaction.types";
+import { TransactionListFilters } from "@/features/transactions/types/transaction.types";
 
 export const transactionsKeys = {
   all: ["transactions"] as const,
-  list: (filters: TransactionFilters) => ["transactions", "list", filters] as const,
-  detail: (id: string) => ["transactions", "detail", id] as const,
+
+  lists: () => [...transactionsKeys.all, "list"] as const,
+
+  list: (filters: TransactionListFilters) =>
+    [...transactionsKeys.lists(), filters] as const,
+
+  details: () =>
+    [...transactionsKeys.all, "detail"] as const,
+
+  detail: (id: string) =>
+    [...transactionsKeys.details(), id] as const,
 };

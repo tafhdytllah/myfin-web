@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 
-import { InfoMetricBlock } from "@/components/shared/info-metric-block";
-import { SectionCard } from "@/components/shared/section-card";
+import { InfoMetricBlock } from "@/components/info-metric-block";
+import { SectionCard } from "@/components/section-card";
 
 type FeatureOverviewItemProps = {
   title: string;

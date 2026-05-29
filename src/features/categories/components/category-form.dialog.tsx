@@ -1,10 +1,10 @@
 "use client";
 
-import { DialogFormActions } from "@/components/shared/dialog-form-actions";
-import { DialogFormHeader } from "@/components/shared/dialog-form-header";
-import { FormSection } from "@/components/shared/form/form-section";
-import { SelectField } from "@/components/shared/inputs/select-field";
-import { TextField } from "@/components/shared/inputs/text-field";
+import { DialogFormActions } from "@/components/dialog-form-actions";
+import { DialogFormHeader } from "@/components/dialog-form-header";
+import { FormSection } from "@/components/form/form-section";
+import { SelectField } from "@/components/inputs/select-field";
+import { TextField } from "@/components/inputs/text-field";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useCreateCategory, useUpdateCategory } from "@/features/categories/hooks/use-category-mutations";
 import {

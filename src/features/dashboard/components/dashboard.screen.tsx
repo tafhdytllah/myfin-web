@@ -4,14 +4,14 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 
 import { usePageTrail } from "@/components/layout/page-trail-context";
+import { PageActionButton } from "@/components/page-action-button";
+import { PageHeader } from "@/components/page-header";
+import { useAccounts } from "@/features/accounts/hooks/use-account-queries";
+import { useCategories } from "@/features/categories/hooks/use-category-queries";
 import { DashboardAccountScopeCard } from "@/features/dashboard/components/dashboard-account-scope.card";
 import { DashboardRecentTransactionsSection } from "@/features/dashboard/components/dashboard-recent-transactions.section";
 import { DashboardSummarySection } from "@/features/dashboard/components/dashboard-summary.section";
 import { DashboardTopAccountsSection } from "@/features/dashboard/components/dashboard-top-accounts.section";
-import { PageActionButton } from "@/components/shared/page-action-button";
-import { PageHeader } from "@/components/shared/page-header";
-import { useAccounts } from "@/features/accounts/hooks/use-account-queries";
-import { useCategories } from "@/features/categories/hooks/use-category-queries";
 import {
   useDashboardSummary,
   useRecentTransactions,

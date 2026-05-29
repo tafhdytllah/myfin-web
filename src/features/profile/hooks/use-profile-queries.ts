@@ -12,13 +12,14 @@ import {
 import { getApiErrorMessage } from "@/lib/errors/get-api-error-message";
 import { useTranslations } from "@/lib/i18n/use-translations";
 import { useAuthStore } from "@/stores/auth-store";
+import { authService } from "@/features/auth/services/auth.service";
 
 export function useCurrentProfile() {
   const accessToken = useAuthStore((state) => state.accessToken);
 
   return useQuery({
     queryKey: profileKeys.current(),
-    queryFn: () => profileService.getCurrentProfile(accessToken as string),
+    queryFn: () => authService.getCurrentUser(accessToken as string),
     enabled: Boolean(accessToken),
   });
 }

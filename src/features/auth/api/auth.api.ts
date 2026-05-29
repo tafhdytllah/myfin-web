@@ -1,33 +1,29 @@
-import {
-  ApiEnvelope,
-  AuthTokenData,
-  LoginPayload,
-  ProfileResponse,
-  RegisterPayload,
-} from "@/features/auth/types/auth.types";
+import { AuthTokenResponse, LoginRequest, RegisterRequest } from "@/features/auth/types/auth.types";
+import { User } from "@/features/auth/types/user.types";
 import { apiRequest } from "@/lib/api/client";
+import { ApiResponse } from "@/types/api.types";
 
 export const authApi = {
 
-  async login(payload: LoginPayload): Promise<AuthTokenData> {
-    const response = await apiRequest<ApiEnvelope<AuthTokenData>>("/api/v1/auth/login", {
+  async login(request: LoginRequest): Promise<AuthTokenResponse> {
+    const response = await apiRequest<ApiResponse<AuthTokenResponse>>("/api/v1/auth/login", {
       method: "POST",
       credentials: "include",
-      body: JSON.stringify(payload),
+      body: JSON.stringify(request),
     });
 
     return response.data;
   },
 
-  register(payload: RegisterPayload): Promise<void> {
-    return apiRequest<ApiEnvelope<null>>("/api/v1/auth/register", {
+  register(request: RegisterRequest): Promise<void> {
+    return apiRequest<ApiResponse<null>>("/api/v1/auth/register", {
       method: "POST",
-      body: JSON.stringify(payload),
+      body: JSON.stringify(request),
     }).then(() => { });
   },
 
-  async refreshSession(): Promise<AuthTokenData> {
-    const response = await apiRequest<ApiEnvelope<AuthTokenData>>("/api/v1/auth/refresh", {
+  async refreshSession(): Promise<AuthTokenResponse> {
+    const response = await apiRequest<ApiResponse<AuthTokenResponse>>("/api/v1/auth/refresh", {
       method: "POST",
       credentials: "include",
     });
@@ -36,20 +32,17 @@ export const authApi = {
   },
 
   logout(): Promise<void> {
-    return apiRequest<ApiEnvelope<null>>("/api/v1/auth/logout", {
+    return apiRequest<ApiResponse<null>>("/api/v1/auth/logout", {
       method: "POST",
       credentials: "include",
     }).then(() => { });
   },
 
-  async getCurrentUser(accessToken: string): Promise<ProfileResponse> {
-    const response = await apiRequest<ApiEnvelope<ProfileResponse>>(
-      "/api/v1/users/me",
-      {
-        method: "GET",
-        accessToken,
-      },
-    );
+  async getCurrentUser(accessToken: string): Promise<User> {
+    const response = await apiRequest<ApiResponse<User>>("/api/v1/users/me", {
+      method: "GET",
+      accessToken,
+    });
 
     return response.data;
   },

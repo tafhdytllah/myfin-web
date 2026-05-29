@@ -21,6 +21,7 @@ import { routes } from "@/lib/constants/routes";
 import { useTranslations } from "@/lib/i18n/use-translations";
 import { useAuthStore } from "@/stores/auth-store";
 import { useLocaleStore } from "@/stores/locale-store";
+import { toast } from "sonner";
 
 const themeOptions = [
   { value: "light", labelKey: "theme.light", icon: SunMedium },
@@ -114,7 +115,10 @@ export function SidebarUserMenu() {
         <DropdownMenuSeparator />
 
         <DropdownMenuItem
-          onClick={() => logoutMutation.mutate()}
+          onClick={() => {
+            logoutMutation.mutate();
+            toast.success(t("auth.logoutSuccess"));
+          }}
           disabled={logoutMutation.isPending}
           variant="destructive"
         >

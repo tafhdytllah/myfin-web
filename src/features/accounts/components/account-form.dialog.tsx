@@ -1,10 +1,10 @@
 "use client";
 
-import { DialogFormActions } from "@/components/shared/dialog-form-actions";
-import { DialogFormHeader } from "@/components/shared/dialog-form-header";
-import { FormCurrentBalanceNotice } from "@/components/shared/form/form-current-balance-notice";
-import { FormSection } from "@/components/shared/form/form-section";
-import { TextField } from "@/components/shared/inputs/text-field";
+import { DialogFormActions } from "@/components/dialog-form-actions";
+import { DialogFormHeader } from "@/components/dialog-form-header";
+import { FormCurrentBalanceNotice } from "@/components/form/form-current-balance-notice";
+import { FormSection } from "@/components/form/form-section";
+import { TextField } from "@/components/inputs/text-field";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import {
   useCreateAccount,
@@ -170,7 +170,8 @@ export function AccountFormDialog({
             <TextField
               id="account-opening-balance"
               type="number"
-              autoComplete="account-opening-balance"
+              min={0}
+              step="1"
               label={t("accounts.openingBalance")}
               error={createForm.formState.errors.openingBalance?.message}
               {...createForm.register("openingBalance")}

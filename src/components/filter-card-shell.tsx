@@ -1,7 +1,7 @@
 import { PropsWithChildren, ReactNode } from "react";
 
-import { ResetFiltersButton } from "@/components/shared/reset-filters-button";
-import { SectionCard } from "@/components/shared/section-card";
+import { ResetFiltersButton } from "@/components/reset-filters-button";
+import { SectionCard } from "@/components/section-card";
 
 type FilterCardShellProps = PropsWithChildren<{
   title: string;
