@@ -18,7 +18,7 @@ import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
-export function LoginScreen() {
+export function LoginPage() {
   const [formError, setFormError] = useState<string | undefined>();
   const { t } = useTranslations();
   const schema = useMemo(() => createLoginFormSchema(t), [t]);

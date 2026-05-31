@@ -1,5 +1,5 @@
-import { RegisterScreen } from "@/features/auth/components/register.screen";
+import { RegisterPage } from "@/features/auth/components/register.page";
 
-export default function RegisterPage() {
-  return <RegisterScreen />;
+export default function Page() {
+  return <RegisterPage />;
 }

@@ -12,7 +12,7 @@ export function createRegisterFormSchema(t: TranslateFn) {
       email: z
         .email(validation.validEmail()).trim(),
       password: z
-        .string().trim().min(8, validation.minCharacters(t("auth.password"), 8)),
+        .string().trim().min(8, validation.minCharacters(t("auth.password"), 8)).max(20, validation.maxCharacters(t("auth.password"), 20)),
       confirmPassword: z
         .string().trim().min(1, validation.required(t("auth.confirmPassword"))),
     })

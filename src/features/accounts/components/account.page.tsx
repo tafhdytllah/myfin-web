@@ -20,7 +20,7 @@ import { Plus } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-export function AccountScreen() {
+export function AccountPage() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();

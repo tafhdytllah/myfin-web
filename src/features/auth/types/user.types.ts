@@ -7,3 +7,15 @@ export type User = {
   role: UserRole;
   active: boolean;
 };
+
+export type UserResponse = User;
+
+export type UpdateUserRequest = {
+  username: string;
+  email: string;
+};
+
+export type ChangePasswordUserRequest = {
+  currentPassword: string;
+  newPassword: string;
+};

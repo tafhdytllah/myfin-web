@@ -16,7 +16,7 @@ import { useTranslations } from "@/lib/i18n/use-translations";
 import { Plus } from "lucide-react";
 import { useMemo, useState } from "react";
 
-export function CategoryScreen() {
+export function CategoryPage() {
   const { t } = useTranslations();
 
   const [filters, setFilters] = useState<CategoryListFilters>({

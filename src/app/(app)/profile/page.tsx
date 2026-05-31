@@ -1,5 +1,5 @@
-import { ProfileScreen } from "@/features/profile/components/profile.screen";
+import { ProfilePage } from "@/features/profile/components/profile.page";
 
-export default function ProfilePage() {
-  return <ProfileScreen />;
+export default function Page() {
+  return <ProfilePage />;
 }

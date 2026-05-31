@@ -53,6 +53,7 @@ export function useAuthBootstrap() {
 
         setSession({
           accessToken: tokenData.accessToken,
+          expiresIn: tokenData.expiresIn,
           user,
         });
       } catch {

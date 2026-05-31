@@ -1,18 +1,9 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
-
-import { profileKeys } from "@/features/profile/hooks/profile-query-keys";
-import { profileService } from "@/features/profile/services/profile.service";
-import {
-  ChangePasswordPayload,
-  UpdateProfilePayload,
-} from "@/features/profile/types/profile.types";
-import { getApiErrorMessage } from "@/lib/errors/get-api-error-message";
-import { useTranslations } from "@/lib/i18n/use-translations";
+import { useQuery } from "@tanstack/react-query";
 import { useAuthStore } from "@/stores/auth-store";
 import { authService } from "@/features/auth/services/auth.service";
+import { profileKeys } from "@/features/profile/hooks/profile-query-keys";
 
 export function useCurrentProfile() {
   const accessToken = useAuthStore((state) => state.accessToken);
@@ -21,39 +12,5 @@ export function useCurrentProfile() {
     queryKey: profileKeys.current(),
     queryFn: () => authService.getCurrentUser(accessToken as string),
     enabled: Boolean(accessToken),
-  });
-}
-
-export function useUpdateProfile() {
-  const accessToken = useAuthStore((state) => state.accessToken);
-  const queryClient = useQueryClient();
-  const { t } = useTranslations();
-
-  return useMutation({
-    mutationFn: (payload: UpdateProfilePayload) =>
-      profileService.updateProfile(accessToken as string, payload),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: profileKeys.current() });
-      toast.success(t("profile.updateSuccess"));
-    },
-    onError: (error) => {
-      toast.error(getApiErrorMessage(error, t("profile.updateError")));
-    },
-  });
-}
-
-export function useChangePassword() {
-  const accessToken = useAuthStore((state) => state.accessToken);
-  const { t } = useTranslations();
-
-  return useMutation({
-    mutationFn: (payload: ChangePasswordPayload) =>
-      profileService.changePassword(accessToken as string, payload),
-    onSuccess: () => {
-      toast.success(t("profile.passwordSuccess"));
-    },
-    onError: (error) => {
-      toast.error(getApiErrorMessage(error, t("profile.passwordError")));
-    },
   });
 }

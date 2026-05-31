@@ -1,16 +1,13 @@
+import { ChangePasswordUserRequest, UpdateUserRequest } from "@/features/auth/types/user.types";
 import { profileApi } from "@/features/profile/api/profile.api";
-import {
-  ChangePasswordPayload,
-  UpdateProfilePayload,
-} from "@/features/profile/types/profile.types";
 
 export const profileService = {
 
-  updateProfile(accessToken: string, payload: UpdateProfilePayload) {
-    return profileApi.updateProfile(accessToken, payload);
+  updateProfile(accessToken: string, request: UpdateUserRequest) {
+    return profileApi.updateUser(accessToken, request);
   },
 
-  changePassword(accessToken: string, payload: ChangePasswordPayload) {
-    return profileApi.changePassword(accessToken, payload);
+  changePassword(accessToken: string, request: ChangePasswordUserRequest) {
+    return profileApi.changePasswordUser(accessToken, request);
   },
 };

@@ -1,5 +1,5 @@
-import { CategoryScreen } from "@/features/categories/components/category.screen";
+import { CategoryPage } from "@/features/categories/components/category.page";
 
-export default function CategoriesPage() {
-  return <CategoryScreen />;
+export default function Page() {
+  return <CategoryPage />;
 }

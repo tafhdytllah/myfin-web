@@ -1,5 +1,5 @@
-import { LoginScreen } from "@/features/auth/components/login.screen";
+import { LoginPage } from "@/features/auth/components/login.page";
 
-export default function LoginPage() {
-  return <LoginScreen />;
+export default function Page() {
+  return <LoginPage />;
 }

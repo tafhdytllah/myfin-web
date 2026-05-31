@@ -1,7 +1,7 @@
 "use client";
 
 import { authService } from "@/features/auth/services/auth.service";
-import { AuthSession, RegisterResponse } from "@/features/auth/types/auth.types";
+import { AuthSession } from "@/features/auth/types/auth.types";
 import { routes } from "@/lib/constants/routes";
 import { useAuthStore } from "@/stores/auth-store";
 import { useMutation } from "@tanstack/react-query";

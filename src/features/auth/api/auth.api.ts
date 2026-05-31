@@ -1,5 +1,5 @@
 import { AuthTokenResponse, LoginRequest, RegisterRequest } from "@/features/auth/types/auth.types";
-import { User } from "@/features/auth/types/user.types";
+import { UserResponse } from "@/features/auth/types/user.types";
 import { apiRequest } from "@/lib/api/client";
 import { ApiResponse } from "@/types/api.types";
 
@@ -38,8 +38,8 @@ export const authApi = {
     }).then(() => { });
   },
 
-  async getCurrentUser(accessToken: string): Promise<User> {
-    const response = await apiRequest<ApiResponse<User>>("/api/v1/users/me", {
+  async getCurrentUser(accessToken: string): Promise<UserResponse> {
+    const response = await apiRequest<ApiResponse<UserResponse>>("/api/v1/users/me", {
       method: "GET",
       accessToken,
     });

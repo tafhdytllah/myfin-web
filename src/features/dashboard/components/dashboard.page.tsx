@@ -23,7 +23,7 @@ import { useTranslations } from "@/lib/i18n/use-translations";
 import { useAuthStore } from "@/stores/auth-store";
 import { useLocaleStore } from "@/stores/locale-store";
 
-export function DashboardScreen() {
+export function DashboardPage() {
   const user = useAuthStore((state) => state.user);
   const locale = useLocaleStore((state) => state.locale);
   const { t } = useTranslations();

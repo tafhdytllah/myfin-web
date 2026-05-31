@@ -1,12 +1,12 @@
 import { AuthSession } from "@/features/auth/types/auth.types";
-import { User } from "@/features/auth/types/user.types";
+import { UserResponse } from "@/features/auth/types/user.types";
 import { create } from "zustand";
 
 type AuthStatus = "idle" | "bootstrapping" | "authenticated" | "unauthenticated";
 
 type AuthState = {
   accessToken: string | null;
-  user: User | null;
+  user: UserResponse | null;
   isAuthenticated: boolean;
   status: AuthStatus;
   hasInitialized: boolean;
@@ -14,7 +14,7 @@ type AuthState = {
   finishBootstrap: () => void;
   setSession: (session: AuthSession) => void;
   setAccessToken: (accessToken: string) => void;
-  setUser: (user: User | null) => void;
+  setUser: (user: UserResponse | null) => void;
   clearSession: () => void;
 };
 

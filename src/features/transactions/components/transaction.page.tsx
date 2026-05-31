@@ -28,7 +28,7 @@ import { formatDate } from "@/lib/formatters/date";
 import { useTranslations } from "@/lib/i18n/use-translations";
 import { useLocaleStore } from "@/stores/locale-store";
 
-export function TransactionScreen() {
+export function TransactionPage() {
   const { t } = useTranslations();
   const router = useRouter();
   const pathname = usePathname();
