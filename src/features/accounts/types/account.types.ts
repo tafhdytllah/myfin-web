@@ -1,8 +1,3 @@
-export type ApiEnvelope<T> = {
-  data: T;
-  message?: string;
-};
-
 export type Account = {
   id: string;
   name: string;
@@ -12,20 +7,20 @@ export type Account = {
   usageCount: number;
 };
 
-export type AccountListFilters = {
-  keyword?: string;
-  status?: "all" | "active" | "inactive";
-};
-
-export type CreateAccountPayload = {
+export type CreateAccountRequest = {
   name: string;
   openingBalance: number;
 };
 
-export type UpdateAccountPayload = {
+export type UpdateAccountRequest = {
   name: string;
 };
 
-export type UpdateStatusAccountPayload = {
+export type UpdateStatusAccountRequest = {
   active: boolean;
+};
+
+export type AccountListFilters = {
+  keyword?: string;
+  status?: "all" | "active" | "inactive";
 };

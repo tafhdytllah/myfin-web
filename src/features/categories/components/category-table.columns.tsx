@@ -28,7 +28,7 @@ export type CategoryTableRow = {
   usageCount: number;
 };
 
-type BuildCategoryTableColumnsOptions = {
+type UseCategoryTableColumnsOptions = {
   activatingPending: boolean;
   onEdit: (item: CategoryTableRow) => void;
   onDeactivate: (item: CategoryTableRow) => void;
@@ -40,7 +40,7 @@ export function useCategoryTableColumns({
   onEdit,
   onDeactivate,
   onActivate,
-}: BuildCategoryTableColumnsOptions): ColumnDef<CategoryTableRow>[] {
+}: UseCategoryTableColumnsOptions): ColumnDef<CategoryTableRow>[] {
   const { t } = useTranslations();
 
   return useMemo(() => {

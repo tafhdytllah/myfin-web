@@ -5,12 +5,9 @@ export const transactionsKeys = {
 
   lists: () => [...transactionsKeys.all, "list"] as const,
 
-  list: (filters: TransactionListFilters) =>
-    [...transactionsKeys.lists(), filters] as const,
+  list: (filters: TransactionListFilters) => [...transactionsKeys.lists(), filters] as const,
 
-  details: () =>
-    [...transactionsKeys.all, "detail"] as const,
+  details: () => [...transactionsKeys.all, "detail"] as const,
 
-  detail: (id: string) =>
-    [...transactionsKeys.details(), id] as const,
+  detail: (id: string) => [...transactionsKeys.details(), id] as const,
 };

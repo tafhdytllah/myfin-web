@@ -1,10 +1,11 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { PencilLine, Trash2 } from "lucide-react";
-
-import { DataTableColumnHeader } from "@/components/data-table/column-header";
 import { RowActionsMenu } from "@/components/row-actions-menu";
 import { StatusBadge } from "@/components/status-badge";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useTranslations } from "@/lib/i18n/use-translations";
+import { useMemo } from "react";
+import { sortableHeader } from "@/components/data-table/sortable-header";
 
 type TransactionRow = {
   id: string;
@@ -18,29 +19,9 @@ type TransactionRow = {
   amount: number;
 };
 
-type TransactionTableLabels = {
-  selectAllRows: string;
-  selectTransactionRow: (date: string) => string;
-  sortAscending: string;
-  sortDescending: string;
-  hideColumn: string;
-  date: string;
-  type: string;
-  account: string;
-  category: string;
-  description: string;
-  amount: string;
-  actions: string;
-  income: string;
-  expense: string;
-  edit: string;
-  delete: string;
-};
-
-type BuildTransactionTableColumnsOptions = {
+type UseTransactionTableColumnsOptions = {
   formatCurrency: (value: number) => string;
   formatDate: (value: string) => string;
-  labels: TransactionTableLabels;
   onEdit: (row: TransactionRow) => void;
   onDelete: (row: TransactionRow) => void;
 };
@@ -57,198 +38,177 @@ function includesFilterValue(rowValue: unknown, filterValue: unknown) {
   return rowValue === filterValue;
 }
 
-export function buildTransactionTableColumns({
+export function useTransactionTableColumns({
   formatCurrency,
   formatDate,
-  labels,
   onEdit,
   onDelete,
-}: BuildTransactionTableColumnsOptions): ColumnDef<TransactionRow>[] {
-  return [
-    {
-      id: "search",
-      accessorFn: (row) =>
-        [
-          row.description,
-          row.accountName,
-          row.categoryName,
-          row.type === "INCOME" ? labels.income : labels.expense,
-          formatDate(row.createdAt),
-          formatCurrency(row.amount),
-        ].join(" "),
-      enableHiding: false,
-      enableSorting: false,
-      filterFn: (row, id, value) => {
-        const searchValue = String(value ?? "").trim().toLowerCase();
+}: UseTransactionTableColumnsOptions): ColumnDef<TransactionRow>[] {
+  const { t } = useTranslations();
 
-        if (!searchValue) {
-          return true;
-        }
+  return useMemo(() => {
+    const commonHeaderLabels = {
+      ascLabel: t("common.sortAscending"),
+      descLabel: t("common.sortDescending"),
+      hideLabel: t("common.hideColumn"),
+    };
 
-        return String(row.getValue(id)).toLowerCase().includes(searchValue);
-      },
-      meta: {
-        label: labels.description,
-      },
-    },
-    {
-      id: "select",
-      header: ({ table }) => (
-        <Checkbox
-          checked={table.getIsAllPageRowsSelected()}
-          indeterminate={
-            table.getIsSomePageRowsSelected() && !table.getIsAllPageRowsSelected()
+    return [
+      {
+        id: "search",
+        accessorFn: (row) =>
+          [
+            row.description,
+            row.accountName,
+            row.categoryName,
+            row.type === "INCOME" ? t("common.income") : t("common.expense"),
+            formatDate(row.createdAt),
+            formatCurrency(row.amount),
+          ].join(" "),
+        enableHiding: false,
+        enableSorting: false,
+        filterFn: (row, id, value) => {
+          const searchValue = String(value ?? "").trim().toLowerCase();
+
+          if (!searchValue) {
+            return true;
           }
-          aria-label={labels.selectAllRows}
-          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        />
-      ),
-      cell: ({ row }) => (
-        <Checkbox
-          checked={row.getIsSelected()}
-          aria-label={labels.selectTransactionRow(formatDate(row.original.createdAt))}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
-        />
-      ),
-      enableSorting: false,
-      enableHiding: false,
-      size: 44,
-    },
-    {
-      accessorKey: "createdAt",
-      meta: {
-        label: labels.date,
+
+          return String(row.getValue(id)).toLowerCase().includes(searchValue);
+        },
+        meta: {
+          label: t("common.description"),
+        },
       },
-      header: ({ column }) => (
-        <DataTableColumnHeader
-          column={column}
-          title={labels.date}
-          ascLabel={labels.sortAscending}
-          descLabel={labels.sortDescending}
-          hideLabel={labels.hideColumn}
-        />
-      ),
-      cell: ({ row }) => formatDate(row.original.createdAt),
-    },
-    {
-      accessorKey: "type",
-      meta: {
-        label: labels.type,
+      {
+        id: "select",
+        header: ({ table }) => (
+          <Checkbox
+            checked={table.getIsAllPageRowsSelected()}
+            indeterminate={
+              table.getIsSomePageRowsSelected() && !table.getIsAllPageRowsSelected()
+            }
+            aria-label={t("common.selectAllRows")}
+            onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          />
+        ),
+        cell: ({ row }) => (
+          <Checkbox
+            checked={row.getIsSelected()}
+            aria-label={t("common.selectTransactionRow", { date: formatDate(row.original.createdAt) })}
+            onCheckedChange={(value) => row.toggleSelected(!!value)}
+          />
+        ),
+        enableSorting: false,
+        enableHiding: false,
+        size: 44,
       },
-      header: ({ column }) => (
-        <DataTableColumnHeader
-          column={column}
-          title={labels.type}
-          ascLabel={labels.sortAscending}
-          descLabel={labels.sortDescending}
-          hideLabel={labels.hideColumn}
-        />
-      ),
-      cell: ({ row }) => (
-        <StatusBadge tone={row.original.type === "INCOME" ? "income" : "expense"}>
-          {row.original.type === "INCOME" ? labels.income : labels.expense}
-        </StatusBadge>
-      ),
-      filterFn: (row, id, value) => includesFilterValue(row.getValue(id), value),
-    },
-    {
-      accessorKey: "accountId",
-      meta: {
-        label: labels.account,
+      {
+        accessorKey: "createdAt",
+        meta: {
+          label: t("common.date"),
+        },
+        header: sortableHeader({
+          title: t("common.date"),
+          ...commonHeaderLabels,
+        }),
+        cell: ({ row }) => formatDate(row.original.createdAt),
       },
-      header: ({ column }) => (
-        <DataTableColumnHeader
-          column={column}
-          title={labels.account}
-          ascLabel={labels.sortAscending}
-          descLabel={labels.sortDescending}
-          hideLabel={labels.hideColumn}
-        />
-      ),
-      cell: ({ row }) => row.original.accountName,
-      filterFn: (row, id, value) => includesFilterValue(row.getValue(id), value),
-    },
-    {
-      accessorKey: "categoryId",
-      meta: {
-        label: labels.category,
+      {
+        accessorKey: "type",
+        meta: {
+          label: t("common.type"),
+        },
+        header: sortableHeader({
+          title: t("common.type"),
+          ...commonHeaderLabels,
+        }),
+        cell: ({ row }) => (
+          <StatusBadge tone={row.original.type === "INCOME" ? "income" : "expense"}>
+            {row.original.type === "INCOME" ? t("common.income") : t("common.expense")}
+          </StatusBadge>
+        ),
+        filterFn: (row, id, value) => includesFilterValue(row.getValue(id), value),
       },
-      header: ({ column }) => (
-        <DataTableColumnHeader
-          column={column}
-          title={labels.category}
-          ascLabel={labels.sortAscending}
-          descLabel={labels.sortDescending}
-          hideLabel={labels.hideColumn}
-        />
-      ),
-      cell: ({ row }) => row.original.categoryName,
-      filterFn: (row, id, value) => includesFilterValue(row.getValue(id), value),
-    },
-    {
-      accessorKey: "description",
-      meta: {
-        label: labels.description,
+      {
+        accessorKey: "accountId",
+        meta: {
+          label: t("common.account"),
+        },
+        header: sortableHeader({
+          title: t("common.account"),
+          ...commonHeaderLabels,
+        }),
+        cell: ({ row }) => row.original.accountName,
+        filterFn: (row, id, value) => includesFilterValue(row.getValue(id), value),
       },
-      header: ({ column }) => (
-        <DataTableColumnHeader
-          column={column}
-          title={labels.description}
-          ascLabel={labels.sortAscending}
-          descLabel={labels.sortDescending}
-          hideLabel={labels.hideColumn}
-        />
-      ),
-      cell: ({ row }) => (
-        <div className="max-w-xs truncate text-[var(--color-foreground-muted)]">
-          {row.original.description || "-"}
-        </div>
-      ),
-    },
-    {
-      accessorKey: "amount",
-      meta: {
-        label: labels.amount,
+      {
+        accessorKey: "categoryId",
+        meta: {
+          label: t("common.category"),
+        },
+        header: sortableHeader({
+          title: t("common.category"),
+          ...commonHeaderLabels,
+        }),
+        cell: ({ row }) => row.original.categoryName,
+        filterFn: (row, id, value) => includesFilterValue(row.getValue(id), value),
       },
-      header: ({ column }) => (
-        <DataTableColumnHeader
-          column={column}
-          title={labels.amount}
-          ascLabel={labels.sortAscending}
-          descLabel={labels.sortDescending}
-          hideLabel={labels.hideColumn}
-        />
-      ),
-      cell: ({ row }) => (
-        <span className="font-semibold">{formatCurrency(row.original.amount)}</span>
-      ),
-    },
-    {
-      id: "actions",
-      enableHiding: false,
-      enableSorting: false,
-      header: () => <div className="text-right">{labels.actions}</div>,
-      cell: ({ row }) => (
-        <RowActionsMenu
-          srLabel={labels.actions}
-          items={[
-            {
-              label: labels.edit,
-              icon: <PencilLine className="size-4" />,
-              onSelect: () => onEdit(row.original),
-            },
-            {
-              label: labels.delete,
-              icon: <Trash2 className="size-4" />,
-              destructive: true,
-              onSelect: () => onDelete(row.original),
-            },
-          ]}
-        />
-      ),
-    },
-  ];
+      {
+        accessorKey: "description",
+        meta: {
+          label: t("common.description"),
+        },
+        header: sortableHeader({
+          title: t("common.description"),
+          ...commonHeaderLabels,
+        }),
+        cell: ({ row }) => (
+          <div className="max-w-xs truncate text-(--color-foreground-muted)">
+            {row.original.description || "-"}
+          </div>
+        ),
+      },
+      {
+        accessorKey: "amount",
+        meta: {
+          label: t("common.amount"),
+        },
+        header: sortableHeader({
+          title: t("common.amount"),
+          ...commonHeaderLabels,
+        }),
+        cell: ({ row }) => (
+          <span className="font-semibold">{formatCurrency(row.original.amount)}</span>
+        ),
+      },
+      {
+        id: "actions",
+        enableHiding: false,
+        enableSorting: false,
+        header: () => <div className="text-right">{t("common.actions")}</div>,
+        cell: ({ row }) => (
+          <RowActionsMenu
+            srLabel={t("common.actions")}
+            items={[
+              {
+                label: t("transactions.edit"),
+                icon: <PencilLine className="size-4" />,
+                onSelect: () => onEdit(row.original),
+              },
+              {
+                label: t("transactions.delete"),
+                icon: <Trash2 className="size-4" />,
+                destructive: true,
+                onSelect: () => onDelete(row.original),
+              },
+            ]}
+          />
+        ),
+      },
+    ];
+  }, [formatCurrency, formatDate, onDelete, onEdit, t]);
 }
 
-export type { TransactionRow, TransactionTableLabels };
+export type { TransactionRow };
 

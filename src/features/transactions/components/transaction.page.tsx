@@ -1,19 +1,13 @@
 "use client";
 
-import {
-  ColumnFiltersState,
-  PaginationState,
-} from "@tanstack/react-table";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { SetStateAction, useCallback, useMemo, useState } from "react";
-
+import { ConfirmActionDialog } from "@/components/confirm-action-dialog";
 import { usePageTrail } from "@/components/layout/page-trail-context";
 import { PageActionButton } from "@/components/page-action-button";
 import { useAccounts } from "@/features/accounts/hooks/use-account-queries";
 import { useCategories } from "@/features/categories/hooks/use-category-queries";
-import { TransactionDeleteDialog } from "@/features/transactions/components/transaction-delete.dialog";
 import { TransactionFormDialog } from "@/features/transactions/components/transaction-form.dialog";
 import { TransactionMainSection } from "@/features/transactions/components/transaction-main.section";
+import { useDeleteTransaction } from "@/features/transactions/hooks/use-transaction-mutations";
 import {
   useEditTransactionUnavailable,
   useTransactions,
@@ -27,6 +21,12 @@ import { formatCurrency } from "@/lib/formatters/currency";
 import { formatDate } from "@/lib/formatters/date";
 import { useTranslations } from "@/lib/i18n/use-translations";
 import { useLocaleStore } from "@/stores/locale-store";
+import {
+  ColumnFiltersState,
+  PaginationState,
+} from "@tanstack/react-table";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { SetStateAction, useCallback, useMemo, useState } from "react";
 
 export function TransactionPage() {
   const { t } = useTranslations();
@@ -34,20 +34,26 @@ export function TransactionPage() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const locale = useLocaleStore((state) => state.locale);
+
+  const [deletingTransactionDialog, setDeletingTransactionDialog] = useState<Transaction | null>(null);
+
+  const deleteMutation = useDeleteTransaction(() => {
+    setDeletingTransactionDialog(null);
+  });
+
   const notifyEditUnavailable = useEditTransactionUnavailable();
   const filters = useMemo(
     () => parseTransactionFilters(new URLSearchParams(searchParams.toString())),
     [searchParams],
   );
   const [formOpen, setFormOpen] = useState(false);
-  const [deletingTransaction, setDeletingTransaction] = useState<Transaction | null>(null);
 
   const accountsQuery = useAccounts({ status: "all" });
   const categoriesQuery = useCategories({ status: "all", type: "all" });
   const transactionsQuery = useTransactions(filters);
 
   const accounts = useMemo(() => accountsQuery.data ?? [], [accountsQuery.data]);
-  const categories = useMemo(() => categoriesQuery.data ?? [], [categoriesQuery.data]);
+  const categories = useMemo(() => categoriesQuery.data?.items ?? [], [categoriesQuery.data]);
   const transactionsEnvelope = transactionsQuery.data;
   const transactions = useMemo(
     () => transactionsEnvelope?.data ?? [],
@@ -85,7 +91,7 @@ export function TransactionPage() {
     filters.endDate,
   );
   const modalTrail = useMemo(() => {
-    if (deletingTransaction) {
+    if (deletingTransactionDialog) {
       return t("common.delete");
     }
 
@@ -94,7 +100,7 @@ export function TransactionPage() {
     }
 
     return null;
-  }, [deletingTransaction, formOpen, t]);
+  }, [deletingTransactionDialog, formOpen, t]);
 
   usePageTrail([modalTrail]);
 
@@ -210,38 +216,18 @@ export function TransactionPage() {
         isError={transactionsQuery.isError}
         rows={rows}
         onRetry={() => transactionsQuery.refetch()}
-        emptyActionLabel={t("transactions.addTransaction")}
         onEmptyAction={() => setFormOpen(true)}
         hasActiveFilters={hasActiveFilters}
         onResetFilters={resetFilters}
         formatDate={(value) => formatDate(value, dateLocale)}
         formatCurrency={formatCurrency}
-        labels={{
-          selectAllRows: t("common.selectAllRows"),
-          selectTransactionRow: (date) =>
-            t("common.selectTransactionRow", { date }),
-          sortAscending: t("common.sortAscending"),
-          sortDescending: t("common.sortDescending"),
-          hideColumn: t("common.hideColumn"),
-          date: t("common.date"),
-          type: t("common.type"),
-          account: t("common.account"),
-          category: t("common.category"),
-          description: t("common.description"),
-          amount: t("common.amount"),
-          actions: t("common.actions"),
-          income: t("common.income"),
-          expense: t("common.expense"),
-          edit: t("transactions.edit"),
-          delete: t("transactions.delete"),
-        }}
         totalRows={totalRows}
         paginationState={paginationState}
         onPaginationChange={handlePaginationChange}
         columnFilters={columnFilters}
         onColumnFiltersChange={handleColumnFiltersChange}
         onEdit={notifyEditUnavailable}
-        onDelete={setDeletingTransaction}
+        onDelete={setDeletingTransactionDialog}
         accountOptions={accounts.map((account) => ({
           value: account.id,
           label: account.name,
@@ -263,16 +249,47 @@ export function TransactionPage() {
         open={formOpen}
         onOpenChange={setFormOpen}
       />
-      <TransactionDeleteDialog
-        transaction={deletingTransaction}
-        categoryName={
-          deletingTransaction
-            ? categoriesMap.get(deletingTransaction.categoryId)?.name
-            : undefined
-        }
-        open={Boolean(deletingTransaction)}
+
+      <ConfirmActionDialog
+        open={Boolean(deletingTransactionDialog)}
         onOpenChange={(open) => {
-          if (!open) setDeletingTransaction(null);
+          if (!open) {
+            setDeletingTransactionDialog(null);
+          }
+        }}
+        pending={deleteMutation.isPending}
+        title={t("transactions.deleteTitle")}
+        description={t("transactions.deleteDescription")}
+        cancelLabel={t("transactions.cancel")}
+        confirmLabel={t("transactions.delete")}
+        pendingLabel={t("transactions.deleting")}
+        details={
+          deletingTransactionDialog ? (
+            <div className="rounded-2xl border border-border bg-muted/30 p-4 text-sm">
+              <p className="font-medium">
+                {categoriesMap.get(deletingTransactionDialog.categoryId)?.name ??
+                  t("common.category")}
+                {" - "}
+                {formatCurrency(deletingTransactionDialog.amount)}
+              </p>
+
+              <p className="mt-1 text-muted-foreground">
+                {formatDate(
+                  deletingTransactionDialog.createdAt,
+                  dateLocale,
+                )}
+              </p>
+            </div>
+          ) : null
+        }
+        onConfirm={() => {
+          if (!deletingTransactionDialog) {
+            return Promise.resolve();
+          }
+
+          return deleteMutation.mutate(
+            deletingTransactionDialog!.id,
+          );
         }}
       />
     </div>

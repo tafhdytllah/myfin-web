@@ -1,12 +1,12 @@
 import { transactionApi } from "@/features/transactions/api/transaction.api";
 import {
-  CreateTransactionPayload,
+  CreateTransactionRequest,
   TransactionListFilters,
 } from "@/features/transactions/types/transaction.types";
 
 export const transactionService = {
 
-  createTransaction(accessToken: string, payload: CreateTransactionPayload) {
+  createTransaction(accessToken: string, payload: CreateTransactionRequest) {
     return transactionApi.createTransaction(accessToken, payload);
   },
 

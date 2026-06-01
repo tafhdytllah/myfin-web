@@ -1,4 +1,4 @@
-import { UserResponse } from "@/features/auth/types/user.types";
+import { User } from "@/features/auth/types/user.types";
 
 export type LoginRequest = {
   username: string;
@@ -19,5 +19,5 @@ export type AuthTokenResponse = {
 export type AuthSession = {
   accessToken: string;
   expiresIn: number;
-  user: UserResponse;
+  user: User;
 };

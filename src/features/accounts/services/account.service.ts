@@ -1,22 +1,22 @@
 import { accountApi } from "@/features/accounts/api/account.api";
 import {
   AccountListFilters,
-  CreateAccountPayload,
-  UpdateAccountPayload,
-  UpdateStatusAccountPayload,
+  CreateAccountRequest,
+  UpdateAccountRequest,
+  UpdateStatusAccountRequest,
 } from "@/features/accounts/types/account.types";
 
 export const accountService = {
 
-  createAccount(accessToken: string, payload: CreateAccountPayload) {
-      return accountApi.createAccount(accessToken, payload);
+  createAccount(accessToken: string, payload: CreateAccountRequest) {
+    return accountApi.createAccount(accessToken, payload);
   },
 
-  updateAccount(accessToken: string, id: string, payload: UpdateAccountPayload) {
+  updateAccount(accessToken: string, id: string, payload: UpdateAccountRequest) {
     return accountApi.updateAccount(accessToken, id, payload);
   },
 
-  updateStatusAccount(accessToken: string, id: string, payload: UpdateStatusAccountPayload) {
+  updateStatusAccount(accessToken: string, id: string, payload: UpdateStatusAccountRequest) {
     return accountApi.updateStatusAccount(accessToken, id, payload);
   },
 

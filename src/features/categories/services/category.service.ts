@@ -1,27 +1,32 @@
 import { categoryApi } from "@/features/categories/api/category.api";
 import {
   CategoryListFilters,
-  CreateCategoryPayload,
-  UpdateCategoryPayload,
-  UpdateStatusCategoryPayload,
+  CreateCategoryRequest,
+  UpdateCategoryRequest,
+  UpdateStatusCategoryRequest,
 } from "@/features/categories/types/category.types";
 
 export const categoryService = {
 
-  createCategory(accessToken: string, payload: CreateCategoryPayload) {
+  createCategory(accessToken: string, payload: CreateCategoryRequest) {
     return categoryApi.createCategory(accessToken, payload);
   },
 
-  updateCategory(accessToken: string, id: string, payload: UpdateCategoryPayload) {
+  updateCategory(accessToken: string, id: string, payload: UpdateCategoryRequest) {
     return categoryApi.updateCategory(accessToken, id, payload);
   },
 
-  updateStatusCategory(accessToken: string, id: string, payload: UpdateStatusCategoryPayload) {
+  updateStatusCategory(accessToken: string, id: string, payload: UpdateStatusCategoryRequest) {
     return categoryApi.updateStatusCategory(accessToken, id, payload);
   },
 
-  getCategories(accessToken: string, filters: CategoryListFilters) {
-    return categoryApi.getCategories(accessToken, filters);
+  async getCategories(accessToken: string, filters: CategoryListFilters) {
+    const response = await categoryApi.getCategories(accessToken, filters);
+    
+    return {
+      items: response.data,
+      meta: response.meta
+    } 
   },
 
   getCategory(accessToken: string, id: string) {

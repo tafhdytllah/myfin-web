@@ -8,8 +8,6 @@ export type User = {
   active: boolean;
 };
 
-export type UserResponse = User;
-
 export type UpdateUserRequest = {
   username: string;
   email: string;

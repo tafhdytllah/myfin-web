@@ -43,7 +43,7 @@ export function DashboardPage() {
     [activeAccountsQuery.data],
   );
   const categories = useMemo(
-    () => categoriesQuery.data ?? [],
+    () => categoriesQuery.data?.items ?? [],
     [categoriesQuery.data],
   );
 

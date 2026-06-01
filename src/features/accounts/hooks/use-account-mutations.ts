@@ -3,9 +3,9 @@
 import { accountsKeys } from "@/features/accounts/hooks/account-query-keys";
 import { accountService } from "@/features/accounts/services/account.service";
 import {
-  CreateAccountPayload,
-  UpdateAccountPayload,
-  UpdateStatusAccountPayload
+  CreateAccountRequest,
+  UpdateAccountRequest,
+  UpdateStatusAccountRequest
 } from "@/features/accounts/types/account.types";
 import { useTranslations } from "@/lib/i18n/use-translations";
 import { useAuthStore } from "@/stores/auth-store";
@@ -20,7 +20,7 @@ export function useCreateAccount() {
   const { t } = useTranslations();
 
   return useMutation({
-    mutationFn: (payload: CreateAccountPayload) =>
+    mutationFn: (payload: CreateAccountRequest) =>
       accountService.createAccount(
         accessToken as string,
         payload
@@ -47,7 +47,7 @@ export function useUpdateAccount() {
       payload,
     }: {
       id: string;
-      payload: UpdateAccountPayload;
+      payload: UpdateAccountRequest;
     }) =>
       accountService.updateAccount(
         accessToken as string,
@@ -76,7 +76,7 @@ export function useToggleAccountStatus() {
       payload
     }: {
       id: string;
-      payload: UpdateStatusAccountPayload;
+      payload: UpdateStatusAccountRequest;
     }) =>
       accountService.updateStatusAccount(
         accessToken as string,

@@ -1,18 +1,18 @@
 import { buildCategoryQuery } from "@/features/categories/api/category-query";
 import {
-  ApiEnvelope,
   Category,
   CategoryListFilters,
-  CreateCategoryPayload,
-  UpdateCategoryPayload,
-  UpdateStatusCategoryPayload,
+  CreateCategoryRequest,
+  UpdateCategoryRequest,
+  UpdateStatusCategoryRequest,
 } from "@/features/categories/types/category.types";
 import { apiRequest } from "@/lib/api/client";
+import { ApiResponse } from "@/types/api.types";
 
 export const categoryApi = {
 
-  async createCategory(accessToken: string, payload: CreateCategoryPayload): Promise<Category> {
-    const response = await apiRequest<ApiEnvelope<Category>>("/api/v1/categories", {
+  async createCategory(accessToken: string, payload: CreateCategoryRequest): Promise<Category> {
+    const response = await apiRequest<ApiResponse<Category>>("/api/v1/categories", {
       method: "POST",
       accessToken,
       body: JSON.stringify(payload),
@@ -21,8 +21,8 @@ export const categoryApi = {
     return response.data;
   },
 
-  async updateCategory(accessToken: string, id: string, payload: UpdateCategoryPayload): Promise<Category> {
-    const response = await apiRequest<ApiEnvelope<Category>>(`/api/v1/categories/${id}`, {
+  async updateCategory(accessToken: string, id: string, payload: UpdateCategoryRequest): Promise<Category> {
+    const response = await apiRequest<ApiResponse<Category>>(`/api/v1/categories/${id}`, {
       method: "PUT",
       accessToken,
       body: JSON.stringify(payload),
@@ -31,8 +31,8 @@ export const categoryApi = {
     return response.data;
   },
 
-  async updateStatusCategory(accessToken: string, id: string, payload: UpdateStatusCategoryPayload): Promise<Category> {
-    const response = await apiRequest<ApiEnvelope<Category>>(`/api/v1/categories/${id}/status`, {
+  async updateStatusCategory(accessToken: string, id: string, payload: UpdateStatusCategoryRequest): Promise<Category> {
+    const response = await apiRequest<ApiResponse<Category>>(`/api/v1/categories/${id}/status`, {
       method: "PATCH",
       accessToken,
       body: JSON.stringify(payload),
@@ -41,17 +41,17 @@ export const categoryApi = {
     return response.data;
   },
 
-  async getCategories(accessToken: string, filters: CategoryListFilters): Promise<Category[]> {
-    const response = await apiRequest<ApiEnvelope<Category[]>>(`/api/v1/categories${buildCategoryQuery(filters)}`, {
+  async getCategories(accessToken: string, filters: CategoryListFilters): Promise<ApiResponse<Category[]>> {
+    const response = await apiRequest<ApiResponse<Category[]>>(`/api/v1/categories${buildCategoryQuery(filters)}`, {
       method: "GET",
       accessToken,
     });
 
-    return response.data;
+    return response;
   },
 
   async getCategory(accessToken: string, id: string): Promise<Category> {
-    const response = await apiRequest<ApiEnvelope<Category>>(`/api/v1/categories/${id}`, {
+    const response = await apiRequest<ApiResponse<Category>>(`/api/v1/categories/${id}`, {
       method: "GET",
       accessToken,
     });
@@ -60,7 +60,7 @@ export const categoryApi = {
   },
 
   deleteCategory(accessToken: string, id: string): Promise<void> {
-    return apiRequest<ApiEnvelope<null>>(`/api/v1/categories/${id}`, {
+    return apiRequest<ApiResponse<null>>(`/api/v1/categories/${id}`, {
       method: "DELETE",
       accessToken,
     }).then(() => { });

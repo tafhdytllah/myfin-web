@@ -4,7 +4,7 @@ import { authService } from "@/features/auth/services/auth.service";
 import { AuthSession } from "@/features/auth/types/auth.types";
 import { routes } from "@/lib/constants/routes";
 import { useAuthStore } from "@/stores/auth-store";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 
 export function useLogin() {
@@ -33,12 +33,17 @@ export function useRegister() {
 
 export function useLogout() {
   const router = useRouter();
-  const clearSession = useAuthStore((state) => state.clearSession);
+  const queryClient = useQueryClient();
+
+  const clearSession = useAuthStore(
+    (state) => state.clearSession,
+  );
 
   return useMutation({
     mutationFn: authService.logout,
     onSettled: () => {
       clearSession();
+      queryClient.clear();
       router.replace(routes.login);
     },
   });

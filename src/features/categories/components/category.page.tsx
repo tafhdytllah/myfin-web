@@ -46,7 +46,7 @@ export function CategoryPage() {
   const toggleStatusMutation = useToggleCategoryStatus();
 
   const categories = useMemo(
-    () => categoriesQuery.data ?? [],
+    () => categoriesQuery.data?.items ?? [],
     [categoriesQuery.data],
   );
 

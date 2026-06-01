@@ -1,18 +1,17 @@
 import { buildTransactionQuery } from "@/features/transactions/api/transaction-query";
 import {
-  ApiEnvelope,
-  CreateTransactionPayload,
+  CreateTransactionRequest,
   Transaction,
-  TransactionListEnvelope,
   TransactionListFilters,
   TransactionSummary
 } from "@/features/transactions/types/transaction.types";
 import { apiRequest } from "@/lib/api/client";
+import { ApiResponse } from "@/types/api.types";
 
 export const transactionApi = {
 
-  async createTransaction(accessToken: string, payload: CreateTransactionPayload): Promise<Transaction> {
-    const response = await apiRequest<ApiEnvelope<Transaction>>("/api/v1/transactions", {
+  async createTransaction(accessToken: string, payload: CreateTransactionRequest): Promise<Transaction> {
+    const response = await apiRequest<ApiResponse<Transaction>>("/api/v1/transactions", {
       method: "POST",
       accessToken,
       body: JSON.stringify(payload),
@@ -21,8 +20,8 @@ export const transactionApi = {
     return response.data;
   },
 
-  async getTransactions(accessToken: string, filters: TransactionListFilters): Promise<TransactionListEnvelope> {
-    const response = await apiRequest<ApiEnvelope<Transaction[]>>(`/api/v1/transactions?${buildTransactionQuery(filters)}`, {
+  async getTransactions(accessToken: string, filters: TransactionListFilters): Promise<ApiResponse<Transaction[]>> {
+    const response = await apiRequest<ApiResponse<Transaction[]>>(`/api/v1/transactions?${buildTransactionQuery(filters)}`, {
       method: "GET",
       accessToken,
     });
@@ -31,7 +30,7 @@ export const transactionApi = {
   },
 
   async getTransaction(accessToken: string, id: string): Promise<Transaction> {
-    const response = await apiRequest<ApiEnvelope<Transaction>>(`/api/v1/transactions/${id}`, {
+    const response = await apiRequest<ApiResponse<Transaction>>(`/api/v1/transactions/${id}`, {
       method: "GET",
       accessToken,
     });
@@ -40,7 +39,7 @@ export const transactionApi = {
   },
 
   async getTransactionSummary(accessToken: string, accountId: string): Promise<TransactionSummary> {
-    const response = await apiRequest<ApiEnvelope<TransactionSummary>>(`/api/v1/transactions/summary?accountId=${accountId}`, {
+    const response = await apiRequest<ApiResponse<TransactionSummary>>(`/api/v1/transactions/summary?accountId=${accountId}`, {
       method: "GET",
       accessToken,
     });
@@ -49,7 +48,7 @@ export const transactionApi = {
   },
 
   deleteTransaction(accessToken: string, id: string): Promise<void> {
-    return apiRequest<ApiEnvelope<null>>(`/api/v1/transactions/${id}`, {
+    return apiRequest<ApiResponse<null>>(`/api/v1/transactions/${id}`, {
       method: "DELETE",
       accessToken,
     }).then(() => { });

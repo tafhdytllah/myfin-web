@@ -59,7 +59,7 @@ export function TransactionFormDialog({
   );
   const activeCategories = useMemo(
     () =>
-      (categoriesQuery.data ?? []).filter((category) => category.type === selectedType),
+      (categoriesQuery.data?.items ?? []).filter((category) => category.type === selectedType),
     [categoriesQuery.data, selectedType],
   );
   const hasActiveAccounts = activeAccounts.length > 0;

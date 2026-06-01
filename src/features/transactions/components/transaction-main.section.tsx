@@ -11,8 +11,8 @@ import { SectionCard } from "@/components/section-card";
 import { SectionEmptyState } from "@/components/section-empty-state";
 import { StackSkeleton } from "@/components/stack-skeleton";
 import {
-  buildTransactionTableColumns,
   TransactionRow,
+  useTransactionTableColumns
 } from "@/features/transactions/components/transaction-table.columns";
 import { TransactionTableToolbar } from "@/features/transactions/components/transaction-table.toolbar";
 import { useTranslations } from "@/lib/i18n/use-translations";
@@ -28,30 +28,11 @@ type TransactionMainSectionProps = {
   rows: TransactionRow[];
   onRetry: () => void;
   action?: ReactNode;
-  emptyActionLabel: string;
   onEmptyAction: () => void;
   hasActiveFilters: boolean;
   onResetFilters: () => void;
   formatDate: (value: string) => string;
   formatCurrency: (value: number) => string;
-  labels: {
-    selectAllRows: string;
-    selectTransactionRow: (date: string) => string;
-    sortAscending: string;
-    sortDescending: string;
-    hideColumn: string;
-    date: string;
-    type: string;
-    account: string;
-    category: string;
-    description: string;
-    amount: string;
-    actions: string;
-    income: string;
-    expense: string;
-    edit: string;
-    delete: string;
-  };
   totalRows: number;
   paginationState: PaginationState;
   onPaginationChange: Dispatch<SetStateAction<PaginationState>>;
@@ -69,13 +50,11 @@ export function TransactionMainSection({
   rows,
   onRetry,
   action,
-  emptyActionLabel,
   onEmptyAction,
   hasActiveFilters,
   onResetFilters,
   formatDate,
   formatCurrency,
-  labels,
   totalRows,
   paginationState,
   onPaginationChange,
@@ -87,17 +66,14 @@ export function TransactionMainSection({
   categoryOptions,
 }: TransactionMainSectionProps) {
   const { t } = useTranslations();
-  const columns = useMemo(
-    () =>
-      buildTransactionTableColumns({
-        formatCurrency,
-        formatDate,
-        labels,
-        onEdit,
-        onDelete,
-      }),
-    [formatCurrency, formatDate, labels, onDelete, onEdit],
-  );
+
+  const columns = useTransactionTableColumns({
+    formatCurrency,
+    formatDate,
+    onEdit,
+    onDelete,
+  });
+  
   const initialColumnVisibility = useMemo<VisibilityState>(
     () => ({
       search: false,
@@ -131,7 +107,7 @@ export function TransactionMainSection({
           description={t("transactions.emptyDescription")}
           actions={[
             {
-              label: emptyActionLabel,
+              label: t("transactions.addTransaction"),
               onClick: onEmptyAction,
             },
             ...(hasActiveFilters

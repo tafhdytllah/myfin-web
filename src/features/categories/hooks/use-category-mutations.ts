@@ -3,9 +3,9 @@
 import { categoriesKeys } from "@/features/categories/hooks/category-query-keys";
 import { categoryService } from "@/features/categories/services/category.service";
 import {
-  CreateCategoryPayload,
-  UpdateCategoryPayload,
-  UpdateStatusCategoryPayload
+  CreateCategoryRequest,
+  UpdateCategoryRequest,
+  UpdateStatusCategoryRequest
 } from "@/features/categories/types/category.types";
 import { useTranslations } from "@/lib/i18n/use-translations";
 import { useAuthStore } from "@/stores/auth-store";
@@ -20,7 +20,7 @@ export function useCreateCategory() {
   const { t } = useTranslations();
 
   return useMutation({
-    mutationFn: (payload: CreateCategoryPayload) =>
+    mutationFn: (payload: CreateCategoryRequest) =>
       categoryService.createCategory(
         accessToken as string,
         payload,
@@ -47,7 +47,7 @@ export function useUpdateCategory() {
       payload,
     }: {
       id: string;
-      payload: UpdateCategoryPayload;
+      payload: UpdateCategoryRequest;
     }) =>
       categoryService.updateCategory(
         accessToken as string,
@@ -76,7 +76,7 @@ export function useToggleCategoryStatus() {
       payload,
     }: {
       id: string;
-      payload: UpdateStatusCategoryPayload;
+      payload: UpdateStatusCategoryRequest;
     }) =>
       categoryService.updateStatusCategory(
         accessToken as string,
