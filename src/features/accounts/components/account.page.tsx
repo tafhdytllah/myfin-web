@@ -21,24 +21,40 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 export function AccountPage() {
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
   const { t } = useTranslations();
+
+  const [formOpen, setFormOpen] = useState(false);
+
+  const [editingAccount, setEditingAccount] = useState<Account | null>(null);
+
+  const [statusDialogAccount, setStatusDialogAccount] = useState<Account | null>(null);
+
+  const searchParams = useSearchParams();
+
   const filters = useMemo(
     () => parseAccountFilters(new URLSearchParams(searchParams.toString())),
     [searchParams],
   );
-  const accountsQuery = useAccounts(filters);
-  const toggleStatusMutation = useToggleAccountStatus();
-  const [formOpen, setFormOpen] = useState(false);
-  const [editingAccount, setEditingAccount] = useState<Account | null>(null);
-  const [statusDialogAccount, setStatusDialogAccount] = useState<Account | null>(null);
+
   const [keyword, setKeyword] = useState(filters.keyword ?? "");
+
+  const router = useRouter();
+
+  const pathname = usePathname();
+
+  const accountsQuery = useAccounts(filters);
+
+  const toggleStatusMutation = useToggleAccountStatus();
+
   const debouncedKeyword = useDebouncedValue(keyword);
 
-  const accounts = useMemo(() => accountsQuery.data ?? [], [accountsQuery.data]);
+  const accounts = useMemo(() =>
+    accountsQuery.data ?? [],
+    [accountsQuery.data],
+  );
+
   const hasActiveFilters = Boolean(filters.keyword || filters.status !== "all");
+
   const selectedStatusLabel = useMemo(() => {
     switch (filters.status) {
       case "active":
@@ -49,6 +65,7 @@ export function AccountPage() {
         return t("accounts.statusAll");
     }
   }, [filters.status, t]);
+
   const modalTrail = useMemo(() => {
     if (statusDialogAccount) {
       return t("common.deactivate");

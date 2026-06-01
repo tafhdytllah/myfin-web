@@ -1,5 +1,3 @@
-"use client";
-
 import { DataTable } from "@/components/data-table/table";
 import { RetryCard } from "@/components/retry-card";
 import { SectionCard } from "@/components/section-card";
@@ -113,7 +111,11 @@ export function CategoryMainSection({
           manualFiltering
           columnFilters={columnFilters}
           setColumnFilters={handleColumnFiltersChange}
-          toolbar={(table) => <CategoryTableToolbar table={table} />}
+          toolbar={(table) => (
+            <CategoryTableToolbar
+              table={table}
+            />
+          )}
         />
       )}
     </SectionCard>
