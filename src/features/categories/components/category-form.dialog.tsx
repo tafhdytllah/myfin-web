@@ -11,7 +11,7 @@ import {
   CategoryFormSchema,
   createCategoryFormSchema,
 } from "@/features/categories/schemas/category-form.schema";
-import { Category } from "@/features/categories/types/category.types";
+import { Category, CATEGORY_TYPES } from "@/features/categories/types/category.types";
 import { ApiError } from "@/lib/api/api-error";
 import { applyApiFieldErrors } from "@/lib/errors/apply-field-errors";
 import { useTranslations } from "@/lib/i18n/use-translations";
@@ -31,9 +31,13 @@ export function CategoryFormDialog({
   onOpenChange,
 }: CategoryFormDialogProps) {
   const { t } = useTranslations();
+  
   const isEditMode = Boolean(category);
+  
   const schema = useMemo(() => createCategoryFormSchema(t), [t]);
+  
   const createMutation = useCreateCategory();
+  
   const updateMutation = useUpdateCategory();
 
 
@@ -41,7 +45,7 @@ export function CategoryFormDialog({
     resolver: zodResolver(schema),
     defaultValues: {
       name: "",
-      type: "EXPENSE",
+      type: CATEGORY_TYPES.EXPENSE,
     },
   });
 
@@ -60,7 +64,7 @@ export function CategoryFormDialog({
 
     form.reset({
       name: "",
-      type: "EXPENSE",
+      type: CATEGORY_TYPES.EXPENSE,
     });
   }, [category, form, open]);
 
@@ -128,11 +132,11 @@ export function CategoryFormDialog({
                 options={[
                   {
                     label: t("common.income"),
-                    value: "INCOME",
+                    value: CATEGORY_TYPES.INCOME,
                   },
                   {
                     label: t("common.expense"),
-                    value: "EXPENSE",
+                    value: CATEGORY_TYPES.EXPENSE,
                   },
                 ]}
               />

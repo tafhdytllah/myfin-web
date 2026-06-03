@@ -34,3 +34,5 @@ export type CreateTransactionRequest = {
   type: CategoryType;
   description?: string;
 };
+
+export type UpdateTransactionRequest = CreateTransactionRequest;

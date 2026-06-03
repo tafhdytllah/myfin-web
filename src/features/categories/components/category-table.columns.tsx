@@ -2,28 +2,18 @@ import { ColumnDef } from "@tanstack/react-table";
 import { PencilLine, Power, PowerOff } from "lucide-react";
 
 import { sortableHeader } from "@/components/data-table/sortable-header";
+import { includesFilterValue } from "@/components/data-table/table-filter-utils";
 import { StatusBadge } from "@/components/status-badge";
-import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { CATEGORY_TYPES, CategoryType } from "@/features/categories/types/category.types";
 import { useTranslations } from "@/lib/i18n/use-translations";
 import { useMemo } from "react";
-
-function includesFilterValue(rowValue: unknown, filterValue: unknown) {
-  if (!filterValue || filterValue === "all") {
-    return true;
-  }
-
-  if (Array.isArray(filterValue)) {
-    return filterValue.length === 0 || filterValue.includes(rowValue);
-  }
-
-  return rowValue === filterValue;
-}
+import { RowActionsMenu } from "@/components/row-actions-menu";
 
 export type CategoryTableRow = {
   id: string;
   name: string;
-  type: "INCOME" | "EXPENSE";
+  type: CategoryType;
   active: boolean;
   usageCount: number;
 };
@@ -83,7 +73,7 @@ export function useCategoryTableColumns({
           title: t("common.category"),
           ...commonHeaderLabels,
         }),
-        cell: ({ row }) => <div className="font-medium">{row.original.name}</div>,
+        cell: ({ row }) => <div className="font-light">{row.original.name}</div>,
       },
       {
         accessorKey: "type",
@@ -95,13 +85,11 @@ export function useCategoryTableColumns({
           ...commonHeaderLabels,
         }),
         cell: ({ row }) => (
-          <StatusBadge tone={row.original.type === "INCOME" ? "income" : "expense"}>
-            {row.original.type === "INCOME" ? t("common.income") : t("common.expense")}
+          <StatusBadge tone={row.original.type === CATEGORY_TYPES.INCOME ? "income" : "expense"}>
+            {row.original.type === CATEGORY_TYPES.INCOME ? t("common.income") : t("common.expense")}
           </StatusBadge>
         ),
-        filterFn: (row, id, value) => {
-          return includesFilterValue(row.getValue(id), value);
-        },
+        filterFn: (row, id, value) => includesFilterValue(row.getValue(id), value),
       },
       {
         id: "status",
@@ -131,47 +119,36 @@ export function useCategoryTableColumns({
           title: t("common.used"),
           ...commonHeaderLabels,
         }),
-        cell: ({ row }) => row.original.usageCount,
+        cell: ({ row }) => <div className="font-light">{row.original.usageCount}</div>,
       },
       {
         id: "actions",
         enableHiding: false,
         enableSorting: false,
-        header: () => <div className="text-right">{t("common.actions")}</div>,
+        header: () => <div className="text-left">{t("common.actions")}</div>,
         cell: ({ row }) => (
-          <div className="flex items-center justify-end gap-1">
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              aria-label={t("common.edit")}
-              title={t("common.edit")}
-              onClick={() => onEdit(row.original)}
-            >
-              <PencilLine className="size-4" />
-            </Button>
-            {row.original.active ? (
-              <Button
-                variant="ghost"
-                size="icon-sm"
-                aria-label={t("common.deactivate")}
-                title={t("common.deactivate")}
-                onClick={() => onDeactivate(row.original)}
-              >
-                <PowerOff className="size-4" />
-              </Button>
-            ) : (
-              <Button
-                variant="ghost"
-                size="icon-sm"
-                aria-label={t("common.activate")}
-                title={t("common.activate")}
-                disabled={activatingPending}
-                onClick={() => onActivate(row.original)}
-              >
-                <Power className="size-4" />
-              </Button>
-            )}
-          </div>
+          <RowActionsMenu
+            srLabel={t("common.actions")}
+            items={[
+              {
+                label: t("common.edit"),
+                icon: <PencilLine className="size-4" />,
+                onSelect: () => onEdit(row.original),
+              },
+              row.original.active
+                ? {
+                  label: t("common.deactivate"),
+                  icon: <PowerOff className="size-4" />,
+                  onSelect: () => onDeactivate(row.original),
+                }
+                : {
+                  label: t("common.activate"),
+                  icon: <Power className="size-4" />,
+                  disabled: activatingPending,
+                  onSelect: () => onActivate(row.original),
+                },
+            ]}
+          />
         ),
       },
     ];

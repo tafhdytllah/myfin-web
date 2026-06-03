@@ -9,12 +9,13 @@ import { TextField } from "@/components/inputs/text-field";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useAccounts } from "@/features/accounts/hooks/use-account-queries";
 import { useCategories } from "@/features/categories/hooks/use-category-queries";
-import { CategoryType } from "@/features/categories/types/category.types";
-import { useCreateTransaction } from "@/features/transactions/hooks/use-transaction-mutations";
+import { CATEGORY_TYPES, CategoryType } from "@/features/categories/types/category.types";
+import { useCreateTransaction, useUpdateTransaction } from "@/features/transactions/hooks/use-transaction-mutations";
 import {
   createTransactionFormSchema,
   TransactionFormValues,
 } from "@/features/transactions/schemas/transaction-form.schema";
+import { Transaction } from "@/features/transactions/types/transaction.types";
 import { ApiError } from "@/lib/api/api-error";
 import { applyApiFieldErrors } from "@/lib/errors/apply-field-errors";
 import { useTranslations } from "@/lib/i18n/use-translations";
@@ -23,30 +24,47 @@ import { useEffect, useMemo } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 
 type TransactionFormDialogProps = {
+  transaction?: Transaction | null
   open: boolean;
   onOpenChange: (open: boolean) => void;
 };
 
 export function TransactionFormDialog({
+  transaction,
   open,
   onOpenChange,
 }: TransactionFormDialogProps) {
   const { t } = useTranslations();
+
+  const isEditMode = Boolean(transaction);
+
   const schema = useMemo(() => createTransactionFormSchema(t), [t]);
+
   const createMutation = useCreateTransaction();
+
+  const updateMutation = useUpdateTransaction();
+
   const accountsQuery = useAccounts({ status: "active" });
-  const categoriesQuery = useCategories({ status: "active", type: "all" });
+
+  const categoriesQuery = useCategories({
+    status: "active",
+    type: "all",
+    page: 1,
+    size: 100,
+  });
 
   const form = useForm<TransactionFormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
-      type: "INCOME",
+      type: CATEGORY_TYPES.INCOME,
       accountId: "",
       categoryId: "",
       amount: "0",
       description: "",
     },
   });
+
+
 
   const selectedType = useWatch({
     control: form.control,
@@ -65,29 +83,59 @@ export function TransactionFormDialog({
   const hasActiveAccounts = activeAccounts.length > 0;
   const hasMatchingCategories = activeCategories.length > 0;
 
+
+
+
+
+
+
   useEffect(() => {
     if (!open) {
       return;
     }
 
+    if (transaction) {
+      form.reset({
+        type: transaction.type,
+        accountId: transaction.accountId,
+        categoryId: transaction.categoryId,
+        amount: transaction.amount.toString(),
+        description: transaction.description,
+      });
+      return;
+    }
+
     form.reset({
-      type: "INCOME",
+      type: CATEGORY_TYPES.INCOME,
       accountId: "",
       categoryId: "",
       amount: "0",
       description: "",
     });
-  }, [form, open]);
+  }, [transaction, form, open]);
 
-  const onCreateSubmit = async (values: TransactionFormValues) => {
+  const onSubmit = async (values: TransactionFormValues) => {
     try {
-      await createMutation.mutateAsync({
-        accountId: values.accountId,
-        categoryId: values.categoryId,
-        amount: Number(values.amount),
-        type: values.type as CategoryType,
-        description: values.description,
-      });
+      if (transaction) {
+        await updateMutation.mutateAsync({
+          id: transaction.id,
+          payload: {
+            accountId: values.accountId,
+            categoryId: values.categoryId,
+            amount: Number(values.amount),
+            type: values.type as CategoryType,
+            description: values.description,
+          }
+        });
+      } else {
+        await createMutation.mutateAsync({
+          accountId: values.accountId,
+          categoryId: values.categoryId,
+          amount: Number(values.amount),
+          type: values.type as CategoryType,
+          description: values.description,
+        });
+      }
       onOpenChange(false);
     } catch (error) {
       if (!ApiError.isApiError(error)) {
@@ -100,12 +148,12 @@ export function TransactionFormDialog({
         form.setError,
       );
     }
-
   }
 
-  const isSubmitting = createMutation.isPending;
+  const isPending = createMutation.isPending || updateMutation.isPending;
+
   const handleOpenChange = (nextOpen: boolean) => {
-    if (isSubmitting) {
+    if (isPending) {
       return;
     }
 
@@ -120,7 +168,7 @@ export function TransactionFormDialog({
           description={t("transactions.createDescription")}
         />
 
-        <FormSection onSubmit={form.handleSubmit(onCreateSubmit)}>
+        <FormSection onSubmit={form.handleSubmit(onSubmit)}>
           <div className="grid gap-4 md:grid-cols-2">
             <Controller
               control={form.control}
@@ -142,11 +190,11 @@ export function TransactionFormDialog({
                   options={[
                     {
                       label: t("common.income"),
-                      value: "INCOME",
+                      value: CATEGORY_TYPES.INCOME,
                     },
                     {
                       label: t("common.expense"),
-                      value: "EXPENSE",
+                      value: CATEGORY_TYPES.EXPENSE,
                     },
                   ]}
                 />
@@ -220,12 +268,12 @@ export function TransactionFormDialog({
 
           <DialogFormActions
             cancelLabel={t("transactions.cancel")}
-            submitLabel={t("common.save")}
+            submitLabel={isEditMode ? t("common.update") : t("common.save")}
             pendingLabel={t("transactions.saving")}
-            isPending={isSubmitting}
+            isPending={isPending}
             onCancel={() => onOpenChange(false)}
             submitDisabled={
-              isSubmitting || !hasActiveAccounts || !hasMatchingCategories
+              isPending || !hasActiveAccounts || !hasMatchingCategories
             }
           />
         </FormSection>

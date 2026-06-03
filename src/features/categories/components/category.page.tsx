@@ -11,27 +11,40 @@ import {
   Category,
   CategoryListFilters,
 } from "@/features/categories/types/category.types";
+import {
+  buildCategorySearchParams,
+  parseCategoryFilters,
+} from "@/features/categories/utils/category-search-params";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { useTranslations } from "@/lib/i18n/use-translations";
+import { PaginationState } from "@tanstack/react-table";
 import { Plus } from "lucide-react";
-import { useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { SetStateAction, useCallback, useEffect, useMemo, useState } from "react";
 
 export function CategoryPage() {
   const { t } = useTranslations();
 
-  const [filters, setFilters] = useState<CategoryListFilters>({
-    keyword: "",
-    type: "all",
-    status: "all",
-  });
+  const router = useRouter();
+
+  const pathname = usePathname();
+
+  const searchParams = useSearchParams();
+
+  const filters = useMemo(
+    () => parseCategoryFilters(new URLSearchParams(searchParams.toString())),
+    [searchParams],
+  );
 
   const [formOpen, setFormOpen] = useState(false);
+
+  const [keyword, setKeyword] = useState(filters.keyword ?? "");
 
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
 
   const [statusDialogCategory, setStatusDialogCategory] = useState<Category | null>(null);
 
-  const debouncedKeyword = useDebouncedValue(filters.keyword ?? "");
+  const debouncedKeyword = useDebouncedValue(keyword);
 
   const queryFilters = useMemo(
     () => ({
@@ -43,12 +56,16 @@ export function CategoryPage() {
 
   const categoriesQuery = useCategories(queryFilters);
 
-  const toggleStatusMutation = useToggleCategoryStatus();
+  const toggleStatusMutation = useToggleCategoryStatus(() => {
+    setStatusDialogCategory(null);
+  });
 
   const categories = useMemo(
     () => categoriesQuery.data?.items ?? [],
     [categoriesQuery.data],
   );
+
+  const totalRowCategories = categoriesQuery.data?.meta?.totalElements ?? categories.length;
 
   const modalTrail = useMemo(() => {
     if (statusDialogCategory) {
@@ -68,6 +85,59 @@ export function CategoryPage() {
 
   usePageTrail([modalTrail]);
 
+  const updateFilters = useCallback((nextFilters: CategoryListFilters) => {
+    const params = buildCategorySearchParams(nextFilters);
+    const query = params.toString();
+
+    router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+  }, [pathname, router]);
+
+  useEffect(() => {
+    if (debouncedKeyword === (filters.keyword ?? "")) {
+      return;
+    }
+
+    updateFilters({
+      ...filters,
+      keyword: debouncedKeyword,
+    });
+  }, [debouncedKeyword, filters, updateFilters]);
+
+  function handleFiltersChange(nextFilters: CategoryListFilters) {
+    setKeyword(nextFilters.keyword ?? "");
+
+    if (nextFilters.type === filters.type && nextFilters.status === filters.status) {
+      return;
+    }
+
+    updateFilters({
+      ...nextFilters,
+      keyword: filters.keyword ?? "",
+    });
+  }
+
+  const paginationState = useMemo<PaginationState>(
+    () => ({
+      pageIndex: Math.max(filters.page - 1, 0),
+      pageSize: filters.size,
+    }),
+    [filters.page, filters.size],
+  );
+
+  const handlePaginationChange = useCallback(
+    (updater: SetStateAction<PaginationState>) => {
+      const nextPagination =
+        typeof updater === "function" ? updater(paginationState) : updater;
+
+      updateFilters({
+        ...filters,
+        page: nextPagination.pageIndex + 1,
+        size: nextPagination.pageSize,
+      });
+    },
+    [filters, paginationState, updateFilters],
+  );
+
   function openCreateDialog() {
     setEditingCategory(null);
     setFormOpen(true);
@@ -82,19 +152,16 @@ export function CategoryPage() {
     <div className="space-y-6">
 
       <CategoryMainSection
-        loading={categoriesQuery.isLoading}
-        isError={categoriesQuery.isError}
         items={categories}
-        onRetry={() => categoriesQuery.refetch()}
-        filters={filters}
-        onFiltersChange={setFilters}
-        action={
-          <PageActionButton onClick={openCreateDialog}>
-            <Plus className="size-4" />
-            {t("categories.addCategory")}
-          </PageActionButton>
-        }
+        totalRows={totalRowCategories}
+        isLoading={categoriesQuery.isLoading}
         activatingPending={toggleStatusMutation.isPending}
+        isError={categoriesQuery.isError}
+        filters={{ ...filters, keyword }}
+        onFiltersChange={handleFiltersChange}
+        onRetry={() => categoriesQuery.refetch()}
+        paginationState={paginationState}
+        onPaginationChange={handlePaginationChange}
         onEdit={openEditDialog}
         onDeactivate={setStatusDialogCategory}
         onActivate={(category) =>
@@ -104,6 +171,12 @@ export function CategoryPage() {
               active: true
             },
           })
+        }
+        action={
+          <PageActionButton onClick={openCreateDialog}>
+            <Plus className="size-4" />
+            {t("categories.addCategory")}
+          </PageActionButton>
         }
       />
 
@@ -141,19 +214,12 @@ export function CategoryPage() {
             return;
           }
 
-          try {
-            await toggleStatusMutation.mutateAsync({
-              id: statusDialogCategory.id,
-              payload: {
-                active: false,
-              }
-            });
-
-            setStatusDialogCategory(null);
-
-          } catch {
-            setStatusDialogCategory(null);
-          }
+          await toggleStatusMutation.mutateAsync({
+            id: statusDialogCategory.id,
+            payload: {
+              active: false,
+            },
+          });
         }}
       />
     </div>

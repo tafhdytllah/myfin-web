@@ -1,3 +1,5 @@
+import { CategoryType } from "@/features/categories/types/category.types";
+
 export type ApiEnvelope<T> = {
   data: T;
   message?: string;
@@ -22,7 +24,7 @@ export type DashboardTransaction = {
   accountId: string;
   categoryId: string;
   amount: number;
-  type: "INCOME" | "EXPENSE";
+  type: CategoryType;
   description: string;
   createdAt: string;
 };

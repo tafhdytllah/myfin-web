@@ -3,13 +3,13 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
+import { accountsKeys } from "@/features/accounts/hooks/account-query-keys";
+import { dashboardKeys } from "@/features/dashboard/hooks/dashboard-query-keys";
 import { transactionsKeys } from "@/features/transactions/hooks/transaction-query-keys";
 import { transactionService } from "@/features/transactions/services/transaction.service";
-import { CreateTransactionRequest } from "@/features/transactions/types/transaction.types";
+import { CreateTransactionRequest, UpdateTransactionRequest } from "@/features/transactions/types/transaction.types";
 import { useTranslations } from "@/lib/i18n/use-translations";
 import { useAuthStore } from "@/stores/auth-store";
-import { dashboardKeys } from "@/features/dashboard/hooks/dashboard-query-keys";
-import { accountsKeys } from "@/features/accounts/hooks/account-query-keys";
 import { categoriesKeys } from "@/features/categories/hooks/category-query-keys";
 
 export function useCreateTransaction() {
@@ -37,6 +37,35 @@ export function useCreateTransaction() {
   });
 }
 
+export function useUpdateTransaction() {
+  const accessToken = useAuthStore(
+    (state) => state.accessToken,
+  );
+  const queryClient = useQueryClient();
+  const { t } = useTranslations();
+
+  return useMutation({
+      mutationFn: ({
+        id,
+        payload,
+      }: {
+        id: string;
+        payload: UpdateTransactionRequest;
+      }) =>
+        transactionService.updateTransaction(
+          accessToken as string,
+          id,
+          payload,
+        ),
+      onSuccess: async () => {
+        await queryClient.invalidateQueries({
+          queryKey: transactionsKeys.lists(),
+        });
+        toast.success(t("transactions.updateSuccess"));
+      },
+    });
+}
+
 export function useDeleteTransaction(
   onSuccess?: () => void
 ) {
@@ -47,12 +76,12 @@ export function useDeleteTransaction(
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: string) => {
+    mutationFn: async (id: string) => {
       if (!accessToken) {
         throw new Error("Unauthorized");
       }
 
-      return transactionService.deleteTransaction(
+      return await transactionService.deleteTransaction(
         accessToken, id
       );
     },

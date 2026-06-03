@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-
 import { usePageTrail } from "@/components/layout/page-trail-context";
 import { PageActionButton } from "@/components/page-action-button";
 import { PageHeader } from "@/components/page-header";
@@ -30,7 +29,7 @@ export function DashboardPage() {
   const [selectedAccountId, setSelectedAccountId] = useState<string>("all");
 
   const activeAccountsQuery = useAccounts({ status: "active" });
-  const categoriesQuery = useCategories({ status: "all", type: "all" });
+  const categoriesQuery = useCategories({ status: "all", type: "all", page: 1, size: 100 });
   const summaryQuery = useDashboardSummary(
     selectedAccountId === "all" ? undefined : selectedAccountId,
   );

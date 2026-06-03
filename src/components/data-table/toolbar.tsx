@@ -46,8 +46,14 @@ export function DataTableToolbar<TData>({
 }: DataTableToolbarProps<TData>) {
   const searchColumn = search ? table.getColumn(search.columnId) : undefined;
   const hasActiveFilters = table.getState().columnFilters.length > 0;
-  const hasColumnVisibilityChanges =
-    Object.keys(table.getState().columnVisibility).length > 0;
+  const initialColumnVisibility = table.initialState.columnVisibility ?? {};
+  const hasColumnVisibilityChanges = table
+    .getAllLeafColumns()
+    .some(
+      (column) =>
+        column.getCanHide() &&
+        column.getIsVisible() !== (initialColumnVisibility[column.id] ?? true),
+    );
   const canReset = hasActiveFilters || hasColumnVisibilityChanges;
 
   function resetTable() {

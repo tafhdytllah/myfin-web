@@ -6,10 +6,11 @@ import { SectionEmptyState } from "@/components/section-empty-state";
 import { SectionLinkAction } from "@/components/section-link-action";
 import { StackSkeleton } from "@/components/stack-skeleton";
 import { StatusBadge } from "@/components/status-badge";
+import { CATEGORY_TYPES, CategoryType } from "@/features/categories/types/category.types";
 
 type RecentTransaction = {
   id: string;
-  type: "INCOME" | "EXPENSE";
+  type: CategoryType;
   categoryName: string;
   accountName: string;
   createdAt: string;
@@ -95,8 +96,8 @@ export function DashboardRecentTransactionsSection({
                 subtitleClassName="truncate"
               />
               <div className="shrink-0 text-right">
-                <StatusBadge tone={item.type === "INCOME" ? "income" : "expense"}>
-                  {item.type === "INCOME" ? incomeLabel : expenseLabel}
+                <StatusBadge tone={item.type === CATEGORY_TYPES.INCOME ? "income" : "expense"}>
+                  {item.type === CATEGORY_TYPES.INCOME ? incomeLabel : expenseLabel}
                 </StatusBadge>
                 <p className="mt-2 font-semibold text-(--color-foreground)">
                   {formatCurrency(item.amount)}

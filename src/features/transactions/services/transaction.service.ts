@@ -2,6 +2,7 @@ import { transactionApi } from "@/features/transactions/api/transaction.api";
 import {
   CreateTransactionRequest,
   TransactionListFilters,
+  UpdateTransactionRequest,
 } from "@/features/transactions/types/transaction.types";
 
 export const transactionService = {
@@ -10,8 +11,17 @@ export const transactionService = {
     return transactionApi.createTransaction(accessToken, payload);
   },
 
-  getTransactions(accessToken: string, filters: TransactionListFilters) {
-    return transactionApi.getTransactions(accessToken, filters);
+  updateTransaction(accessToken: string, id: string, payload: UpdateTransactionRequest) {
+    return transactionApi.updateTransaction(accessToken, id, payload);
+  },
+
+  async getTransactions(accessToken: string, filters: TransactionListFilters) {
+    const response = await transactionApi.getTransactions(accessToken, filters);
+
+    return {
+      items: response.data,
+      meta: response.meta,
+    }
   },
 
   getTransaction(accessToken: string, id: string) {

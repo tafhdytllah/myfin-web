@@ -28,7 +28,7 @@ export const dashboardApi = {
     accountId?: string,
   ): Promise<DashboardTransaction[]> {
     const response = await apiRequest<ApiEnvelope<DashboardTransaction[]>>(
-      `/api/v1/transactions${buildRecentTransactionsQuery(accountId)}`,
+      `/api/v1/transactions?${buildRecentTransactionsQuery(accountId)}`,
       {
         method: "GET",
         accessToken,

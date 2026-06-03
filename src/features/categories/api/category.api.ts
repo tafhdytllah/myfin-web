@@ -42,7 +42,7 @@ export const categoryApi = {
   },
 
   async getCategories(accessToken: string, filters: CategoryListFilters): Promise<ApiResponse<Category[]>> {
-    const response = await apiRequest<ApiResponse<Category[]>>(`/api/v1/categories${buildCategoryQuery(filters)}`, {
+    const response = await apiRequest<ApiResponse<Category[]>>(`/api/v1/categories?${buildCategoryQuery(filters)}`, {
       method: "GET",
       accessToken,
     });

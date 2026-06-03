@@ -7,37 +7,43 @@ import {
   useCategoryTableColumns,
 } from "@/features/categories/components/category-table.columns";
 import { CategoryTableToolbar } from "@/features/categories/components/category-table.toolbar";
-import { CategoryListFilters } from "@/features/categories/types/category.types";
+import { CATEGORY_TYPES, CategoryListFilters } from "@/features/categories/types/category.types";
 import { useTranslations } from "@/lib/i18n/use-translations";
-import { ColumnFiltersState } from "@tanstack/react-table";
+import { ColumnFiltersState, PaginationState } from "@tanstack/react-table";
 import { Dispatch, ReactNode, SetStateAction, useMemo } from "react";
 
 type CategoryMainSectionProps = {
-  loading: boolean;
-  isError: boolean;
   items: CategoryTableRow[];
-  onRetry: () => void;
-  filters: CategoryListFilters;
-  onFiltersChange: Dispatch<SetStateAction<CategoryListFilters>>;
-  action?: ReactNode;
+  totalRows: number;
+  isLoading: boolean;
   activatingPending: boolean;
+  isError: boolean;
+  filters: CategoryListFilters;
+  onFiltersChange: (filters: CategoryListFilters) => void;
+  onRetry: () => void;
+  paginationState: PaginationState;
+  onPaginationChange: Dispatch<SetStateAction<PaginationState>>;
   onEdit: (item: CategoryTableRow) => void;
   onDeactivate: (item: CategoryTableRow) => void;
   onActivate: (item: CategoryTableRow) => void;
+  action?: ReactNode;
 };
 
 export function CategoryMainSection({
-  loading,
-  isError,
   items,
-  onRetry,
+  totalRows,
+  isLoading,
+  activatingPending,
+  isError,
   filters,
   onFiltersChange,
-  action,
-  activatingPending,
+  onRetry,
+  paginationState,
+  onPaginationChange,
   onEdit,
   onDeactivate,
   onActivate,
+  action,
 }: CategoryMainSectionProps) {
   const { t } = useTranslations();
 
@@ -47,6 +53,7 @@ export function CategoryMainSection({
     onDeactivate,
     onActivate,
   });
+
   const columnFilters = useMemo<ColumnFiltersState>(() => {
     const nextFilters: ColumnFiltersState = [];
 
@@ -76,12 +83,14 @@ export function CategoryMainSection({
     const status = getStringValue(getFilterValue("status"));
 
     onFiltersChange({
+      ...filters,
       keyword: getStringValue(getFilterValue("name")),
-      type: type === "INCOME" || type === "EXPENSE" ? type : "all",
+      type: type === CATEGORY_TYPES.INCOME || type === CATEGORY_TYPES.EXPENSE ? type : "all",
       status:
         status === "active" || status === "inactive"
           ? status
           : "all",
+      page: 1,
     });
   }
 
@@ -102,10 +111,15 @@ export function CategoryMainSection({
       description={t("categories.description")}
       action={action}
     >
-      {loading ? (
+      {isLoading ? (
         <StackSkeleton count={6} itemClassName="h-12 rounded-xl bg-muted" />
       ) : (
         <DataTable
+          pageSize={paginationState.pageSize}
+          manualPagination
+          total={totalRows}
+          paginationState={paginationState}
+          setPaginationState={onPaginationChange}
           columns={columns}
           data={items}
           manualFiltering

@@ -2,13 +2,14 @@ import { z } from "zod";
 
 import { TranslateFn } from "@/lib/i18n/types";
 import { createValidationMessages } from "@/lib/validation/messages";
+import { CATEGORY_TYPES } from "@/features/categories/types/category.types";
 
 export function createTransactionFormSchema(t: TranslateFn) {
   const validation = createValidationMessages(t);
 
   return z.object({
     type: z
-      .enum(["INCOME", "EXPENSE"], { error: () => validation.required(t("common.type")) }),
+      .enum([...Object.values(CATEGORY_TYPES)], { error: () => validation.required(t("common.type")) }),
     accountId: z
       .string().trim().min(1, validation.required(t("common.account"))),
     categoryId: z

@@ -1,69 +1,58 @@
-import {
-  ColumnFiltersState,
-  PaginationState,
-  VisibilityState,
-} from "@tanstack/react-table";
-import { Dispatch, ReactNode, SetStateAction, useMemo } from "react";
-
 import { DataTable } from "@/components/data-table/table";
 import { RetryCard } from "@/components/retry-card";
 import { SectionCard } from "@/components/section-card";
-import { SectionEmptyState } from "@/components/section-empty-state";
 import { StackSkeleton } from "@/components/stack-skeleton";
+import { Account } from "@/features/accounts/types/account.types";
+import { Category, CATEGORY_TYPES, CategoryType } from "@/features/categories/types/category.types";
 import {
-  TransactionRow,
+  TransactionTableRow,
   useTransactionTableColumns
 } from "@/features/transactions/components/transaction-table.columns";
 import { TransactionTableToolbar } from "@/features/transactions/components/transaction-table.toolbar";
+import { TransactionListFilters } from "@/features/transactions/types/transaction.types";
 import { useTranslations } from "@/lib/i18n/use-translations";
-
-type Option = {
-  value: string;
-  label: string;
-};
+import {
+  ColumnFiltersState,
+  PaginationState
+} from "@tanstack/react-table";
+import { Dispatch, ReactNode, SetStateAction, useMemo } from "react";
 
 type TransactionMainSectionProps = {
-  loading: boolean;
-  isError: boolean;
-  rows: TransactionRow[];
-  onRetry: () => void;
-  action?: ReactNode;
-  onEmptyAction: () => void;
-  hasActiveFilters: boolean;
-  onResetFilters: () => void;
-  formatDate: (value: string) => string;
-  formatCurrency: (value: number) => string;
+  accounts: Account[];
+  categories: Category[];
+  items: TransactionTableRow[];
   totalRows: number;
+  isLoading: boolean;
+  isError: boolean;
+  filters: TransactionListFilters;
+  onFiltersChange: (filters: TransactionListFilters) => void;
+  onRetry: () => void;
   paginationState: PaginationState;
   onPaginationChange: Dispatch<SetStateAction<PaginationState>>;
-  columnFilters: ColumnFiltersState;
-  onColumnFiltersChange: Dispatch<SetStateAction<ColumnFiltersState>>;
-  onEdit: (row: TransactionRow) => void;
-  onDelete: (row: TransactionRow) => void;
-  accountOptions: Option[];
-  categoryOptions: Option[];
+  onEdit: (row: TransactionTableRow) => void;
+  onDelete: (row: TransactionTableRow) => void;
+  action?: ReactNode;
+  formatDate: (value: string) => string;
+  formatCurrency: (value: number) => string;
 };
 
 export function TransactionMainSection({
-  loading,
-  isError,
-  rows,
-  onRetry,
-  action,
-  onEmptyAction,
-  hasActiveFilters,
-  onResetFilters,
-  formatDate,
-  formatCurrency,
+  accounts,
+  categories,
+  items,
   totalRows,
+  isLoading,
+  isError,
+  filters,
+  onFiltersChange,
+  onRetry,
   paginationState,
   onPaginationChange,
-  columnFilters,
-  onColumnFiltersChange,
   onEdit,
   onDelete,
-  accountOptions,
-  categoryOptions,
+  action,
+  formatDate,
+  formatCurrency,
 }: TransactionMainSectionProps) {
   const { t } = useTranslations();
 
@@ -73,12 +62,80 @@ export function TransactionMainSection({
     onEdit,
     onDelete,
   });
-  
-  const initialColumnVisibility = useMemo<VisibilityState>(
-    () => ({
-      search: false,
-    }),
-    [],
+
+  const columnFilters = useMemo<ColumnFiltersState>(() => {
+    const nextFilters: ColumnFiltersState = [];
+
+    if (filters.keyword) {
+      nextFilters.push({ id: "description", value: filters.keyword });
+    }
+
+    if (filters.accountId) {
+      nextFilters.push({ id: "accountId", value: filters.accountId });
+    }
+
+    if (filters.type && filters.type !== "all") {
+      nextFilters.push({ id: "type", value: filters.type });
+    }
+
+    if (filters.categoryId) {
+      nextFilters.push({ id: "categoryId", value: filters.categoryId });
+    }
+
+    return nextFilters;
+  }, [filters.accountId, filters.categoryId, filters.keyword, filters.type]);
+
+
+  function handleColumnFiltersChange(updater: SetStateAction<ColumnFiltersState>) {
+    const nextColumnFilters =
+      typeof updater === "function" ? updater(columnFilters) : updater;
+    const getFilterValue = (id: string) =>
+      nextColumnFilters.find((filter) => filter.id === id)?.value;
+    const firstValue = (value: unknown) => {
+      if (Array.isArray(value)) {
+        return value[0] ? String(value[0]) : "";
+      }
+
+      return value ? String(value) : "";
+    };
+    const nextType = firstValue(getFilterValue("type"));
+    const normalizedType =
+      nextType === CATEGORY_TYPES.INCOME || nextType === CATEGORY_TYPES.EXPENSE
+        ? (nextType as CategoryType)
+        : "all";
+    const nextCategoryId = firstValue(getFilterValue("categoryId"));
+
+    onFiltersChange({
+      ...filters,
+      keyword: firstValue(getFilterValue("description")),
+      accountId: firstValue(getFilterValue("accountId")),
+      type: normalizedType,
+      categoryId: normalizedType !== filters.type ? "" : nextCategoryId,
+      page: 1,
+    });
+  }
+
+  const accountOptions = useMemo(
+    () =>
+      accounts.map((account) => ({
+        value: account.id,
+        label: account.name,
+      })),
+    [accounts],
+  );
+
+  const categoryOptions = useMemo(
+    () =>
+      categories
+        .filter(
+          (category) =>
+            filters.type === "all" || !filters.type || category.type === filters.type,
+        )
+        .map((category) => ({
+          value: category.id,
+          label: category.name,
+        })),
+    [categories, filters.type],
   );
 
   if (isError) {
@@ -98,45 +155,20 @@ export function TransactionMainSection({
       description={t("transactions.description")}
       action={action}
     >
-      {loading ? (
-        <StackSkeleton count={5} itemClassName="h-14 rounded-xl bg-muted" />
-      ) : null}
-
-      {!loading && rows.length === 0 ? (
-        <SectionEmptyState
-          description={t("transactions.emptyDescription")}
-          actions={[
-            {
-              label: t("transactions.addTransaction"),
-              onClick: onEmptyAction,
-            },
-            ...(hasActiveFilters
-              ? [
-                {
-                  label: t("transactions.resetFilters"),
-                  onClick: onResetFilters,
-                  variant: "outline" as const,
-                },
-              ]
-              : []),
-          ]}
-        />
-      ) : null}
-
-      {!loading && rows.length > 0 ? (
+      {isLoading ? (
+        <StackSkeleton count={6} itemClassName="h-12 rounded-xl bg-muted" />
+      ) : (
         <DataTable
-          columns={columns}
-          data={rows}
           pageSize={paginationState.pageSize}
-          bordered
-          manualFiltering
           manualPagination
           total={totalRows}
           paginationState={paginationState}
           setPaginationState={onPaginationChange}
+          columns={columns}
+          data={items}
+          manualFiltering
           columnFilters={columnFilters}
-          setColumnFilters={onColumnFiltersChange}
-          initialColumnVisibility={initialColumnVisibility}
+          setColumnFilters={handleColumnFiltersChange}
           toolbar={(table) => (
             <TransactionTableToolbar
               table={table}
@@ -145,7 +177,8 @@ export function TransactionMainSection({
             />
           )}
         />
-      ) : null}
+      )}
+
     </SectionCard>
   );
 }

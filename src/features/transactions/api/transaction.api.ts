@@ -3,7 +3,8 @@ import {
   CreateTransactionRequest,
   Transaction,
   TransactionListFilters,
-  TransactionSummary
+  TransactionSummary,
+  UpdateTransactionRequest
 } from "@/features/transactions/types/transaction.types";
 import { apiRequest } from "@/lib/api/client";
 import { ApiResponse } from "@/types/api.types";
@@ -13,6 +14,16 @@ export const transactionApi = {
   async createTransaction(accessToken: string, payload: CreateTransactionRequest): Promise<Transaction> {
     const response = await apiRequest<ApiResponse<Transaction>>("/api/v1/transactions", {
       method: "POST",
+      accessToken,
+      body: JSON.stringify(payload),
+    });
+
+    return response.data;
+  },
+
+  async updateTransaction(accessToken: string, id: string, payload: UpdateTransactionRequest): Promise<Transaction> {
+    const response = await apiRequest<ApiResponse<Transaction>>(`/api/v1/transactions/${id}`, {
+      method: "PUT",
       accessToken,
       body: JSON.stringify(payload),
     });
@@ -47,8 +58,8 @@ export const transactionApi = {
     return response.data;
   },
 
-  deleteTransaction(accessToken: string, id: string): Promise<void> {
-    return apiRequest<ApiResponse<null>>(`/api/v1/transactions/${id}`, {
+  async deleteTransaction(accessToken: string, id: string): Promise<void> {
+    return await apiRequest<ApiResponse<null>>(`/api/v1/transactions/${id}`, {
       method: "DELETE",
       accessToken,
     }).then(() => { });

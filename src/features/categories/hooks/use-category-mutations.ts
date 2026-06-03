@@ -63,35 +63,47 @@ export function useUpdateCategory() {
   });
 }
 
-export function useToggleCategoryStatus() {
+export function useToggleCategoryStatus(
+  onSuccess?: () => void
+) {
+  const { t } = useTranslations();
   const accessToken = useAuthStore(
     (state) => state.accessToken
   );
   const queryClient = useQueryClient();
-  const { t } = useTranslations();
 
   return useMutation({
-    mutationFn: ({
+    mutationFn: async ({
       id,
       payload,
     }: {
       id: string;
       payload: UpdateStatusCategoryRequest;
-    }) =>
-      categoryService.updateStatusCategory(
-        accessToken as string,
+    }) => {
+      if (!accessToken) {
+        throw new Error("Unauthorized");
+      }
+
+      return await categoryService.updateStatusCategory(
+        accessToken,
         id,
         payload
-      ),
+      );
+    },
     onSuccess: async (_, variables) => {
       await queryClient.invalidateQueries({
         queryKey: categoriesKeys.lists(),
       });
+
       toast.success(
         variables.payload.active
           ? t("categories.activateSuccess")
           : t("categories.deactivateSuccess"),
       );
+
+      if (onSuccess) {
+        onSuccess();
+      }
     },
   });
 }

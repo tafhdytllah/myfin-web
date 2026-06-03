@@ -4,6 +4,7 @@ import { Table } from "@tanstack/react-table";
 
 import { DataTableToolbar } from "@/components/data-table/toolbar";
 import { useTranslations } from "@/lib/i18n/use-translations";
+import { CATEGORY_TYPES } from "@/features/categories/types/category.types";
 
 type Option = {
   value: string;
@@ -29,36 +30,37 @@ export function TransactionTableToolbar<TData>({
       columnsLabel={t("common.columns")}
       resetLabel={t("transactions.resetFilters")}
       search={{
-        columnId: "search",
-        placeholder: t("common.search"),
+        columnId: "description",
+        placeholder: t("transactions.searchPlaceholder"),
       }}
       filters={[
         {
           columnId: "accountId",
           placeholder: t("common.account"),
-          variant: "faceted",
           clearLabel: t("transactions.resetFilters"),
-          selectedLabel: (count) => t("common.selectedRows", { count }),
-          options: accountOptions,
+          options: [
+            { value: "all", label: t("transactions.allAccounts") },
+            ...accountOptions,
+          ],
         },
         {
           columnId: "type",
           placeholder: t("common.type"),
-          variant: "faceted",
           clearLabel: t("transactions.resetFilters"),
-          selectedLabel: (count) => t("common.selectedRows", { count }),
           options: [
-            { value: "INCOME", label: t("common.income") },
-            { value: "EXPENSE", label: t("common.expense") },
+            { value: "all", label: t("transactions.allTypes") },
+            { value: CATEGORY_TYPES.INCOME, label: t("common.income") },
+            { value: CATEGORY_TYPES.EXPENSE, label: t("common.expense") },
           ],
         },
         {
           columnId: "categoryId",
           placeholder: t("common.category"),
-          variant: "faceted",
           clearLabel: t("transactions.resetFilters"),
-          selectedLabel: (count) => t("common.selectedRows", { count }),
-          options: categoryOptions,
+          options: [
+            { value: "all", label: t("transactions.allCategories") },
+            ...categoryOptions,
+          ],
         },
       ]}
     />

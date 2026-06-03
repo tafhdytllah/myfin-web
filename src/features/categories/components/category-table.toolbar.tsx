@@ -4,6 +4,7 @@ import { Table } from "@tanstack/react-table";
 
 import { DataTableToolbar } from "@/components/data-table/toolbar";
 import { useTranslations } from "@/lib/i18n/use-translations";
+import { CATEGORY_TYPES } from "@/features/categories/types/category.types";
 
 type CategoryTableToolbarProps<TData> = {
   table: Table<TData>;
@@ -29,8 +30,8 @@ export function CategoryTableToolbar<TData>({
           placeholder: t("common.type"),
           options: [
             { value: "all", label: t("categories.typeAll") },
-            { value: "INCOME", label: t("common.income") },
-            { value: "EXPENSE", label: t("common.expense") },
+            { value: CATEGORY_TYPES.INCOME, label: t("common.income") },
+            { value: CATEGORY_TYPES.EXPENSE, label: t("common.expense") },
           ],
         },
         {

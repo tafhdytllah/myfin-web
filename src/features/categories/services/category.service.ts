@@ -22,11 +22,11 @@ export const categoryService = {
 
   async getCategories(accessToken: string, filters: CategoryListFilters) {
     const response = await categoryApi.getCategories(accessToken, filters);
-    
+
     return {
       items: response.data,
-      meta: response.meta
-    } 
+      meta: response.meta,
+    }
   },
 
   getCategory(accessToken: string, id: string) {

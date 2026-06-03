@@ -9,89 +9,115 @@ import { TransactionFormDialog } from "@/features/transactions/components/transa
 import { TransactionMainSection } from "@/features/transactions/components/transaction-main.section";
 import { useDeleteTransaction } from "@/features/transactions/hooks/use-transaction-mutations";
 import {
-  useEditTransactionUnavailable,
   useTransactions,
 } from "@/features/transactions/hooks/use-transaction-queries";
-import { Transaction } from "@/features/transactions/types/transaction.types";
+import { Transaction, TransactionListFilters } from "@/features/transactions/types/transaction.types";
 import {
   buildTransactionSearchParams,
   parseTransactionFilters,
 } from "@/features/transactions/utils/transaction-search-params";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { formatCurrency } from "@/lib/formatters/currency";
 import { formatDate } from "@/lib/formatters/date";
 import { useTranslations } from "@/lib/i18n/use-translations";
 import { useLocaleStore } from "@/stores/locale-store";
 import {
-  ColumnFiltersState,
   PaginationState,
 } from "@tanstack/react-table";
+import { Plus } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { SetStateAction, useCallback, useMemo, useState } from "react";
+import { SetStateAction, useCallback, useEffect, useMemo, useState } from "react";
 
 export function TransactionPage() {
   const { t } = useTranslations();
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
+
   const locale = useLocaleStore((state) => state.locale);
 
-  const [deletingTransactionDialog, setDeletingTransactionDialog] = useState<Transaction | null>(null);
+  const dateLocale = locale === "id" ? "id-ID" : "en-US";
 
-  const deleteMutation = useDeleteTransaction(() => {
-    setDeletingTransactionDialog(null);
-  });
+  const router = useRouter();
 
-  const notifyEditUnavailable = useEditTransactionUnavailable();
+  const pathname = usePathname();
+
+  const searchParams = useSearchParams();
+
   const filters = useMemo(
     () => parseTransactionFilters(new URLSearchParams(searchParams.toString())),
     [searchParams],
   );
+
   const [formOpen, setFormOpen] = useState(false);
 
-  const accountsQuery = useAccounts({ status: "all" });
-  const categoriesQuery = useCategories({ status: "all", type: "all" });
-  const transactionsQuery = useTransactions(filters);
+  const [keyword, setKeyword] = useState(filters.keyword ?? "");
 
-  const accounts = useMemo(() => accountsQuery.data ?? [], [accountsQuery.data]);
-  const categories = useMemo(() => categoriesQuery.data?.items ?? [], [categoriesQuery.data]);
-  const transactionsEnvelope = transactionsQuery.data;
-  const transactions = useMemo(
-    () => transactionsEnvelope?.data ?? [],
-    [transactionsEnvelope?.data],
+  const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
+
+  const [deleteDialogTransaction, setDeleteDialogTransaction] = useState<Transaction | null>(null);
+
+  const debouncedKeyword = useDebouncedValue(keyword);
+
+  const queryFilters = useMemo(
+    () => ({
+      ...filters,
+      keyword: debouncedKeyword,
+    }),
+    [debouncedKeyword, filters],
   );
 
-  const accountsMap = useMemo(
-    () => new Map(accounts.map((account) => [account.id, account])),
+  const deleteMutation = useDeleteTransaction(() => {
+    setDeleteDialogTransaction(null)
+  });
+
+  const accountsQuery = useAccounts({ status: "all" });
+
+  const categoriesQuery = useCategories({
+    status: "all",
+    type: "all",
+    page: 1,
+    size: 100
+  });
+
+  const transactionsQuery = useTransactions(queryFilters);
+
+  const accounts = useMemo(() =>
+    accountsQuery.data ?? [],
+    [accountsQuery.data]
+  );
+
+  const categories = useMemo(() =>
+    categoriesQuery.data?.items ?? [],
+    [categoriesQuery.data]
+  );
+
+  const transactionsRaw1 = useMemo(() =>
+    transactionsQuery.data?.items ?? [],
+    [transactionsQuery.data]
+  );
+
+  const accountRows = useMemo(
+    () => new Map(accounts.map((item) => [item.id, item])),
     [accounts],
   );
-  const categoriesMap = useMemo(
-    () => new Map(categories.map((category) => [category.id, category])),
+
+  const categoryRows = useMemo(
+    () => new Map(categories.map((item) => [item.id, item])),
     [categories],
   );
 
-  const rows = useMemo(
+  const transactionRows = useMemo(
     () =>
-      transactions.map((transaction) => ({
-        ...transaction,
-        accountName:
-          accountsMap.get(transaction.accountId)?.name ?? t("common.account"),
-        categoryName:
-          categoriesMap.get(transaction.categoryId)?.name ?? t("common.category"),
+      transactionsRaw1.map((item) => ({
+        ...item,
+        accountName: accountRows.get(item.accountId)?.name ?? t("common.account"),
+        categoryName: categoryRows.get(item.categoryId)?.name ?? t("common.category"),
       })),
-    [accountsMap, categoriesMap, t, transactions],
+    [accountRows, categoryRows, t, transactionsRaw1],
   );
-  const totalRows = transactionsEnvelope?.meta?.totalElements ?? rows.length;
-  const dateLocale = locale === "id" ? "id-ID" : "en-US";
-  const hasActiveFilters = Boolean(
-    filters.keyword ||
-    filters.accountId ||
-    filters.type !== "all" ||
-    filters.categoryId ||
-    filters.startDate ||
-    filters.endDate,
-  );
+
+  const totalRowTransactions = transactionsQuery.data?.meta?.totalElements ?? transactionRows.length;
+
   const modalTrail = useMemo(() => {
-    if (deletingTransactionDialog) {
+    if (deleteDialogTransaction) {
       return t("common.delete");
     }
 
@@ -99,52 +125,50 @@ export function TransactionPage() {
       return t("common.create");
     }
 
+    if (editingTransaction) {
+      return t("common.edit");
+    }
+
     return null;
-  }, [deletingTransactionDialog, formOpen, t]);
+  }, [editingTransaction, deleteDialogTransaction, formOpen, t]);
 
   usePageTrail([modalTrail]);
 
-  const updateFilters = useCallback((nextFilters: typeof filters) => {
+  const updateFilters = useCallback((nextFilters: TransactionListFilters) => {
     const params = buildTransactionSearchParams(nextFilters);
     const query = params.toString();
 
     router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
   }, [pathname, router]);
 
-  function resetFilters() {
+  useEffect(() => {
+    if (debouncedKeyword === (filters.keyword ?? "")) {
+      return;
+    }
+
     updateFilters({
-      keyword: "",
-      accountId: "",
-      type: "all",
-      categoryId: "",
-      startDate: "",
-      endDate: "",
-      page: 1,
-      size: filters.size,
+      ...filters,
+      keyword: debouncedKeyword,
+    });
+  }, [debouncedKeyword, filters, updateFilters]);
+
+  function handleFiltersChange(nextFilters: TransactionListFilters) {
+    setKeyword(nextFilters.keyword ?? "");
+
+    if (nextFilters.type === filters.type
+      && nextFilters.accountId === filters.accountId
+      && nextFilters.categoryId === filters.categoryId
+      && nextFilters.startDate === filters.startDate
+      && nextFilters.endDate === filters.endDate
+    ) {
+      return;
+    }
+
+    updateFilters({
+      ...nextFilters,
+      keyword: filters.keyword ?? "",
     });
   }
-
-  const columnFilters = useMemo<ColumnFiltersState>(() => {
-    const nextFilters: ColumnFiltersState = [];
-
-    if (filters.keyword) {
-      nextFilters.push({ id: "search", value: filters.keyword });
-    }
-
-    if (filters.accountId) {
-      nextFilters.push({ id: "accountId", value: [filters.accountId] });
-    }
-
-    if (filters.type && filters.type !== "all") {
-      nextFilters.push({ id: "type", value: [filters.type] });
-    }
-
-    if (filters.categoryId) {
-      nextFilters.push({ id: "categoryId", value: [filters.categoryId] });
-    }
-
-    return nextFilters;
-  }, [filters.accountId, filters.categoryId, filters.keyword, filters.type]);
 
   const paginationState = useMemo<PaginationState>(
     () => ({
@@ -152,33 +176,6 @@ export function TransactionPage() {
       pageSize: filters.size,
     }),
     [filters.page, filters.size],
-  );
-
-  const handleColumnFiltersChange = useCallback(
-    (updater: SetStateAction<ColumnFiltersState>) => {
-      const nextColumnFilters =
-        typeof updater === "function" ? updater(columnFilters) : updater;
-      const getFilterValue = (id: string) =>
-        nextColumnFilters.find((filter) => filter.id === id)?.value;
-      const firstValue = (value: unknown) => {
-        if (Array.isArray(value)) {
-          return value[0] ? String(value[0]) : "";
-        }
-
-        return value ? String(value) : "";
-      };
-      const nextType = firstValue(getFilterValue("type"));
-
-      updateFilters({
-        ...filters,
-        keyword: firstValue(getFilterValue("search")),
-        accountId: firstValue(getFilterValue("accountId")),
-        type: nextType === "INCOME" || nextType === "EXPENSE" ? nextType : "all",
-        categoryId: firstValue(getFilterValue("categoryId")),
-        page: 1,
-      });
-    },
-    [columnFilters, filters, updateFilters],
   );
 
   const handlePaginationChange = useCallback(
@@ -195,66 +192,59 @@ export function TransactionPage() {
     [filters, paginationState, updateFilters],
   );
 
-  const categoryOptions = useMemo(
-    () =>
-      categories
-        .filter(
-          (category) =>
-            filters.type === "all" || !filters.type || category.type === filters.type,
-        )
-        .map((category) => ({
-          value: category.id,
-          label: category.name,
-        })),
-    [categories, filters.type],
-  );
+
+  function openCreateDialog() {
+    setEditingTransaction(null);
+    setFormOpen(true);
+  }
+
+  function openEditDialog(item: Transaction) {
+    setFormOpen(false);
+    setEditingTransaction(item);
+  }
 
   return (
     <div className="space-y-6">
       <TransactionMainSection
-        loading={transactionsQuery.isLoading}
+        accounts={accounts}
+        categories={categories}
+        items={transactionRows}
+        totalRows={totalRowTransactions}
+        isLoading={transactionsQuery.isLoading}
         isError={transactionsQuery.isError}
-        rows={rows}
+        filters={{ ...filters, keyword }}
+        onFiltersChange={handleFiltersChange}
         onRetry={() => transactionsQuery.refetch()}
-        onEmptyAction={() => setFormOpen(true)}
-        hasActiveFilters={hasActiveFilters}
-        onResetFilters={resetFilters}
-        formatDate={(value) => formatDate(value, dateLocale)}
-        formatCurrency={formatCurrency}
-        totalRows={totalRows}
         paginationState={paginationState}
         onPaginationChange={handlePaginationChange}
-        columnFilters={columnFilters}
-        onColumnFiltersChange={handleColumnFiltersChange}
-        onEdit={notifyEditUnavailable}
-        onDelete={setDeletingTransactionDialog}
-        accountOptions={accounts.map((account) => ({
-          value: account.id,
-          label: account.name,
-        }))}
-        categoryOptions={categoryOptions}
+        onEdit={openEditDialog}
+        onDelete={setDeleteDialogTransaction}
         action={
-          <PageActionButton onClick={() => setFormOpen(true)}>
+          <PageActionButton onClick={openCreateDialog}>
+            <Plus className="size-4" />
             {t("transactions.addTransaction")}
           </PageActionButton>
         }
+        formatDate={(value) => formatDate(value, dateLocale)}
+        formatCurrency={formatCurrency}
       />
 
-      <div className="sr-only">
-        <h1>{t("transactions.title")}</h1>
-        <p>{t("transactions.description")}</p>
-      </div>
-
       <TransactionFormDialog
-        open={formOpen}
-        onOpenChange={setFormOpen}
+        transaction={editingTransaction}
+        open={formOpen || Boolean(editingTransaction)}
+        onOpenChange={(open) => {
+          if (!open) {
+            setFormOpen(false);
+            setEditingTransaction(null);
+          }
+        }}
       />
 
       <ConfirmActionDialog
-        open={Boolean(deletingTransactionDialog)}
+        open={Boolean(deleteDialogTransaction)}
         onOpenChange={(open) => {
           if (!open) {
-            setDeletingTransactionDialog(null);
+            setDeleteDialogTransaction(null);
           }
         }}
         pending={deleteMutation.isPending}
@@ -264,31 +254,31 @@ export function TransactionPage() {
         confirmLabel={t("transactions.delete")}
         pendingLabel={t("transactions.deleting")}
         details={
-          deletingTransactionDialog ? (
+          deleteDialogTransaction ? (
             <div className="rounded-2xl border border-border bg-muted/30 p-4 text-sm">
               <p className="font-medium">
-                {categoriesMap.get(deletingTransactionDialog.categoryId)?.name ??
+                {categoryRows.get(deleteDialogTransaction.categoryId)?.name ??
                   t("common.category")}
                 {" - "}
-                {formatCurrency(deletingTransactionDialog.amount)}
+                {formatCurrency(deleteDialogTransaction.amount)}
               </p>
 
               <p className="mt-1 text-muted-foreground">
                 {formatDate(
-                  deletingTransactionDialog.createdAt,
+                  deleteDialogTransaction.createdAt,
                   dateLocale,
                 )}
               </p>
             </div>
           ) : null
         }
-        onConfirm={() => {
-          if (!deletingTransactionDialog) {
-            return Promise.resolve();
+        onConfirm={async () => {
+          if (!deleteDialogTransaction) {
+            return;
           }
 
-          return deleteMutation.mutate(
-            deletingTransactionDialog!.id,
+          return deleteMutation.mutateAsync(
+            deleteDialogTransaction!.id,
           );
         }}
       />

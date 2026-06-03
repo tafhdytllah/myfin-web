@@ -1,16 +1,18 @@
-import { ColumnDef } from "@tanstack/react-table";
-import { PencilLine, Trash2 } from "lucide-react";
+import { sortableHeader } from "@/components/data-table/sortable-header";
+import { includesFilterValue } from "@/components/data-table/table-filter-utils";
 import { RowActionsMenu } from "@/components/row-actions-menu";
 import { StatusBadge } from "@/components/status-badge";
 import { Checkbox } from "@/components/ui/checkbox";
+import { CATEGORY_TYPES, CategoryType } from "@/features/categories/types/category.types";
 import { useTranslations } from "@/lib/i18n/use-translations";
+import { ColumnDef } from "@tanstack/react-table";
+import { PencilLine, Trash2 } from "lucide-react";
 import { useMemo } from "react";
-import { sortableHeader } from "@/components/data-table/sortable-header";
 
-type TransactionRow = {
+export type TransactionTableRow = {
   id: string;
   createdAt: string;
-  type: "INCOME" | "EXPENSE";
+  type: CategoryType;
   accountId: string;
   categoryId: string;
   accountName: string;
@@ -22,28 +24,16 @@ type TransactionRow = {
 type UseTransactionTableColumnsOptions = {
   formatCurrency: (value: number) => string;
   formatDate: (value: string) => string;
-  onEdit: (row: TransactionRow) => void;
-  onDelete: (row: TransactionRow) => void;
+  onEdit: (row: TransactionTableRow) => void;
+  onDelete: (row: TransactionTableRow) => void;
 };
-
-function includesFilterValue(rowValue: unknown, filterValue: unknown) {
-  if (!filterValue || filterValue === "all") {
-    return true;
-  }
-
-  if (Array.isArray(filterValue)) {
-    return filterValue.length === 0 || filterValue.includes(rowValue);
-  }
-
-  return rowValue === filterValue;
-}
 
 export function useTransactionTableColumns({
   formatCurrency,
   formatDate,
   onEdit,
   onDelete,
-}: UseTransactionTableColumnsOptions): ColumnDef<TransactionRow>[] {
+}: UseTransactionTableColumnsOptions): ColumnDef<TransactionTableRow>[] {
   const { t } = useTranslations();
 
   return useMemo(() => {
@@ -54,32 +44,6 @@ export function useTransactionTableColumns({
     };
 
     return [
-      {
-        id: "search",
-        accessorFn: (row) =>
-          [
-            row.description,
-            row.accountName,
-            row.categoryName,
-            row.type === "INCOME" ? t("common.income") : t("common.expense"),
-            formatDate(row.createdAt),
-            formatCurrency(row.amount),
-          ].join(" "),
-        enableHiding: false,
-        enableSorting: false,
-        filterFn: (row, id, value) => {
-          const searchValue = String(value ?? "").trim().toLowerCase();
-
-          if (!searchValue) {
-            return true;
-          }
-
-          return String(row.getValue(id)).toLowerCase().includes(searchValue);
-        },
-        meta: {
-          label: t("common.description"),
-        },
-      },
       {
         id: "select",
         header: ({ table }) => (
@@ -95,7 +59,7 @@ export function useTransactionTableColumns({
         cell: ({ row }) => (
           <Checkbox
             checked={row.getIsSelected()}
-            aria-label={t("common.selectTransactionRow", { date: formatDate(row.original.createdAt) })}
+            aria-label={t("common.selectTransactionRow", { description: row.original.description })}
             onCheckedChange={(value) => row.toggleSelected(!!value)}
           />
         ),
@@ -112,7 +76,7 @@ export function useTransactionTableColumns({
           title: t("common.date"),
           ...commonHeaderLabels,
         }),
-        cell: ({ row }) => formatDate(row.original.createdAt),
+        cell: ({ row }) => <div className="font-light">{formatDate(row.original.createdAt)}</div>,
       },
       {
         accessorKey: "type",
@@ -124,8 +88,8 @@ export function useTransactionTableColumns({
           ...commonHeaderLabels,
         }),
         cell: ({ row }) => (
-          <StatusBadge tone={row.original.type === "INCOME" ? "income" : "expense"}>
-            {row.original.type === "INCOME" ? t("common.income") : t("common.expense")}
+          <StatusBadge tone={row.original.type === CATEGORY_TYPES.INCOME ? "income" : "expense"}>
+            {row.original.type === CATEGORY_TYPES.INCOME ? t("common.income") : t("common.expense")}
           </StatusBadge>
         ),
         filterFn: (row, id, value) => includesFilterValue(row.getValue(id), value),
@@ -139,7 +103,7 @@ export function useTransactionTableColumns({
           title: t("common.account"),
           ...commonHeaderLabels,
         }),
-        cell: ({ row }) => row.original.accountName,
+        cell: ({ row }) => <div className="font-light">{row.original.accountName}</div>,
         filterFn: (row, id, value) => includesFilterValue(row.getValue(id), value),
       },
       {
@@ -151,7 +115,7 @@ export function useTransactionTableColumns({
           title: t("common.category"),
           ...commonHeaderLabels,
         }),
-        cell: ({ row }) => row.original.categoryName,
+        cell: ({ row }) => <div className="font-light">{row.original.categoryName}</div>,
         filterFn: (row, id, value) => includesFilterValue(row.getValue(id), value),
       },
       {
@@ -163,11 +127,7 @@ export function useTransactionTableColumns({
           title: t("common.description"),
           ...commonHeaderLabels,
         }),
-        cell: ({ row }) => (
-          <div className="max-w-xs truncate text-(--color-foreground-muted)">
-            {row.original.description || "-"}
-          </div>
-        ),
+        cell: ({ row }) => <div className="font-light">{row.original.description || "-"}</div>,
       },
       {
         accessorKey: "amount",
@@ -178,15 +138,13 @@ export function useTransactionTableColumns({
           title: t("common.amount"),
           ...commonHeaderLabels,
         }),
-        cell: ({ row }) => (
-          <span className="font-semibold">{formatCurrency(row.original.amount)}</span>
-        ),
+        cell: ({ row }) => <span className="font-light">{formatCurrency(row.original.amount)}</span>,
       },
       {
         id: "actions",
         enableHiding: false,
         enableSorting: false,
-        header: () => <div className="text-right">{t("common.actions")}</div>,
+        header: () => <div className="text-left">{t("common.actions")}</div>,
         cell: ({ row }) => (
           <RowActionsMenu
             srLabel={t("common.actions")}
@@ -209,6 +167,4 @@ export function useTransactionTableColumns({
     ];
   }, [formatCurrency, formatDate, onDelete, onEdit, t]);
 }
-
-export type { TransactionRow };
 

@@ -42,7 +42,7 @@ export const accountApi = {
   },
 
   async getAccounts(accessToken: string, filters: AccountListFilters): Promise<Account[]> {
-    const response = await apiRequest<ApiResponse<Account[]>>(`/api/v1/accounts${buildAccountQuery(filters)}`, {
+    const response = await apiRequest<ApiResponse<Account[]>>(`/api/v1/accounts?${buildAccountQuery(filters)}`, {
       method: "GET",
       accessToken,
     });
