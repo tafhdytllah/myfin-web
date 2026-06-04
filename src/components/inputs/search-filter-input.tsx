@@ -13,9 +13,10 @@ export function SearchFilterInput({
 }: SearchFilterInputProps) {
   return (
     <Input
+      className="h-9 w-full"
+      placeholder={placeholder}
       value={value}
       onChange={(event) => onValueChange(event.target.value)}
-      placeholder={placeholder}
     />
   );
 }

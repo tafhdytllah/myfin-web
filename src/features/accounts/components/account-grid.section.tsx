@@ -59,7 +59,7 @@ export function AccountGridSection({
     return (
       <EmptySectionCard
         title={t("accounts.emptyTitle")}
-        description={t("accounts.emptyDescription")}
+        description={t("accounts.filterEmptyDescription")}
       />
     );
   }

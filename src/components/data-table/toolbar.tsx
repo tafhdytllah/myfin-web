@@ -1,7 +1,6 @@
 "use client";
 
 import { Table } from "@tanstack/react-table";
-import { X } from "lucide-react";
 
 import {
   DataTableFacetedFilter,
@@ -11,8 +10,8 @@ import {
   DataTableFilterSelect,
 } from "@/components/data-table/filter-select";
 import { DataTableViewOptions } from "@/components/data-table/view-options";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { SearchFilterInput } from "@/components/inputs/search-filter-input";
+import { ResetFiltersButton } from "@/components/reset-filters-button";
 import { cn } from "@/lib/utils";
 
 type DataTableToolbarFilter = {
@@ -67,11 +66,10 @@ export function DataTableToolbar<TData>({
       <div className="grid gap-3 sm:grid-cols-[minmax(0,260px)_auto] sm:items-center">
         <div className="min-w-0">
           {search && searchColumn ? (
-            <Input
+            <SearchFilterInput
               placeholder={search.placeholder}
               value={(searchColumn.getFilterValue() as string | undefined) ?? ""}
-              onChange={(event) => searchColumn.setFilterValue(event.target.value)}
-              className="h-9 w-full"
+              onValueChange={(value) => searchColumn.setFilterValue(value)}
             />
           ) : null}
         </div>
@@ -89,10 +87,7 @@ export function DataTableToolbar<TData>({
             ))}
           <DataTableViewOptions table={table} label={columnsLabel} />
           {canReset ? (
-            <Button variant="outline" size="sm" className="h-8" onClick={resetTable}>
-              <X className="size-4" />
-              {resetLabel}
-            </Button>
+            <ResetFiltersButton label={resetLabel} onClick={resetTable} />
           ) : null}
         </div>
       </div>

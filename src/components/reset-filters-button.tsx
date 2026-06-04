@@ -12,7 +12,7 @@ export function ResetFiltersButton({
   onClick,
 }: ResetFiltersButtonProps) {
   return (
-    <Button variant="outline" className="rounded-full" onClick={onClick}>
+    <Button variant="outline" size="sm" className="h-8" onClick={onClick}>
       <RotateCcw className="size-4" />
       {label}
     </Button>

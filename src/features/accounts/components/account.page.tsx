@@ -8,7 +8,7 @@ import { AccountGridSection } from "@/features/accounts/components/account-grid.
 import { AccountMainSection } from "@/features/accounts/components/account-main.section";
 import { useToggleAccountStatus } from "@/features/accounts/hooks/use-account-mutations";
 import { useAccounts } from "@/features/accounts/hooks/use-account-queries";
-import { Account } from "@/features/accounts/types/account.types";
+import { Account, AccountListFilters } from "@/features/accounts/types/account.types";
 import {
   buildAccountSearchParams,
   parseAccountFilters,
@@ -23,11 +23,9 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 export function AccountPage() {
   const { t } = useTranslations();
 
-  const [formOpen, setFormOpen] = useState(false);
+  const router = useRouter();
 
-  const [editingAccount, setEditingAccount] = useState<Account | null>(null);
-
-  const [statusDialogAccount, setStatusDialogAccount] = useState<Account | null>(null);
+  const pathname = usePathname();
 
   const searchParams = useSearchParams();
 
@@ -36,20 +34,32 @@ export function AccountPage() {
     [searchParams],
   );
 
+  const [formOpen, setFormOpen] = useState(false);
+
   const [keyword, setKeyword] = useState(filters.keyword ?? "");
 
-  const router = useRouter();
+  const [editingAccount, setEditingAccount] = useState<Account | null>(null);
 
-  const pathname = usePathname();
-
-  const accountsQuery = useAccounts(filters);
-
-  const toggleStatusMutation = useToggleAccountStatus();
+  const [statusDialogAccount, setStatusDialogAccount] = useState<Account | null>(null);
 
   const debouncedKeyword = useDebouncedValue(keyword);
 
-  const accounts = useMemo(() =>
-    accountsQuery.data ?? [],
+  const queryFilters = useMemo(
+    () => ({
+      ...filters,
+      keyword: debouncedKeyword,
+    }),
+    [debouncedKeyword, filters],
+  );
+
+  const accountsQuery = useAccounts(queryFilters);
+
+  const toggleStatusMutation = useToggleAccountStatus(() => {
+    setStatusDialogAccount(null);
+  });
+
+  const accounts = useMemo(
+    () => accountsQuery.data ?? [],
     [accountsQuery.data],
   );
 
@@ -84,7 +94,7 @@ export function AccountPage() {
 
   usePageTrail([modalTrail]);
 
-  const updateFilters = useCallback((nextFilters: typeof filters) => {
+  const updateFilters = useCallback((nextFilters: AccountListFilters) => {
     const params = buildAccountSearchParams(nextFilters);
     const query = params.toString();
 
@@ -108,8 +118,8 @@ export function AccountPage() {
   }
 
   function openEditDialog(account: Account) {
-    setEditingAccount(account);
     setFormOpen(true);
+    setEditingAccount(account);
   }
 
   function resetFilters() {
@@ -132,6 +142,7 @@ export function AccountPage() {
         onStatusChange={(value) =>
           updateFilters({
             ...filters,
+            keyword,
             status: value as "all" | "active" | "inactive",
           })
         }
@@ -164,8 +175,13 @@ export function AccountPage() {
 
       <AccountFormDialog
         account={editingAccount}
-        open={formOpen}
-        onOpenChange={setFormOpen}
+        open={formOpen || Boolean(editingAccount)}
+        onOpenChange={(open) => {
+          if (!open) {
+            setFormOpen(false);
+            setEditingAccount(null);
+          }
+        }}
       />
 
       <ConfirmActionDialog
@@ -191,19 +207,12 @@ export function AccountPage() {
             return;
           }
 
-          try {
-            await toggleStatusMutation.mutateAsync({
-              id: statusDialogAccount.id,
-              payload: {
-                active: false,
-              }
-            });
-
-            setStatusDialogAccount(null);
-
-          } catch {
-            setStatusDialogAccount(null);
-          }
+          await toggleStatusMutation.mutateAsync({
+            id: statusDialogAccount.id,
+            payload: {
+              active: false,
+            },
+          });
         }}
       />
     </div>

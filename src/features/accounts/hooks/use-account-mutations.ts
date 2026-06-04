@@ -36,7 +36,7 @@ export function useCreateAccount() {
 
 export function useUpdateAccount() {
   const accessToken = useAuthStore(
-    (state) => state.accessToken
+    (state) => state.accessToken,
   );
   const queryClient = useQueryClient();
   const { t } = useTranslations();
@@ -52,7 +52,7 @@ export function useUpdateAccount() {
       accountService.updateAccount(
         accessToken as string,
         id,
-        payload
+        payload,
       ),
     onSuccess: async () => {
       await queryClient.invalidateQueries({
@@ -63,35 +63,47 @@ export function useUpdateAccount() {
   });
 }
 
-export function useToggleAccountStatus() {
+export function useToggleAccountStatus(
+  onSuccess?: () => void
+) {
+  const { t } = useTranslations();
   const accessToken = useAuthStore(
     (state) => state.accessToken
   );
   const queryClient = useQueryClient();
-  const { t } = useTranslations();
 
   return useMutation({
-    mutationFn: ({
+    mutationFn: async ({
       id,
-      payload
+      payload,
     }: {
       id: string;
       payload: UpdateStatusAccountRequest;
-    }) =>
-      accountService.updateStatusAccount(
-        accessToken as string,
+    }) => {
+      if (!accessToken) {
+        throw new Error("Unauthorized");
+      }
+
+      return await accountService.updateStatusAccount(
+        accessToken,
         id,
-        payload,
-      ),
+        payload
+      );
+    },
     onSuccess: async (_, variables) => {
       await queryClient.invalidateQueries({
         queryKey: accountsKeys.lists(),
       });
+
       toast.success(
         variables.payload.active
           ? t("accounts.activateSuccess")
           : t("accounts.deactivateSuccess"),
       );
+
+      if (onSuccess) {
+        onSuccess();
+      }
     },
   });
 }

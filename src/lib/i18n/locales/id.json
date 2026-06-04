@@ -205,6 +205,7 @@
     "saving": "Menyimpan...",
     "emptyTitle": "Belum ada akun",
     "emptyDescription": "Buat akun pertamamu supaya transaksi dan saldo dashboard punya sumber data yang jelas.",
+    "filterEmptyDescription": "Belum ada akun yang cocok dengan pencarian atau filter status saat ini.",
     "loadErrorTitle": "Gagal memuat akun",
     "loadErrorDescription": "Daftar akun belum bisa dimuat sekarang. Coba lagi sebentar.",
     "retry": "Coba Lagi",
